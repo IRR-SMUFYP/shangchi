@@ -1,5 +1,3 @@
-from cgi import print_directory
-from cv2 import Mat_DEPTH_MASK
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import load_only
@@ -758,7 +756,7 @@ def deleteRow(formName, submissionID):
 
 # endregion
 
-# region CAROUSEL
+# region DONATION
 # get all donation items
 @app.route("/donation")
 def getAllDonationItems():

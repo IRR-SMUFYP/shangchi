@@ -157,7 +157,7 @@
         </div>
 
         <div style="max-width: 1000px; margin: auto;">
-            <form id="requestForm">
+            <form id="requestForm" class="needs-validation" novalidate>
                 <div class="row g-3" id='wishlist'>
                     <div id="contactField" name="contact" class="col-md-6" onchange="populateContact()">
                     </div>
@@ -165,7 +165,7 @@
                 <br>
 
                 <div class="col-12" style='text-align: center; color: #E3A587;'>
-                    <button type="button" onclick="submitForm('wishlist')" class="btn btn-outline-light"
+                    <button type="submit" onclick="return submitForm('wishlist')" class="btn btn-outline-light"
                         style="color:white; background-color: #E3A587;">Submit</button>
                 </div>
             </form>
@@ -261,6 +261,28 @@
 
     <script>
         retrieveForm('wishlist');
+
+        // Example starter JavaScript for disabling form submissions if there are invalid fields
+        (function () {
+            'use strict'
+        
+            // Fetch all the forms we want to apply custom Bootstrap validation styles to
+            var forms = document.querySelectorAll('.needs-validation')
+        
+            // Loop over them and prevent submission
+            Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+        
+                form.classList.add('was-validated')
+                }, false)
+            })
+        })()
+        
         checkLogin();
 
         var user = ""
@@ -274,8 +296,8 @@
                 let confirmMsg = confirm(
                     "Only Migrant Workers who are logged in add items to the Wishlist. Please log in before accessing this page."
                     )
-                if (confirmMsg == true) {
-                    window.location.href = "index.html"
+                if (confirmMsg) {
+                    window.location.href = "login.html"
                 } else {
                     window.location.href = "index.html"
                 }
@@ -290,6 +312,7 @@
                 window.location.reload()
             }
         }
+
     </script>
 
 </body>
