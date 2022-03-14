@@ -22,9 +22,9 @@ function editSpecificRow(form) {
     document.getElementById("edit-section").innerHTML += "<br>" + 
                                                             "<button type='button' id='save-btn' class='btn btn-outline-secondary' onclick='edit" + form + "()'>Save Changes</button>" 
     $("#edit-section").show();
-    $("#carousel").hide();
+    $("#donation").hide();
     if (form == "Inventory") {
-        document.querySelector('[placeholder="donationID"]').setAttribute("onchange", "fillCarouselDetails(this.value)");
+        document.querySelector('[placeholder="donationID"]').setAttribute("onchange", "fillDonationDetails(this.value)");
         document.getElementById("edit-photo").style.display = "none";
     }
     else if (form == "Wishlist") {
@@ -95,11 +95,11 @@ async function retrieveFormAdmin(formName) {
     else if (formName == "successfulMatch") {
         $("#successfulMatch").show();
     }
-    else if (formName == "carousel" || formName == "wishlist") {
+    else if (formName == "donation" || formName == "wishlist") {
         var serviceURL = "http://127.0.0.1:5003/formbuilder/" + formName;
-        if (formName == "carousel") {
+        if (formName == "donation") {
             document.getElementById("edit-photo").style.display = "none";
-            document.getElementById("carousel").style.display = "block";
+            document.getElementById("donation").style.display = "block";
         }
         else if (formName == "wishlist") {
             document.getElementById("wishlist").style.display = "block";
@@ -209,7 +209,7 @@ function addRow(formName) {
     var formData = new FormData()
     for (ele in reqFormElements) {
         // console.log(reqFormElements[ele])
-        if ((["carouselID", "migrantID", "deliveryLocation","donorID", "reqID"]).includes(reqFormElements[ele].id)) {
+        if ((["donationID", "migrantID", "deliveryLocation","donorID", "reqID"]).includes(reqFormElements[ele].id)) {
             if (reqFormElements[ele].value == "") {
                 alert("Please do not leave any blanks.");
                 return "error";
@@ -252,8 +252,8 @@ function addRow(formName) {
 
 function deleteRow(formName) {
     document.getElementById(formName).style.display = "none";
-    if (formName == "carousel") {
-        id = "carouselID"
+    if (formName == "donation") {
+        id = "donationID"
     }
     else if (formName == "wishlist") {
         id = "wishlistID"
@@ -283,8 +283,8 @@ function confirmDeleteRow(id) {
         if (id == "wishlistID") {
             formName = "wishlist";
         }
-        else if (id == "carouselID") {
-            formName = "carousel";
+        else if (id == "donationID") {
+            formName = "donation";
         }
         if (id == "reqID") {
             var serviceURL = "http://127.0.0.1:5003/deleteRequest/" + val;
@@ -308,8 +308,11 @@ function confirmDeleteRow(id) {
                 alert("The data has been deleted successfully.")
                 window.location.reload();
             }
-            if (response.status == 404) {
+            else if (response.status == 404) {
                 alert('There is no such row in the database, please enter a valid ID.')
+            }
+            else {
+                alert(`There is a problem deleting the data. Please ensure that the item you are deleting is not tagged to any requests, matches and delivery data. If it is, please delete those data in the respective tables first.`);
             }
         }
         catch (error) {
