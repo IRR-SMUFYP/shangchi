@@ -115,6 +115,22 @@
                 <hr>
                 <br>
                 <div id="edit-section" style="display: none"></div>
+                <form id="request" style="display: none">
+                    Please go to the 'Inventory' page to find the corresponding donationID for the item.
+                    <div class="col-md-6">
+                        <label for="donationID" class="form-label">donationID</label>
+                        <input required type="text" class="form-control" id="donationID" name="id" placeholder="donationID">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="migrantID" class="form-label">migrantID</label>
+                        <input required type="text" class="form-control" id="migrantID" name="contact" placeholder="migrantID">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="deliveryLocation" class="form-label">deliveryLocation</label>
+                        <input required type="text" class="form-control" id="deliveryLocation" name="destination" placeholder="deliveryLocation">
+                    </div>
+                    <button type="button" id="add-row" href="#" class="mt-2 btn btn-outline-secondary" onclick="addRow('request')">Add New Row</button>
+                </form>
             </div>
         </section>
 
@@ -186,7 +202,7 @@
                         if (response.status == 200) {
                             // success case
                             for (var i in result.data) {
-                                if (["deliveryLocation", "donorID", "itemStatus", "requestQty", "migrantID", "carouselID"]
+                                if (["deliveryLocation", "donorID", "itemStatus", "requestQty", "migrantID", "donationID"]
                                     .includes(i)) {
                                     for (id in result.columnHeaders) {
                                         if (result.columnHeaders[id] == i) {
