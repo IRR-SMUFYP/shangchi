@@ -158,7 +158,7 @@
         </div>
 
         <div style="max-width: 1000px; margin: auto;">
-            <form id="donateForm" enctype="multipart/form-data">
+            <form id="donateForm" enctype="multipart/form-data" class="needs-validation" novalidate>
                 <div class="row g-3" id='donation'>
                     <div id="contactField" class="col-md-6">
                     </div>
@@ -166,7 +166,7 @@
                 <br>
 
                 <div class="col-12" style='text-align: center; color: #E3A587;'>
-                    <button type="button" onclick="submitForm('donation')" class="btn btn-outline-light"
+                    <button type="submit" onclick="return submitForm('donation')" class="btn btn-outline-light"
                         style="color:white; background-color: #E3A587;">Submit</button>
                 </div>
             </form>
@@ -262,6 +262,27 @@
 
     <script>
         retrieveForm('donation');
+
+        // Example starter JavaScript for disabling form submissions if there are invalid fields
+        (function () {
+            'use strict'
+        
+            // Fetch all the forms we want to apply custom Bootstrap validation styles to
+            var forms = document.querySelectorAll('.needs-validation')
+        
+            // Loop over them and prevent submission
+            Array.prototype.slice.call(forms)
+            .forEach(function (form) {
+                form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+        
+                form.classList.add('was-validated')
+                }, false)
+            })
+        })()
 
         // can move to a common folder if every page uses?
         function loginLogout() {
