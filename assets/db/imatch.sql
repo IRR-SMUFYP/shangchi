@@ -109,12 +109,11 @@ CREATE TABLE IF NOT EXISTS `matches` (
   `matchDate` datetime NOT NULL,
   PRIMARY KEY (`matchID`),
   FOREIGN KEY fk_1 (`reqID`) references request (`reqID`),
-  FOREIGN KEY fk_2 (`migrantID`) references user (`username`)
+  FOREIGN KEY fk_2 (`migrantID`) references user (`username`) 
 ) ;
 
+
 -- INSERT values
-
-
 INSERT INTO user (`username`, `password`, `usertype`) VALUES 
 (12345678, 'test1', 'worker'),
 (93261073, '$2b$12$hPh2gudOwUvmBs18PBa.deDRGOLiiDXuSkCV5qkA056I/n97blTJG', 'master');
@@ -139,7 +138,7 @@ INSERT INTO formbuilder (`formName`, `fieldName`, `fieldType`, `placeholder`) VA
 INSERT INTO formbuilder (`formName`, `fieldName`, `fieldType`) VALUES
 ('donation', 'Quantity', 'number');
 INSERT INTO formbuilder (`formName`, `fieldName`, `fieldType`, `options`) VALUES
-('donation', 'Delivery Method', 'dropdown', 'Delivery required;Arranged by donor');
+('donation', 'Delivery Method', 'dropdown', 'Delivery required;Arranged by donor;Self Pickup');
 INSERT INTO formbuilder (`formName`, `fieldName`, `fieldType`) VALUES
 ('wishlist', 'Quantity', 'number');
 

@@ -1247,13 +1247,17 @@ def deleteMatch(matchID):
         ), 500
 
 # rank migrant workers according to reqHistory, get list of MWs who are prioritised
-@app.route("/getRankByReqHistory/<donationID>")
+@app.route("/getRankByReqHistory/<string:donationID>")
 def getRankByReqHistory(donationID):
+    # print(donationID)
     requests = Request.query.filter_by(donationID=donationID)
     if requests:
         reqHist = {}
         for req in requests:
+            # reqJson = req.json()
+            # print(req.migrantID)
             migrantWorkerCount = Matches.query.filter_by(migrantID=req.migrantID).count()
+            # print(Matches.query.filter_by(migrantID=reqJson.migrantID).count())
             if migrantWorkerCount in reqHist.keys():
                 reqHist[migrantWorkerCount] += [req.migrantID]
             else:
@@ -1262,25 +1266,27 @@ def getRankByReqHistory(donationID):
         minValue = min(allKeys, default="EMPTY")
         priorityMW = reqHist[minValue]
         mwPoints = {}
-        
+        print(priorityMW)
         # check whether item requires delivery
-        deliveryFieldID = FormBuilder.query.filter_by(fieldName="Delivery Method").first()
+        deliveryFieldID = FormBuilder.query.filter_by(fieldName="Delivery Method").first().fieldID
         deliveryOption = FormAnswers.query.filter_by(submissionID=donationID).filter_by(fieldID=deliveryFieldID).first()
+        deliveryMWOption = Request.query.filter_by(deliveryLocation="Self Pickup").filter_by()
         if deliveryOption == "Self Pickup":
             for mw in priorityMW:
                 mwPoints[mw] = 0
+            print(mwPoints)
         else:
-            if deliveryMWOption == "Self Pickup":
-                for mw in priorityMW:
-                    deliveryMWOption = Request.query.filter_by(donationID=donationID).filter_by(migrantID=mw).first()
+            for mw in priorityMW:
+                deliveryMWOption = Request.query.filter_by(donationID=donationID).filter_by(migrantID=mw).first()
+                if deliveryMWOption == "Self Pickup":
                     mwPoints[mw] = 0
-            
+            print(mwPoints)
             # if donor did not choose self pick-up & no mw chose self pick-up, put all mw priority as 0
-            if len(mwPoints[0]) == 0:
+            if len(mwPoints) == 0:
                 for mw in priorityMW:
                     deliveryMWOption = Request.query.filter_by(donationID=donationID).filter_by(migrantID=mw).first()
                     mwPoints[mw] = 0
-                            
+                
             # find migrant worker(s) w shortest distance
             mwDist = {}
             for mw, points in mwPoints.items():
