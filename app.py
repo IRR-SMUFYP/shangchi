@@ -1341,13 +1341,14 @@ def getRankByReqHistory(donationID):
         # mwPoints dict to minus the points they currently have
         
         # CRITERIA 4: HOW LONG SINCE THEIR LAST MATCH
-        # i only wrote down the logic... the code below doesn't work yet HAHAHA
         timeNow = datetime.now()
         for mwNum, points in mwPoints.items():
             mw = Matches.query.filter_by(migrantID=mwNum).first()
             if mw is not None:
                 lastItemTime = mw.matchDate
-                days = timeNow - lastItemTime # convert difference into no. of days
+                print(lastItemTime, timeNow)
+                days = (timeNow - lastItemTime).days # convert difference into no. of days
+                print(days)
                 if 0 <= days < 14:
                     mwPoints[mwNum] += 6
                 elif 14 <= days < 28:
