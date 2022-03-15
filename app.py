@@ -1252,30 +1252,43 @@ def getRankByReqHistory(donationID):
     # print(donationID)
     requests = Request.query.filter_by(donationID=donationID)
     if requests:
+        # CRITERIA 1: NO. OF MATCHES
+        #  reqHist keys is migrantID, values is count
         reqHist = {}
         for req in requests:
             # reqJson = req.json()
             # print(req.migrantID)
+            # count the no. of times the migrant worker gotten a match
             migrantWorkerCount = Matches.query.filter_by(migrantID=req.migrantID).count()
             # print(Matches.query.filter_by(migrantID=reqJson.migrantID).count())
+            # if migrantworker alr in the dict, count will increase by 1
             if migrantWorkerCount in reqHist.keys():
                 reqHist[migrantWorkerCount] += [req.migrantID]
+            # create migrantID as a new key in the dict
             else:
                 reqHist[migrantWorkerCount] = [req.migrantID]
+        # all the migrantIDs
         allKeys = reqHist.keys()
+        # get min. (smallest) no. of match count
         minValue = min(allKeys, default="EMPTY")
+        # get list of migrantID(s) with the least match count
         priorityMW = reqHist[minValue]
+        # new dictionary to calc migrant worker points
         mwPoints = {}
         print(priorityMW)
+
+        # CRITERIA 2: WHETHER DONOR/MIGRANT WORKER CHOSE SELF PICKUP
         # check whether item requires delivery
         deliveryFieldID = FormBuilder.query.filter_by(fieldName="Delivery Method").first().fieldID
         deliveryOption = FormAnswers.query.filter_by(submissionID=donationID).filter_by(fieldID=deliveryFieldID).first()
         deliveryMWOption = Request.query.filter_by(deliveryLocation="Self Pickup").filter_by()
+        # check whether donor opt for self pickup
         if deliveryOption == "Self Pickup":
             for mw in priorityMW:
                 mwPoints[mw] = 0
             print(mwPoints)
         else:
+            # check whether migrant worker opt for self pickup (but donor opt for delivery/arranged by donor)
             for mw in priorityMW:
                 deliveryMWOption = Request.query.filter_by(donationID=donationID).filter_by(migrantID=mw).first()
                 if deliveryMWOption == "Self Pickup":
@@ -1287,7 +1300,7 @@ def getRankByReqHistory(donationID):
                     deliveryMWOption = Request.query.filter_by(donationID=donationID).filter_by(migrantID=mw).first()
                     mwPoints[mw] = 0
                 
-            # find migrant worker(s) w shortest distance
+            # CRITERIA 3: FIND MIGRANT WORKER WITH THE SHORTEST DISTANCE
             mwDist = {}
             for mw, points in mwPoints.items():
                 mwLoc = Request.query.filter_by(donationID=donationID).filter_by(migrantID=mw).first().deliveryLocation # 510425
@@ -1311,6 +1324,7 @@ def getRankByReqHistory(donationID):
                     mwPlace_id = "ChIJJQC1na492jERsng9ndkThiM"
                 distanceAPI = "https://maps.googleapis.com/maps/api/distancematrix/json?destinations=place_id:" + donorPlace_id + "&origins=place_id:" + mwPlace_id + "&key=" + apikey
                 req = request.get(distanceAPI)
+                # value is the distance in meters
                 distance = req.rows.elements.distance.value
                 mwDist[distance] = mw
                 if distance < 3000:
@@ -1323,11 +1337,14 @@ def getRankByReqHistory(donationID):
                     points += 4
                 else:
                     points += 5
+            # least no. of points = shortest distance
             shortestDist = min(list(mwDist.keys()))
+            # finding nearest migrant worker using mwDist dict
             nearestMW = mwDist[shortestDist]
+            # mwPoints dict to minus the points they currently have
             mwPoints[nearestMW] -= 1
         
-        # check for the list of MWs, how long since each of them have gotten an item
+        # CRITERIA 4: HOW LONG SINCE THEIR LAST MATCH
         # i only wrote down the logic... the code below doesn't work yet HAHAHA
         timeNow = datetime.now()
         for mwNum, points in mwPoints:
@@ -1342,13 +1359,17 @@ def getRankByReqHistory(donationID):
                 mwPoints[mwNum] += 2
             elif 42 <= days < 56:
                 mwPoints[mwNum] += 1
+        # get min. no. of points
         minPoints = min(list(mwPoints.values()))
         finalMWs = []
+        # get list of migrant workers that has the min. no. of points
         for mw, points in mwPoints.items():
             if points == minPoints:
                 finalMWs.append(mw)
+        # if only 1 migrant worker at the end, return this migrant worker
         if len(finalMWs) == 1:
             finalMW = finalMWs[0]
+        # else, get a random migrant worker from the list
         else:
             randomInt = random.randint(1, len(finalMWs))
             finalMW = finalMWs[randomInt]

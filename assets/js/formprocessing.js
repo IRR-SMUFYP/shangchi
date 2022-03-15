@@ -29,6 +29,11 @@ function submitForm(formName) {
             }
         }
         else if (eleType == "file") {
+            if (formElements[ele].files.length == 0) {
+                var label = $(`label[for=${eleId}]`).text();
+                alert(`Please input ${label}!`)
+                return false;
+            }
             formData.append(eleId, formElements[ele].files[0].name);
             formData.append("file" + eleId, formElements[ele].files[0]);
         }
@@ -37,10 +42,9 @@ function submitForm(formName) {
         }
     }
 
-    addDonation(formData, 'http://127.0.0.1:5003/formanswers')
-    alert("Item has been posted successfully")
-    // error msg pls add
-    window.location = window.location;
+    addDonation(formData, 'http://127.0.0.1:5003/formanswers').then(function checkRes(result){
+        alert(result)
+    })
 }
 
 // POST request:
@@ -48,17 +52,35 @@ async function addDonation(data, url) {
     // Default options are marked with *
     // console.log(data)
 
-    const response = await fetch(url, {
-    method: 'POST', // *GET, POST, PUT, DELETE, etc.
-    mode: 'no-cors', // no-cors, *cors, same-origin
-    cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
-    credentials: 'same-origin', // include, *same-origin, omit
-    redirect: 'follow', // manual, *follow, error
-    referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
-    body: data // body data type must match "Content-Type" header
-    });
-    
-    console.log(response.message)
+    try {
+        const response = await fetch(url, {
+        method: 'POST', // *GET, POST, PUT, DELETE, etc.
+        mode: 'no-cors', // no-cors, *cors, same-origin
+        cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+        credentials: 'same-origin', // include, *same-origin, omit
+        redirect: 'follow', // manual, *follow, error
+        referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+        body: data // body data type must match "Content-Type" header
+        });
+        // alert(response)
 
-    return "OK"; // parses JSON response into native JavaScript objects
+        return "OK"
+
+        // if (response.status == 201) {
+        //     alert("Item has been posted successfully")
+        //     window.location.href = "index.html"
+        //     return true
+        // }
+        // alert("fk u" + response)
+        // return false;
+    } catch (error) {
+        // Errors when calling the service; such as network error, 
+        // service offline, etc
+        // console.log(response)
+        // console.log(error)
+        // alert('There is a problem submitting the form, please refresh the page or try again later.');
+        return false
+    } // error
 }
+    
+
