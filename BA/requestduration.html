@@ -2,17 +2,17 @@
 <html>
 
 <head>
-    <title>Basic Embed</title>
+    <title>Dashboard</title>
 
-    <!---
+    
     <script type="text/javascript"
 	    src="https://public.tableau.com/javascripts/api/tableau-2.min.js"></script> 
-    -->
+    
 
     <script type="text/javascript">
         function initViz() {
             var containerDiv = document.getElementById("vizContainer"),
-                url = "",
+                url = "https://public.tableau.com/views/Book1_16475056819130/Dashboard2?:language=en-US&publish=yes&:display_count=n&:origin=viz_share_link",
                 options = {
                     hideTabs: true,
                     onFirstInteractive: function () {
@@ -27,7 +27,7 @@
 </head>
 
 <body onload="initViz();">
-    <div id="vizContainer" style="width:800px; height:700px;"></div>
+    <div id="vizContainer" style="width: 1200px; height:710px;"></div>
 </body>
 
 </html>
