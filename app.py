@@ -1304,11 +1304,11 @@ def getRankByReqHistory(donationID):
             donorLoc = FormAnswers.query.filter_by(submissionID=donationID).filter_by(fieldID=addressFieldID).first().answer 
             # google maps api to calculate distance
             apikey = ""
-            geocodeAPI1 = "https://maps.googleapis.com/maps/api/geocode/json?address=" + donorLoc + "&key=" + apikey
+            geocodeAPI1 = "https://maps.googleapis.com/maps/api/geocode/json?address=" + donorLoc + "&components=country:SG&key=" + apikey
             response1 = requests.get(geocodeAPI1)
             if response1.status_code == 200:
                 donorPlace_id = response1.json()["results"][0]["place_id"]
-            geocodeAPI2 = "https://maps.googleapis.com/maps/api/geocode/json?address=" + mwLoc + "&key=" + apikey
+            geocodeAPI2 = "https://maps.googleapis.com/maps/api/geocode/json?address=" + mwLoc + "&components=country:SG&key=" + apikey
             response2 = requests.get(geocodeAPI2)
             if response2.status_code == 200:
                 mwPlace_id = response2.json()["results"][0]["place_id"]
