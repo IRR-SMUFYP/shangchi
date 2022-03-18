@@ -51,7 +51,7 @@
         ======================================================== -->
     </head>
 
-<body onload="checkLogin()">
+<body onload="checkLogin(); initViz(); initViz2()">
 
     <!-- ======= Top Bar ======= -->
     <div id="topbar" class="d-flex align-items-center fixed-top">
@@ -98,13 +98,49 @@
     <section style="padding-bottom: 0px;">
         <div class="section-title">
             <h2>Home Page</h2>
-            <p>Dashboard showing analytics of donations should appear here</p>
+            <!-- <p>Dashboard showing analytics of donations should appear here</p> -->
+            <div id="vizContainer" style="width: 1200px; height:710px;"></div>
+            <div id="vizContainer2" style="width:1200px; height:710px;"></div>
         </div>
     </section>
     <section class="inner-page">
         <div class="container">
         </div>
     </section>
+
+    <!-- Tableau JS -->
+    <script>
+        // for popular requests by migrant workers (duration)
+        function initViz() {
+            var containerDiv = document.getElementById("vizContainer"),
+                url = "https://public.tableau.com/views/Book1_16475056819130/Dashboard2?:language=en-US&publish=yes&:display_count=n&:origin=viz_share_link",
+                options = {
+                    hideTabs: true,
+                    onFirstInteractive: function () {
+                        console.log("Run this code when the viz has finished loading.");
+                    }
+                };
+
+            var viz = new tableau.Viz(containerDiv, url, options);
+            // Create a viz object and embed it in the container div.
+        }
+
+        // for popular requests by migrant workers (items & categories)
+        function initViz2() {
+            var containerDiv = document.getElementById("vizContainer2"),
+                url = "https://public.tableau.com/views/Book1_16475056819130/Dashboard1?:language=en-US&publish=yes&:display_count=n&:origin=viz_share_link",
+                options = {
+                    hideTabs: true,
+                    onFirstInteractive: function () {
+                        console.log("Run this code when the viz has finished loading.");
+                    }
+                };
+
+            var viz = new tableau.Viz(containerDiv, url, options);
+            // Create a viz object and embed it in the container div.
+        }
+
+    </script>
 
     <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
     <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
@@ -121,8 +157,12 @@
     <script src="../assets/vendor/swiper/swiper-bundle.min.js"></script>
     <script src="../assets/vendor/php-email-form/validate.js"></script>
     <script src="login.js"></script>
+
     <!-- Template Main JS File -->
     <script src="../assets/js/main.js"></script>
+
+    <!-- Tableau JS files -->
+    <script type="text/javascript" src="https://public.tableau.com/javascripts/api/tableau-2.min.js"></script> 
 
 </body>
 
