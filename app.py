@@ -450,25 +450,36 @@ def getAllDetailsBySubmission(submissionID):
 # create new submission
 @app.route('/formanswers', methods=['POST'])
 def createSubmission():
-    formData = request.form
-    formDict = formData.to_dict()
-    files = request.files
-    userid = formDict['contactNo']
-    formName =  formDict['formName']
-    itemID = formDict['itemNameOptions']
+    try:
+        formData = request.form
+        formDict = formData.to_dict()
+        
+        if '' in formDict.values():
+            return jsonify({
+                "message": "Please fill in missing form fields!"
+            }), 400
 
-    # calculate submissionID (datetime userID)
-    now = datetime.now()
-    currentDT = now.strftime("%Y-%m-%d %H:%M:%S")
-    submissionID = currentDT + " " + userid
-    # print(submissionID)
+        files = request.files
+        userid = formDict['contactNo']
+        formName =  formDict['formName']
+        itemID = formDict['itemName']
 
-    # file uploading
-    for fileId in files:
-        file = files[fileId]
-        # save file
-        fileName = secure_filename(file.filename)
-        file.save(os.path.join(uploads_dir, fileName))
+        # calculate submissionID (datetime userID)
+        now = datetime.now()
+        currentDT = now.strftime("%Y-%m-%d %H:%M:%S")
+        submissionID = currentDT + " " + userid
+
+        # file uploading
+        for fileId in files:
+            file = files[fileId]
+            # save file
+            fileName = secure_filename(file.filename)
+            file.save(os.path.join(uploads_dir, fileName))
+    except Exception as e:
+        print(e)
+        return jsonify({
+                "message": "Please fill in missing form fields!"
+            }), 400
 
     # for answer in formDict:
     #     print(type(answer))
@@ -481,12 +492,12 @@ def createSubmission():
         details["wishlistID"] = submissionID
         submission = Wishlist(**details)
         try:
-                db.session.add(submission)
-                db.session.commit()
+            db.session.add(submission)
+            db.session.commit()
         except Exception as e:
             print(e)
             return jsonify({
-                "message": "Unable to commit to database.",
+                "message": "Unable to submit request to database.",
                 "data" : submission.json()
             }), 500
     elif formName == "donation":
@@ -499,7 +510,7 @@ def createSubmission():
         except Exception as e:
             print(e)
             return jsonify({
-                "message": "Unable to commit to database.",
+                "message": "Unable to submit donation to database.",
                 "data" : submission.json()
             }), 500
 
@@ -514,11 +525,13 @@ def createSubmission():
             except Exception as e:
                 print(e)
                 return jsonify({
-                    "message": "Unable to commit to database.",
+                    "message": "Unable to submit form answers to database.",
                     "data" : item.json()
                 }), 500
     
-    return jsonify(formDict), 201
+    return jsonify({
+                    "message": "Form submitted successfully."
+                }), 201
 
 # get all form answers for any form
 @app.route("/getFormAnswers/<formName>")
