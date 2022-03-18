@@ -1,6 +1,6 @@
-DROP Database IF EXISTS `imatch`;
-Create DATABASE `imatch`;
-USE `imatch`;
+DROP Database IF EXISTS `fyptest`;
+Create DATABASE `fyptest`;
+USE `fyptest`;
 
 DROP TABLE IF EXISTS `user`;
 CREATE TABLE IF NOT EXISTS `user` (
@@ -26,6 +26,50 @@ CREATE TABLE IF NOT EXISTS `faq` (
   PRIMARY KEY (`faqID`)
 ) ;
 
+-- yew wei's tables
+DROP TABLE IF EXISTS `carousel`;
+CREATE TABLE IF NOT EXISTS `carousel` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `itemName` varchar(50) NOT NULL,
+  `donorAddr` varchar(300) NOT NULL,
+  `contactNo` int NOT NULL,
+  `category` varchar(20) NOT NULL,
+  `subcat` varchar(30) NOT NULL,
+  `quantity` INT(4) NOT NULL,
+  `requireDelivery` varchar(50) NOT NULL,
+  `region` varchar(20) NOT NULL,
+  `timeSubmitted` DATETIME NOT NULL,
+  `itemStatus` varchar(50) NOT NULL,
+  `fileName` varchar(200) NOT NULL,
+  PRIMARY KEY (`id`)
+) ;
+
+DROP TABLE IF EXISTS `wishlist`;
+CREATE TABLE IF NOT EXISTS `wishlist` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `itemName` varchar(50) NOT NULL,
+  `quantity` int NOT NULL,
+  `category` varchar(20) NOT NULL,
+  `subCat` varchar(30) NOT NULL,
+  `timeSubmitted` datetime NOT NULL,
+  `itemStatus` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`)
+) ;
+
+DROP TABLE IF EXISTS `request`;
+CREATE TABLE IF NOT EXISTS `request` (
+  `reqID` int NOT NULL AUTO_INCREMENT,
+  `requestorContactNo` int NOT NULL,
+  `deliveryLocation` varchar(300) NOT NULL,
+  `itemID` int NOT NULL,
+  `requestQty` varchar(50) NOT NULL,
+  `timeSubmitted` datetime NOT NULL,
+  PRIMARY KEY (`reqID`),
+  FOREIGN KEY (`requestorContactNo`) REFERENCES user (`username`),
+  FOREIGN KEY (`itemId`) REFERENCES carousel (`id`)
+) ;
+-- end of yew wei's tables
+
 DROP TABLE IF EXISTS `categoryitem`;
 CREATE TABLE IF NOT EXISTS `categoryitem` (
   `itemID` int NOT NULL AUTO_INCREMENT,
@@ -35,19 +79,28 @@ CREATE TABLE IF NOT EXISTS `categoryitem` (
   PRIMARY KEY (`itemID`)
 ) ;
 
-DROP TABLE IF EXISTS `donation`;
-CREATE TABLE IF NOT EXISTS `donation` (
-  `donationID` varchar(30) NOT NULL,
+-- DROP TABLE IF EXISTS `migrantworker`;
+-- CREATE TABLE IF NOT EXISTS `migrantworker` (
+--   `contactNo` int NOT NULL,
+--   `address` varchar(300) NOT NULL,
+--   `reqHistory` varchar(50) NOT NULL,
+--   PRIMARY KEY (`contactNo`),
+--   FOREIGN KEY (`contactNo`) REFERENCES user (`username`)
+-- ) ;
+
+DROP TABLE IF EXISTS `newcarousel`;
+CREATE TABLE IF NOT EXISTS `newcarousel` (
+  `carouselID` varchar(30) NOT NULL,
   `donorID` int NOT NULL,
   `itemID` int NOT NULL,
   `timeSubmitted` DATETIME NOT NULL,
   `itemStatus` varchar(50) NOT NULL,
-  PRIMARY KEY (`donationID`),
+  PRIMARY KEY (`carouselID`),
   FOREIGN KEY (`itemID`) references categoryitem (`itemID`)
 ) ;
 
-DROP TABLE IF EXISTS `wishlist`;
-CREATE TABLE IF NOT EXISTS `wishlist` (
+DROP TABLE IF EXISTS `newwishlist`;
+CREATE TABLE IF NOT EXISTS `newwishlist` (
   `wishlistID` varchar(30) NOT NULL,
   `migrantID` int NOT NULL,
   `itemID` int NOT NULL,
@@ -57,16 +110,16 @@ CREATE TABLE IF NOT EXISTS `wishlist` (
   FOREIGN KEY (`migrantID`) references user (`username`)
 ) ;
 
-DROP TABLE IF EXISTS `request`;
-CREATE TABLE IF NOT EXISTS `request` (
+DROP TABLE IF EXISTS `newrequest`;
+CREATE TABLE IF NOT EXISTS `newrequest` (
   `reqID` int NOT NULL AUTO_INCREMENT,
-  `donationID` varchar(30) NOT NULL,
+  `carouselID` varchar(30) NOT NULL,
   `migrantID` int NOT NULL,
   `deliveryLocation` varchar(300) NOT NULL,
   `timeSubmitted` datetime NOT NULL,
   PRIMARY KEY (`reqID`),
   FOREIGN KEY (`migrantID`) REFERENCES user (`username`),
-  FOREIGN KEY (`donationID`) REFERENCES donation (`donationID`)
+  FOREIGN KEY (`carouselID`) REFERENCES newcarousel (`carouselID`)
 );
 
 DROP TABLE IF EXISTS `delivery`;
@@ -108,15 +161,35 @@ CREATE TABLE IF NOT EXISTS `matches` (
   `donorID` int NOT NULL,
   `matchDate` datetime NOT NULL,
   PRIMARY KEY (`matchID`),
-  FOREIGN KEY fk_1 (`reqID`) references request (`reqID`),
-  FOREIGN KEY fk_2 (`migrantID`) references user (`username`) 
+  FOREIGN KEY fk_1 (`reqID`) references newrequest (`reqID`),
+  FOREIGN KEY fk_2 (`migrantID`) references user (`username`)
 ) ;
 
-
 -- INSERT values
+
+-- for carousel table
+-- INSERT INTO carousel (`itemName`, `description`, `donorName`, `donorAddr`, `contactNo`, `category`, `quantity`, `requireDelivery`, `region`, `timeSubmitted`, `itemStatus`, `fileName`) VALUES
+-- ('toothbrush', 'basic toiletries', 'yew wei', 'pasir ris grove', '92251521', 'toiletries', 1, 'yes', 'east', now(), 'available', 'toothbrush.png');
+-- INSERT INTO carousel (`itemName`, `description`, `donorName`, `donorAddr`, `contactNo`, `category`, `quantity`, `requireDelivery`, `region`, `timeSubmitted`, `itemStatus`, `fileName`) VALUES
+-- ('hair dryer', 'for hair', 'yuanyuan', '510121', '12345678', 'home appliances', 1, 'yes', 'west', now(), 'available', 'hairdryer.jpg');
+-- INSERT INTO carousel (`itemName`, `description`, `donorName`, `donorAddr`, `contactNo`, `category`, `quantity`, `requireDelivery`, `region`, `timeSubmitted`, `itemStatus`, `fileName`) VALUES
+-- ('t-shirts', 'free size t-shirts', 'amanda', '510425', '87654321', 'clothing', 1, 'yes', 'north', now(), 'available', 't-shirt.jpg');
+-- INSERT INTO carousel (`itemName`, `description`, `donorName`, `donorAddr`, `contactNo`, `category`, `quantity`, `requireDelivery`, `region`, `timeSubmitted`, `itemStatus`, `fileName`) VALUES
+-- ('rice cooker', 'to cook rice', 'nicole', '510180', '92251521', 'home appliances', 1, 'yes', 'south', now(), 'available', 'ricecooker.jpg');
+-- INSERT INTO carousel (`itemName`, `description`, `donorName`, `donorAddr`, `contactNo`, `category`, `quantity`, `requireDelivery`, `region`, `timeSubmitted`, `itemStatus`, `fileName`) VALUES
+-- ('fan', 'for sg hot weather', 'vanessa', 'pasir ris', '92251521', 'home appliances', 1, 'yes', 'east', now(), 'available', 'fan.jpg');
+-- INSERT INTO carousel (`itemName`, `description`, `donorName`, `donorAddr`, `contactNo`, `category`, `quantity`, `requireDelivery`, `region`, `timeSubmitted`, `itemStatus`, `fileName`) VALUES
+-- ('jeans', 'jeans in size 40', 'mei fang', 'pasir ris', '92251521', 'clothing', 1, 'yes', 'east', now(), 'available', 'jeans.jpg');
+
 INSERT INTO user (`username`, `password`, `usertype`) VALUES 
 (12345678, 'test1', 'worker'),
 (93261073, '$2b$12$hPh2gudOwUvmBs18PBa.deDRGOLiiDXuSkCV5qkA056I/n97blTJG', 'master');
+
+
+-- for wishlist table
+INSERT INTO wishlist (`itemName`, `quantity`, `category`, `subCat`, `timeSubmitted`, `itemStatus`) VALUES
+('Large Blender', 1,'Kitchen', 'Small Appliances', now(), 'available'),
+('TV', 2, 'Electronics', 'TVs', now(), 'available');
 
 
 -- for faq
@@ -128,28 +201,28 @@ INSERT INTO faq (`question`, `answer`, `section`) VALUES ('How do I drive?', 'Ju
 
 -- for formbuilder table
 INSERT INTO formbuilder (`formName`, `fieldName`, `fieldType`) VALUES
-('donation', 'Address', 'text');
+('carousel', 'Address', 'text');
 INSERT INTO formbuilder (`formName`, `fieldName`, `fieldType`, `options`) VALUES
-('donation', 'Area', 'radio', 'North;South;East;West;Central');
+('carousel', 'Area', 'radio', 'North;South;East;West;Central');
 INSERT INTO formbuilder (`formName`, `fieldName`, `fieldType`) VALUES
-('donation', 'Item Photo', 'file');
+('carousel', 'Item Photo', 'file');
 INSERT INTO formbuilder (`formName`, `fieldName`, `fieldType`, `placeholder`) VALUES
-('donation', 'Item Description', 'text', 'Brief description of the item you are donating');
+('carousel', 'Item Description', 'text', 'Brief description of the item you are donating');
 INSERT INTO formbuilder (`formName`, `fieldName`, `fieldType`) VALUES
-('donation', 'Quantity', 'number');
+('carousel', 'Quantity', 'number');
 INSERT INTO formbuilder (`formName`, `fieldName`, `fieldType`, `options`) VALUES
-('donation', 'Delivery Method', 'dropdown', 'Delivery required;Arranged by donor;Self Pickup');
+('carousel', 'Delivery Method', 'dropdown', 'Delivery required;Arranged by donor');
 INSERT INTO formbuilder (`formName`, `fieldName`, `fieldType`) VALUES
 ('wishlist', 'Quantity', 'number');
 
 
 -- for formanswers table
-INSERT INTO formanswers (`submissionID`,`formName`,`fieldID`,`answer`) VALUES ('2022-02-15 21:35:42 92251521', 'donation', '1', 'pasir ris grove');
-INSERT INTO formanswers (`submissionID`,`formName`,`fieldID`,`answer`) VALUES ('2022-02-15 21:35:42 92251521', 'donation', '2', 'East');
-INSERT INTO formanswers (`submissionID`,`formName`,`fieldID`,`answer`) VALUES ('2022-02-15 21:35:42 92251521', 'donation', '3', 'toothbrush.png');
-INSERT INTO formanswers (`submissionID`,`formName`,`fieldID`,`answer`) VALUES ('2022-02-15 21:35:42 92251521', 'donation', '4', 'can make teeth sparkle sparkle');
-INSERT INTO formanswers (`submissionID`,`formName`,`fieldID`,`answer`) VALUES ('2022-02-15 21:35:42 92251521', 'donation', '5', '3');
-INSERT INTO formanswers (`submissionID`,`formName`,`fieldID`,`answer`) VALUES ('2022-02-15 21:35:42 92251521', 'donation', '6', 'Arranged by donor');
+INSERT INTO formanswers (`submissionID`,`formName`,`fieldID`,`answer`) VALUES ('2022-02-15 21:35:42 92251521', 'carousel', '1', 'pasir ris grove');
+INSERT INTO formanswers (`submissionID`,`formName`,`fieldID`,`answer`) VALUES ('2022-02-15 21:35:42 92251521', 'carousel', '2', 'East');
+INSERT INTO formanswers (`submissionID`,`formName`,`fieldID`,`answer`) VALUES ('2022-02-15 21:35:42 92251521', 'carousel', '3', 'toothbrush.png');
+INSERT INTO formanswers (`submissionID`,`formName`,`fieldID`,`answer`) VALUES ('2022-02-15 21:35:42 92251521', 'carousel', '4', 'can make teeth sparkle sparkle');
+INSERT INTO formanswers (`submissionID`,`formName`,`fieldID`,`answer`) VALUES ('2022-02-15 21:35:42 92251521', 'carousel', '5', '3');
+INSERT INTO formanswers (`submissionID`,`formName`,`fieldID`,`answer`) VALUES ('2022-02-15 21:35:42 92251521', 'carousel', '6', 'Arranged by donor');
 INSERT INTO formanswers (`submissionID`,`formName`,`fieldID`,`answer`) VALUES ('test', 'wishlist', '7', '1');
 
 -- categoryitem table
@@ -343,23 +416,23 @@ INSERT INTO `categoryitem` (`itemname`, `category`, `subcat`) VALUES
 ('Sim Card', 'Others', 'Others'),
 ('Care Pack', 'Others', 'Others');
 
--- for donation table
-INSERT INTO donation (`donorID`, `donationID`, `itemID`, `timeSubmitted`, `itemStatus`) VALUES
+-- for newcarousel table
+INSERT INTO newcarousel (`donorID`, `carouselID`, `itemID`, `timeSubmitted`, `itemStatus`) VALUES
 (92251521, '2022-02-15 21:35:42 92251521', 152, '2022-02-24 21:35:42', 'available');
 
--- for wishlist table
-INSERT INTO wishlist (`wishlistID`, `migrantID`, `itemID`, `timeSubmitted`, `itemStatus`) VALUES 
+-- for newwishlist table
+INSERT INTO newwishlist (`wishlistID`, `migrantID`, `itemID`, `timeSubmitted`, `itemStatus`) VALUES 
 ('test', 12345678, 1, now(), 'available');
 
--- for request table
-INSERT INTO request (`reqID`, `migrantID`, `deliveryLocation`, `donationID`, `timeSubmitted`) VALUES
+-- for newrequest table
+INSERT INTO newrequest (`reqID`, `migrantID`, `deliveryLocation`, `carouselID`, `timeSubmitted`) VALUES
 (1, 12345678, 'pasir ris', '2022-02-15 21:35:42 92251521', now());
 
 -- for matches table
 INSERT INTO matches (`matchID`, `reqID`, `migrantID`, `donorID`, `matchDate`) VALUES
 (1, 1, 12345678, 11888811, now());
 
-select * from wishlist;
+select * from newwishlist;
 
 -- UPDATE user set usertype = 'master' where username = 93261073;
--- select * from donation;
+-- select * from carousel;
