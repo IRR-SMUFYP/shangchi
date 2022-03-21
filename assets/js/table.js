@@ -95,6 +95,9 @@ async function retrieveFormAdmin(formName) {
     else if (formName == "successfulMatch") {
         $("#successfulMatch").show();
     }
+    else if (formName == "account") {
+        $("#account").show();
+    }
     else if (formName == "donation" || formName == "wishlist") {
         var serviceURL = "http://127.0.0.1:5003/formbuilder/" + formName;
         if (formName == "donation") {
@@ -225,6 +228,9 @@ function addRow(formName) {
     else if (formName == "successfulMatch") {
         var serviceURL = "http://127.0.0.1:5003/addMatch";
     }
+    else if (formName == "account") {
+        var serviceURL = "http://127.0.0.1:5003/addUser"
+    }
     $(async () => {
         try {
             const response =
@@ -263,6 +269,9 @@ function deleteRow(formName) {
     }
     else if (formName == "successfulMatch") {
         id = "matchID"
+    }
+    else if (formName == "account") {
+        id = "username"
     }
     document.getElementById("edit-section").innerHTML = `<div class='col-md-6'>
                                                             <label for="${id}" class="form-label">${id}</label>
