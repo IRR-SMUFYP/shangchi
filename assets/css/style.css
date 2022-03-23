@@ -204,6 +204,11 @@ body {
   #header .logo img {
     max-height: 40px;
   }
+
+  #loginLogoutButton {
+    cursor: pointer; 
+    background-color: #E19587
+  }
   
   /**
   * Appointment Button *
