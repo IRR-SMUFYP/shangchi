@@ -165,8 +165,9 @@ def getAllUsers():
         "data": [user.json() for user in users]
     })
 
+# Register MW 
 @app.route("/registermw", methods=['POST'])
-def register():
+def registerMW():
         formData = request.form
         formDict = formData.to_dict()
         username = formDict['userName']
@@ -181,7 +182,7 @@ def register():
             return jsonify (
                 {
                     "code": 200,
-                    "message": "Worker account successfully created!"
+                    "message": "Worker account for " + username + " successfully created!"
                 }
             )
         except Exception as e:
@@ -192,6 +193,63 @@ def register():
                 }
             ), 500
 
+# Register admin account
+@app.route("/registeradmin", methods=['POST'])
+def registerAdmin():
+        formData = request.form
+        formDict = formData.to_dict()
+        username = formDict['userName']
+        pw = formDict['pw']
+        hashedpw = bcrypt.hashpw(str(pw).encode('utf-8'), bcrypt.gensalt())
+
+        addtodb = User(username, hashedpw, "admin")
+        
+        try:
+            db.session.add(addtodb)
+            db.session.commit()
+            return jsonify (
+                {
+                    "code": 200,
+                    "message": "Admin account for " + username + " successfully created!"
+                }
+            )
+        except Exception as e:
+            return jsonify(
+                {
+                    "code": 500,
+                    "message": "An error occurred while registering user :" + str(e)
+                }
+            ), 500
+
+# Register Driver Account
+@app.route("/registerDriver", methods=['POST'])
+def registerDriver():
+        formData = request.form
+        formDict = formData.to_dict()
+        username = formDict['userName']
+        pw = formDict['pw']
+        hashedpw = bcrypt.hashpw(str(pw).encode('utf-8'), bcrypt.gensalt())
+
+        addtodb = User(username, hashedpw, "driver")
+        
+        try:
+            db.session.add(addtodb)
+            db.session.commit()
+            return jsonify (
+                {
+                    "code": 200,
+                    "message": "Driver account for " + username + " successfully created!"
+                }
+            )
+        except Exception as e:
+            return jsonify(
+                {
+                    "code": 500,
+                    "message": "An error occurred while registering user :" + str(e)
+                }
+            ), 500
+
+# Login function to check if user exists and if password is correct
 @app.route("/login", methods=['POST'])
 def checkLogin():
     formData = request.form
