@@ -154,6 +154,17 @@ class Faq(db.Model):
 
 
 # region USER
+@app.route("/getAllUsers")
+def getAllUsers():
+    users = User.query.all()
+    columnHeaders = User.metadata.tables["user"].columns.keys()
+    return jsonify(
+        {
+        "code": 200,
+        "columnHeaders": columnHeaders,
+        "data": [user.json() for user in users]
+    })
+
 @app.route("/registermw", methods=['POST'])
 def register():
         formData = request.form
@@ -1247,9 +1258,9 @@ def deleteMatch(matchID):
             }
         ), 500
 
-# rank migrant workers according to reqHistory, get list of MWs who are prioritised
-@app.route("/getRankByReqHistory/<string:donationID>")
-def getRankByReqHistory(donationID):
+# matching algorithm
+@app.route("/matchingAlgorithm/<string:donationID>")
+def matchingAlgorithm(donationID):
     req = Request.query.filter_by(donationID=donationID)
     if req:
         # CRITERIA 1: NO. OF MATCHES
