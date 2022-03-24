@@ -97,14 +97,31 @@
     </section>
     <section class="inner-page">
         <div class="container">
-            <table id="wishlist" class="table table-striped table-hover" style="width: 100%">
+            <table id="delivery" class="table table-striped table-hover" style="width: 100%">
             </table>
-            <button type="button" id="edit-btn" href="#" class="mt-2 btn btn-outline-secondary" onclick="editSpecificRow('Wishlist')">Edit Specific Row</button>
+            <button type="button" id="edit-btn" href="#" class="mt-2 btn btn-outline-secondary" onclick="editSpecificRow('DeliveryRequest')" style="display: none">Edit Specific Row</button>
+            <button type="button" id="edit-btn3" href="#" class="mt-2 btn btn-outline-secondary" onclick="retrieveFormAdmin('deliveryRequest')" style="display: none">Add New Row</button>
+            <button type="button" id="edit-btn4" href="#" class="mt-2 btn btn-outline-secondary" onclick="deleteRow('deliveryRequest')" style="display: none">Delete Specific Row</button>
             <br><br>
             <hr>
             <br>
-            <div id="edit-section" style="display: none">
-            </div>
+            <div id="edit-section" style="display: none"></div>
+            <form id="deliveryRequest" style="display: none">
+                Please go to the 'Matches' page to find the corresponding matchID for the delivery request.
+                <div class="col-md-6">
+                    <label for="matchID" class="form-label">matchID</label>
+                    <input required type="text" class="form-control" id="matchID" name="matchID" placeholder="matchID">
+                </div>
+                <div class="col-md-6">
+                    <label for="driverID" class="form-label">driverID</label>
+                    <input required type="text" class="form-control" id="driverID" name="driverID" placeholder="driverID">
+                </div>
+                <div class="col-md-6">
+                    <label for="status" class="form-label">status</label>
+                    <input required type="text" class="form-control" id="status" name="status" placeholder="status">
+                </div>
+                <button type="button" id="add-row" href="#" class="mt-2 btn btn-outline-secondary" onclick="addRow('deliveryRequest')">Add New Row</button>
+            </form>
         </div>
     </section>
 
@@ -117,7 +134,7 @@
         var columns = [];
         function getDT() {
             $.ajax({
-                url: "http://127.0.0.1:5003/getFormAnswers/wishlist",
+                url: "http://127.0.0.1:5003/getDeliveryRequests",
                 success: function (data) {
                     columnNames = Object.keys(data.data[0]);
                     // items = data.data.items;
@@ -127,7 +144,7 @@
                         columns.push({data: columnNames[i], 
                                     title: columnNames[i]});
                     }
-                    var table = $('#wishlist').DataTable( {
+                    var table = $('#delivery').DataTable( {
                         data: data.data,
                         columns: columns,
                         fixedHeader: true,
@@ -135,11 +152,18 @@
                     fields = data.data[0];
                     fields["columnDetails"] = data.columnHeaders;
                     getEditDetails(fields);
+                    $("#edit-btn").show();
+                    $("#edit-btn3").show();
+                    $("#edit-btn4").show();
+                    $("#deliveryRequest").hide();
                 },
                 error: function () {
-                    document.getElementById("edit-btn").style.display = "none";
-                    document.getElementById("edit-section").innerHTML = "There are currently no wishlist items to be found."
-                    document.getElementById("edit-section").style.display = "block";
+                    $("#edit-btn").hide();
+                    $("#edit-btn3").show();
+                    $("#edit-btn4").hide();
+                    $("#deliveryRequest").hide();
+                    document.getElementById("edit-section").innerHTML = "There are currently no delivery requests to be found."
+                    $("#edit-section").show();
                 }
 
             })
@@ -149,9 +173,9 @@
             getDT();
         } );
 
-        function fillWishlistDetails(val) {
+        function fillDeliveryRequestDetails(val) {
             $(async () => {
-                var serviceURL = "http://127.0.0.1:5003/getFormAnswers/wishlist/" + val;
+                var serviceURL = "http://127.0.0.1:5003/getDeliveryRequests/" + val;
                 try {
                     const response =
                     await fetch(
@@ -166,7 +190,6 @@
                             // field = result.data[i];
                             if (i != "timeSubmitted" && i != "Item Photo" && i != "itemID") {
                                 for (id in result.columnHeaders) {
-                                    // console.log(id, result.columnHeaders[id]);
                                     if (result.columnHeaders[id] == i) {
                                         document.getElementById(id).value = result.data[i];
                                     }
@@ -186,10 +209,10 @@
             });
         }
 
-        function editWishlist() {
+        function editDeliveryRequest() {
             var data = {};
             var inputFields = document.getElementById("edit-section").children;
-            var wishlistID = document.querySelector('[placeholder="wishlistID"]').value;
+            var matchID = document.querySelector('[placeholder="matchID"]').value;
             for (var i in inputFields) {
                 input = inputFields[i];
                 inputChildrenCount = input.childElementCount;
@@ -209,8 +232,9 @@
             }
 
             var jsondata = JSON.stringify(data);
+            console.log(jsondata);
             $(async () => {
-                var serviceURL = "http://127.0.0.1:5003/updateFormAnswers/wishlist/" + wishlistID;
+                var serviceURL = "http://127.0.0.1:5003/updateDeliveryRequest/" + matchID;
                 try {
                     const response =
                     await fetch(
