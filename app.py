@@ -3,6 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import load_only
 from flask_cors import CORS
 from datetime import datetime
+import xlsxwriter
 import os
 from os import environ
 from sqlalchemy import ForeignKey
@@ -107,12 +108,12 @@ class Request(db.Model):
     
     reqID = db.Column(db.Integer, primary_key=True, nullable=False, autoincrement=True)
     migrantID = db.Column(db.Integer, nullable=False)           #, ForeignKey('user.username')
-    deliveryLocation = db.Column(db.Integer, nullable=False)
+    postalCode = db.Column(db.String(6), nullable=False)
     donationID = db.Column(db.String(30), nullable=False)       #, ForeignKey('donation.id')
     timeSubmitted = db.Column(db.Date, nullable=False)
         
     def json(self):
-        return {"reqID": self.reqID, "migrantID": self.migrantID, "deliveryLocation": self.deliveryLocation, "donationID": self.donationID, "timeSubmitted": self.timeSubmitted}
+        return {"reqID": self.reqID, "migrantID": self.migrantID, "postalCode": self.postalCode, "donationID": self.donationID, "timeSubmitted": self.timeSubmitted}
 
 class Matches(db.Model):
     __tablename__ = 'matches'
@@ -466,25 +467,36 @@ def getAllDetailsBySubmission(submissionID):
 # create new submission
 @app.route('/formanswers', methods=['POST'])
 def createSubmission():
-    formData = request.form
-    formDict = formData.to_dict()
-    files = request.files
-    userid = formDict['contactNo']
-    formName =  formDict['formName']
-    itemID = formDict['itemNameOptions']
+    try:
+        formData = request.form
+        formDict = formData.to_dict()
+        
+        if '' in formDict.values():
+            return jsonify({
+                "message": "Please fill in missing form fields!"
+            }), 400
 
-    # calculate submissionID (datetime userID)
-    now = datetime.now()
-    currentDT = now.strftime("%Y-%m-%d %H:%M:%S")
-    submissionID = currentDT + " " + userid
-    # print(submissionID)
+        files = request.files
+        userid = formDict['contactNo']
+        formName =  formDict['formName']
+        itemID = formDict['itemName']
 
-    # file uploading
-    for fileId in files:
-        file = files[fileId]
-        # save file
-        fileName = secure_filename(file.filename)
-        file.save(os.path.join(uploads_dir, fileName))
+        # calculate submissionID (datetime userID)
+        now = datetime.now()
+        currentDT = now.strftime("%Y-%m-%d %H:%M:%S")
+        submissionID = currentDT + " " + userid
+
+        # file uploading
+        for fileId in files:
+            file = files[fileId]
+            # save file
+            fileName = secure_filename(file.filename)
+            file.save(os.path.join(uploads_dir, fileName))
+    except Exception as e:
+        print(e)
+        return jsonify({
+                "message": "Please fill in missing form fields!"
+            }), 400
 
     # for answer in formDict:
     #     print(type(answer))
@@ -497,12 +509,12 @@ def createSubmission():
         details["wishlistID"] = submissionID
         submission = Wishlist(**details)
         try:
-                db.session.add(submission)
-                db.session.commit()
+            db.session.add(submission)
+            db.session.commit()
         except Exception as e:
             print(e)
             return jsonify({
-                "message": "Unable to commit to database.",
+                "message": "Unable to submit request to database.",
                 "data" : submission.json()
             }), 500
     elif formName == "donation":
@@ -515,7 +527,7 @@ def createSubmission():
         except Exception as e:
             print(e)
             return jsonify({
-                "message": "Unable to commit to database.",
+                "message": "Unable to submit donation to database.",
                 "data" : submission.json()
             }), 500
 
@@ -530,11 +542,13 @@ def createSubmission():
             except Exception as e:
                 print(e)
                 return jsonify({
-                    "message": "Unable to commit to database.",
+                    "message": "Unable to submit form answers to database.",
                     "data" : item.json()
                 }), 500
     
-    return jsonify(formDict), 201
+    return jsonify({
+                    "message": "Form submitted successfully."
+                }), 201
 
 # get all form answers for any form
 @app.route("/getFormAnswers/<formName>")
@@ -931,13 +945,55 @@ def getMwRequest(contactNo):
         }
     )
 
+@app.route("/request/excel")
+def exportToExcel():
+    itemReqList = Request.query.join(Donation, Request.donationID==Donation.donationID).join(CategoryItem, Donation.itemID==CategoryItem.itemID)\
+                    .add_columns(Request.timeSubmitted,CategoryItem.category,CategoryItem.subCat,CategoryItem.itemName,Request.postalCode).distinct()
+
+    postalCodeArea = {
+        "North": [str(x) for x in (list(range(65,74)) + list(range(75,81)))],   # 65-80 exc.74
+        "South": ['09', '10'],
+        "East/Central": [str(x).zfill(2) for x in (list(range(1,9)) + list(range(14,24)) + list(range(28,58)))] + ['81','82'],  # 01-08,14-23,28-57,81-82
+        "West": [str(x) for x in (list(range(11,14)) + list(range(24,28)) + list(range(58,65)))]    # 11-13,24-27,58-64
+    }
+
+    headers = {
+        'area': 'Area',
+        'date': 'Date',
+        'category': 'Item Category',
+        'itemName': 'Item Name',
+        'subCat': 'Item Sub-Category',
+    }
+
+    dataList = []
+    for item in itemReqList:
+        reqDate = item.timeSubmitted.date().strftime("%d-%m-%Y")
+        postalCode = item.postalCode
+        area = None
+        for region in postalCodeArea:
+            # check first 2 numbers in postal code for area
+            if postalCode[:2] in postalCodeArea[region]:
+                area = region
+        dataList.append({'area': area, 'date': reqDate, 'category': item.category, 'itemName': item.itemName, 'subCat': item.subCat})
+        
+    # Creating excel file
+    filename = datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
+    workbook = xlsxwriter.Workbook(f'BA/excel/{filename}.xlsx')
+    worksheet = workbook.add_worksheet()
+    worksheet.write_row(row=0, col=0, data=headers.values())
+    header_keys = list(headers.keys())
+    for index, item in enumerate(dataList):
+        row = map(lambda field_id: item.get(field_id, ''), header_keys)
+        worksheet.write_row(row=index + 1, col=0, data=row)
+    workbook.close()
+
 @app.route("/request", methods=['POST'])
 def addNewRequest():
         formData = request.form
         formDict = formData.to_dict()
         addtodb = {}
         addtodb["donationID"] = formDict['id']
-        addtodb["deliveryLocation"] = formDict['destination']
+        addtodb["postalCode"] = formDict['destination']
         addtodb["migrantID"] = formDict['contact']
 
         # Get datetime of donation posting
@@ -1049,7 +1105,7 @@ def updateRequest(reqID):
             }
         )
     else:
-        requested.deliveryLocation = data['deliveryLocation']
+        requested.postalCode = data['postalCode']
         # requested.requestQty = data['requestQty']
         requested.migrantID = data['migrantID']
         db.session.add(requested)
@@ -1185,7 +1241,7 @@ def updateSuccessfulMatches(matchID):
         match.donorID = data['donorID']
         db.session.add(match)
         db.session.commit()
-        req.deliveryLocation = data['deliveryLocation']
+        req.postalCode = data['postalCode']
         req.requestQty = data['requestQty']
         db.session.add(req)
         db.session.commit()
@@ -1292,7 +1348,7 @@ def matchingAlgorithm(donationID):
         # check whether item requires delivery
         deliveryFieldID = FormBuilder.query.filter_by(fieldName="Delivery Method").first().fieldID
         deliveryOption = FormAnswers.query.filter_by(submissionID=donationID).filter_by(fieldID=deliveryFieldID).first()
-        deliveryMWOption = Request.query.filter_by(deliveryLocation="Self Pickup").filter_by()
+        deliveryMWOption = Request.query.filter_by(postalCode="Self Pickup").filter_by()
         # check whether donor opt for self pickup
         if deliveryOption == "Delivery required":
             # if delivery required, all MW start with 0 points
@@ -1314,7 +1370,7 @@ def matchingAlgorithm(donationID):
         # CRITERIA 3: FIND MIGRANT WORKER WITH THE SHORTEST DISTANCE
         mwDist = {}
         for mw, points in mwPoints.items():
-            mwLoc = Request.query.filter_by(donationID=donationID).filter_by(migrantID=mw).first().deliveryLocation
+            mwLoc = Request.query.filter_by(donationID=donationID).filter_by(migrantID=mw).first().postalCode
             addressFieldID = FormBuilder.query.filter_by(fieldName="Address").first().fieldID
             donorLoc = FormAnswers.query.filter_by(submissionID=donationID).filter_by(fieldID=addressFieldID).first().answer 
             # google maps api to calculate distance
