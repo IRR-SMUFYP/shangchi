@@ -489,6 +489,7 @@ def createSubmission():
         # file uploading
         for fileId in files:
             file = files[fileId]
+            formDict[fileId] = file.filename
             # save file
             fileName = secure_filename(file.filename)
             file.save(os.path.join(uploads_dir, fileName))
@@ -530,7 +531,7 @@ def createSubmission():
                 "message": "Unable to submit donation to database.",
                 "data" : submission.json()
             }), 500
-
+    print(formDict)
     # submit into formAnswers
     for id in formDict:
         answer = {"submissionID": submissionID, "formName": formName, "fieldID": id, "answer": formDict[id]}
