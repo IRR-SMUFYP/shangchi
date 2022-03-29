@@ -1,3 +1,4 @@
+from codecs import getdecoder
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import load_only
@@ -1464,6 +1465,39 @@ def getDeliveryRequestsByMatchID(matchID):
         }
     ), 404
 
+# get delivery locations
+def getDeliveryLocations():
+    deliveryLocations = Matches.query.join(Delivery, Delivery.matchID == Matches.matchID).join(
+        Request, Matches.reqID == Request.reqID).add_columns(Request.deliveryLocation).distinct()
+    data = []
+    for location in deliveryLocations:
+        deliveryLoc = location._asdict()
+        deliveryLoc.pop("Matches")
+        data.append(list(deliveryLoc.values())[0])
+    return data
+
+# get delivery locations in lat, lng format 
+@app.route("/getDeliveryLocationsLatLng")
+def getDeliveryLocationsLatLng():
+    deliveryLocList = getDeliveryLocations()
+    if len(deliveryLocList) > 0:
+        deliveryLocationsLatLng = []
+        apikey = "AIzaSyDVeyfqXbHHtj2BLTu18XEo-MYoq5q4R5c"
+        for loc in deliveryLocList:
+            geocodeAPI = "https://maps.googleapis.com/maps/api/geocode/json?address=" + loc + "&components=country:SG&key=" + apikey
+            response = requests.get(geocodeAPI)
+            lat = response.json()["results"][0]["geometry"]["location"]["lat"]
+            lon = response.json()["results"][0]["geometry"]["location"]["lng"]
+            deliveryLocationsLatLng.append({"lat": lat, "lng": lon})
+        deliveryLocationsLatLng = [{"lat": 1.368042, "lng": 103.9563529}, {"lat": 1.366873, "lng": 103.954398}]
+        return jsonify(
+            {
+                "code": 200,
+                "data": deliveryLocationsLatLng
+            }
+        )
+
+
 # edit deliveryRequest in table
 @app.route("/updateDeliveryRequest/<matchID>", methods=["PUT"])
 def updateDeliveryRequest(matchID):
@@ -1486,27 +1520,12 @@ def updateDeliveryRequest(matchID):
         match = Matches.query.filter_by(matchID=matchID).first()
         req = Request.query.filter_by(reqID=match.reqID).first()
         migrantWorker = User.query.filter_by(username=match.migrantID).first()
-        # driver = User.query.filter_by(username=deliveryReq.driverID).first()
-        # driver.username = data["driverID"]
-        # db.session.add(driver)
-        # db.session.commit()
-        # migrantWorker.username = data["migrantID"]
-        # db.session.add(migrantWorker)
-        # db.session.commit()
         req.deliveryLocation = data['deliveryLocation']
         db.session.add(req)
         db.session.commit()
         deliveryReq.status = data['status']
         db.session.add(deliveryReq)
         db.session.commit()
-        # req.deliveryLocation = data['deliveryLocation']
-        # req.requestQty = data['requestQty']
-        # db.session.add(req)
-        # db.session.commit()
-        # donationItem.itemStatus = data['itemStatus']
-        # donationItem.donorID = data['donorID']
-        # db.session.add(donationItem)
-        # db.session.commit()
         return jsonify(
             {
                 "code": 200,
