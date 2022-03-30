@@ -46,13 +46,13 @@ async function retrieveForm(formName) {
             }
 
             // compulsory fields
-            var disable = ""
+            var readonly = "";
             if (formName == "wishlist") {
-                disable = "disabled"
+                readonly = "readonly";
             }
             // console.log(user.username)
             var contactField = `<label for="contactNo" class="form-label">Contact Number</label>
-                                <input required type="number" ${disable} class="form-control" value=${user.username} id="contactNo">`
+                                <input required type="number" ${readonly} class="form-control" value=${user.username} id="contactNo" name="contactNo">`
             var itemNameField = `<!--On change of this dropdown, auto get item names listed under this category-->
                                 <div class="col-6">
                                     <label for="itemCategoryOptions" class="form-label">Item Category</label>
@@ -113,7 +113,7 @@ function buildRadio(field) {
 function buildText(field) {
     var textField = `<div class="col-md-6">
                         <label for="${field.fieldID}" class="form-label">${field.fieldName}</label>
-                        <input required type="text" class="form-control" id="${field.fieldID}" placeholder="${field.placeholder ?? ""}">
+                        <input required type="text" class="form-control" name="${field.fieldID}" id="${field.fieldID}" placeholder="${field.placeholder ?? ""}">
                     </div>`;
 
 
@@ -123,7 +123,7 @@ function buildText(field) {
 function buildNumber(field) {
     var numField = `<div class="col-md-6">
                         <label for="${field.fieldID}" class="form-label">${field.fieldName}</label>
-                        <input required type="number" class="form-control" id="${field.fieldID}" placeholder="${field.placeholder ?? ""}">
+                        <input required type="number" class="form-control" name="${field.fieldID}" id="${field.fieldID}" placeholder="${field.placeholder ?? ""}">
                     </div>`;
 
 
@@ -134,7 +134,7 @@ function buildFile(field) {
     var fileField = `<div class="col-6">
                         <div class="form-group">
                             <label for="${field.fieldID}" class="form-label">${field.fieldName}</label>
-                            <input required type="file" class="form-control-file" id="${field.fieldID}" style="display:block">
+                            <input required type="file" name="${field.fieldID}" class="form-control" id="${field.fieldID}" style="display:block">
                         </div>
                     </div>`;
 
@@ -145,7 +145,7 @@ function buildDropdown(field) {
     var dropdownField = `
             <div class="col-6">
               <label for="${field.fieldID}" class="form-label">${field.fieldName}</label>
-              <select required class="form-select" id="${field.fieldID}">`;
+              <select required class="form-select" id="${field.fieldID}" name="${field.fieldID}">`;
 
     if (field.options !== null) {
         var options = field.options.split(";");

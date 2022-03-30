@@ -124,7 +124,8 @@
                 </div>
             </section>
 
-            <hr style="border:solid; ">
+            <hr style="border:solid; " id="editForm">
+            <br>
             <br>
             <!--Editing portion starts from here-->
             <form>
@@ -283,6 +284,7 @@
                     $('#section').val(faq.section);
                     $('#addBtn').attr("onclick", "postFaq('/" + faqID + "')");
                     $('#addBtn').text("Save Changes");
+                    document.getElementById('editForm').scrollIntoView();
                 }
             } catch (error) {
                 // Errors when calling the service; such as network error, 

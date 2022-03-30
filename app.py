@@ -1,8 +1,10 @@
+from codecs import getdecoder
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import load_only
 from flask_cors import CORS
 from datetime import datetime
+import xlsxwriter
 import os
 from os import environ
 from sqlalchemy import ForeignKey
@@ -10,6 +12,7 @@ from werkzeug.utils import secure_filename
 import bcrypt
 import random
 import requests
+import json
 
 app = Flask(__name__)
 
@@ -106,12 +109,12 @@ class Request(db.Model):
     
     reqID = db.Column(db.Integer, primary_key=True, nullable=False, autoincrement=True)
     migrantID = db.Column(db.Integer, nullable=False)           #, ForeignKey('user.username')
-    deliveryLocation = db.Column(db.Integer, nullable=False)
+    postalCode = db.Column(db.String(6), nullable=False)
     donationID = db.Column(db.String(30), nullable=False)       #, ForeignKey('donation.id')
     timeSubmitted = db.Column(db.Date, nullable=False)
         
     def json(self):
-        return {"reqID": self.reqID, "migrantID": self.migrantID, "deliveryLocation": self.deliveryLocation, "donationID": self.donationID, "timeSubmitted": self.timeSubmitted}
+        return {"reqID": self.reqID, "migrantID": self.migrantID, "postalCode": self.postalCode, "donationID": self.donationID, "timeSubmitted": self.timeSubmitted}
 
 class Matches(db.Model):
     __tablename__ = 'matches'
@@ -122,16 +125,19 @@ class Matches(db.Model):
     donorID = db.Column(db.Integer, nullable=False)
     matchDate = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
-    # def __init__(self, matchID, reqID, migrantID, donorID, matchDate):
-    #     self.matchID = matchID
-    #     self.reqID = reqID
-    #     self.migrantID = migrantID
-    #     self.donorID = donorID
-    #     self.matchDate = matchDate
-
     def json(self):
         return { "matchID": self.matchID, "reqID": self.reqID, "migrantID": self.migrantID, 
                 "donorID": self.donorID, "matchDate": self.matchDate }
+
+class Delivery(db.Model):
+    __tablename__ = 'delivery'
+
+    matchID = db.Column(db.Integer, primary_key=True, nullable=False)
+    status = db.Column(db.String(50), nullable=False)
+    driverID = db.Column(db.Integer, nullable=False)
+
+    def json(self):
+        return { "matchID": self.matchID, "status": self.status, "driverID": self.driverID }
 
 class Faq(db.Model):
     __tablename__ = 'faq'
@@ -154,6 +160,17 @@ class Faq(db.Model):
 
 
 # region USER
+@app.route("/getAllUsers")
+def getAllUsers():
+    users = User.query.all()
+    columnHeaders = User.metadata.tables["user"].columns.keys()
+    return jsonify(
+        {
+        "code": 200,
+        "columnHeaders": columnHeaders,
+        "data": [user.json() for user in users]
+    })
+
 @app.route("/registermw", methods=['POST'])
 def register():
         formData = request.form
@@ -451,25 +468,37 @@ def getAllDetailsBySubmission(submissionID):
 # create new submission
 @app.route('/formanswers', methods=['POST'])
 def createSubmission():
-    formData = request.form
-    formDict = formData.to_dict()
-    files = request.files
-    userid = formDict['contactNo']
-    formName =  formDict['formName']
-    itemID = formDict['itemNameOptions']
+    try:
+        formData = request.form
+        formDict = formData.to_dict()
+        
+        if '' in formDict.values():
+            return jsonify({
+                "message": "Please fill in missing form fields!"
+            }), 400
 
-    # calculate submissionID (datetime userID)
-    now = datetime.now()
-    currentDT = now.strftime("%Y-%m-%d %H:%M:%S")
-    submissionID = currentDT + " " + userid
-    # print(submissionID)
+        files = request.files
+        userid = formDict['contactNo']
+        formName =  formDict['formName']
+        itemID = formDict['itemName']
 
-    # file uploading
-    for fileId in files:
-        file = files[fileId]
-        # save file
-        fileName = secure_filename(file.filename)
-        file.save(os.path.join(uploads_dir, fileName))
+        # calculate submissionID (datetime userID)
+        now = datetime.now()
+        currentDT = now.strftime("%Y-%m-%d %H:%M:%S")
+        submissionID = currentDT + " " + userid
+
+        # file uploading
+        for fileId in files:
+            file = files[fileId]
+            formDict[fileId] = file.filename
+            # save file
+            fileName = secure_filename(file.filename)
+            file.save(os.path.join(uploads_dir, fileName))
+    except Exception as e:
+        print(e)
+        return jsonify({
+                "message": "Please fill in missing form fields!"
+            }), 400
 
     # for answer in formDict:
     #     print(type(answer))
@@ -482,12 +511,12 @@ def createSubmission():
         details["wishlistID"] = submissionID
         submission = Wishlist(**details)
         try:
-                db.session.add(submission)
-                db.session.commit()
+            db.session.add(submission)
+            db.session.commit()
         except Exception as e:
             print(e)
             return jsonify({
-                "message": "Unable to commit to database.",
+                "message": "Unable to submit request to database.",
                 "data" : submission.json()
             }), 500
     elif formName == "donation":
@@ -500,10 +529,10 @@ def createSubmission():
         except Exception as e:
             print(e)
             return jsonify({
-                "message": "Unable to commit to database.",
+                "message": "Unable to submit donation to database.",
                 "data" : submission.json()
             }), 500
-
+    print(formDict)
     # submit into formAnswers
     for id in formDict:
         answer = {"submissionID": submissionID, "formName": formName, "fieldID": id, "answer": formDict[id]}
@@ -515,11 +544,13 @@ def createSubmission():
             except Exception as e:
                 print(e)
                 return jsonify({
-                    "message": "Unable to commit to database.",
+                    "message": "Unable to submit form answers to database.",
                     "data" : item.json()
                 }), 500
     
-    return jsonify(formDict), 201
+    return jsonify({
+                    "message": "Form submitted successfully."
+                }), 201
 
 # get all form answers for any form
 @app.route("/getFormAnswers/<formName>")
@@ -916,13 +947,55 @@ def getMwRequest(contactNo):
         }
     )
 
+@app.route("/request/excel")
+def exportToExcel():
+    itemReqList = Request.query.join(Donation, Request.donationID==Donation.donationID).join(CategoryItem, Donation.itemID==CategoryItem.itemID)\
+                    .add_columns(Request.timeSubmitted,CategoryItem.category,CategoryItem.subCat,CategoryItem.itemName,Request.postalCode).distinct()
+
+    postalCodeArea = {
+        "North": [str(x) for x in (list(range(65,74)) + list(range(75,81)))],   # 65-80 exc.74
+        "South": ['09', '10'],
+        "East/Central": [str(x).zfill(2) for x in (list(range(1,9)) + list(range(14,24)) + list(range(28,58)))] + ['81','82'],  # 01-08,14-23,28-57,81-82
+        "West": [str(x) for x in (list(range(11,14)) + list(range(24,28)) + list(range(58,65)))]    # 11-13,24-27,58-64
+    }
+
+    headers = {
+        'area': 'Area',
+        'date': 'Date',
+        'category': 'Item Category',
+        'itemName': 'Item Name',
+        'subCat': 'Item Sub-Category',
+    }
+
+    dataList = []
+    for item in itemReqList:
+        reqDate = item.timeSubmitted.date().strftime("%d-%m-%Y")
+        postalCode = item.postalCode
+        area = None
+        for region in postalCodeArea:
+            # check first 2 numbers in postal code for area
+            if postalCode[:2] in postalCodeArea[region]:
+                area = region
+        dataList.append({'area': area, 'date': reqDate, 'category': item.category, 'itemName': item.itemName, 'subCat': item.subCat})
+        
+    # Creating excel file
+    filename = datetime.now().strftime("%d-%m-%Y_%H-%M-%S")
+    workbook = xlsxwriter.Workbook(f'BA/excel/{filename}.xlsx')
+    worksheet = workbook.add_worksheet()
+    worksheet.write_row(row=0, col=0, data=headers.values())
+    header_keys = list(headers.keys())
+    for index, item in enumerate(dataList):
+        row = map(lambda field_id: item.get(field_id, ''), header_keys)
+        worksheet.write_row(row=index + 1, col=0, data=row)
+    workbook.close()
+
 @app.route("/request", methods=['POST'])
 def addNewRequest():
         formData = request.form
         formDict = formData.to_dict()
         addtodb = {}
         addtodb["donationID"] = formDict['id']
-        addtodb["deliveryLocation"] = formDict['destination']
+        addtodb["postalCode"] = formDict['destination']
         addtodb["migrantID"] = formDict['contact']
 
         # Get datetime of donation posting
@@ -1034,7 +1107,7 @@ def updateRequest(reqID):
             }
         )
     else:
-        requested.deliveryLocation = data['deliveryLocation']
+        requested.postalCode = data['postalCode']
         # requested.requestQty = data['requestQty']
         requested.migrantID = data['migrantID']
         db.session.add(requested)
@@ -1170,7 +1243,7 @@ def updateSuccessfulMatches(matchID):
         match.donorID = data['donorID']
         db.session.add(match)
         db.session.commit()
-        req.deliveryLocation = data['deliveryLocation']
+        req.postalCode = data['postalCode']
         req.requestQty = data['requestQty']
         db.session.add(req)
         db.session.commit()
@@ -1183,8 +1256,8 @@ def updateSuccessfulMatches(matchID):
                 "code": 200,
                 "message": "Match successfully updated.",
                 "match": match.json(),
-                "data": data,
-                "olddata": data
+                # "data": data,
+                # "olddata": data
             }
         )
 
@@ -1198,7 +1271,7 @@ def addNewMatch():
     addtodb["migrantID"] = formDict['migrantID']
     addtodb["donorID"] = formDict['donorID']
 
-    # Get datetime of donation posting
+    # Get datetime of match
     now = datetime.now()
     currentDT = now.strftime("%Y-%m-%d %H:%M:%S")
     timeSubmitted = currentDT
@@ -1247,9 +1320,9 @@ def deleteMatch(matchID):
             }
         ), 500
 
-# rank migrant workers according to reqHistory, get list of MWs who are prioritised
-@app.route("/getRankByReqHistory/<string:donationID>")
-def getRankByReqHistory(donationID):
+# matching algorithm
+@app.route("/matchingAlgorithm/<string:donationID>")
+def matchingAlgorithm(donationID):
     req = Request.query.filter_by(donationID=donationID)
     if req:
         # CRITERIA 1: NO. OF MATCHES
@@ -1277,7 +1350,7 @@ def getRankByReqHistory(donationID):
         # check whether item requires delivery
         deliveryFieldID = FormBuilder.query.filter_by(fieldName="Delivery Method").first().fieldID
         deliveryOption = FormAnswers.query.filter_by(submissionID=donationID).filter_by(fieldID=deliveryFieldID).first()
-        deliveryMWOption = Request.query.filter_by(deliveryLocation="Self Pickup").filter_by()
+        deliveryMWOption = Request.query.filter_by(postalCode="Self Pickup").filter_by()
         # check whether donor opt for self pickup
         if deliveryOption == "Delivery required":
             # if delivery required, all MW start with 0 points
@@ -1299,16 +1372,16 @@ def getRankByReqHistory(donationID):
         # CRITERIA 3: FIND MIGRANT WORKER WITH THE SHORTEST DISTANCE
         mwDist = {}
         for mw, points in mwPoints.items():
-            mwLoc = Request.query.filter_by(donationID=donationID).filter_by(migrantID=mw).first().deliveryLocation
+            mwLoc = Request.query.filter_by(donationID=donationID).filter_by(migrantID=mw).first().postalCode
             addressFieldID = FormBuilder.query.filter_by(fieldName="Address").first().fieldID
             donorLoc = FormAnswers.query.filter_by(submissionID=donationID).filter_by(fieldID=addressFieldID).first().answer 
             # google maps api to calculate distance
             apikey = ""
-            geocodeAPI1 = "https://maps.googleapis.com/maps/api/geocode/json?address=" + donorLoc + "&key=" + apikey
+            geocodeAPI1 = "https://maps.googleapis.com/maps/api/geocode/json?address=" + donorLoc + "&components=country:SG&key=" + apikey
             response1 = requests.get(geocodeAPI1)
             if response1.status_code == 200:
                 donorPlace_id = response1.json()["results"][0]["place_id"]
-            geocodeAPI2 = "https://maps.googleapis.com/maps/api/geocode/json?address=" + mwLoc + "&key=" + apikey
+            geocodeAPI2 = "https://maps.googleapis.com/maps/api/geocode/json?address=" + mwLoc + "&components=country:SG&key=" + apikey
             response2 = requests.get(geocodeAPI2)
             if response2.status_code == 200:
                 mwPlace_id = response2.json()["results"][0]["place_id"]
@@ -1392,6 +1465,187 @@ def getRankByReqHistory(donationID):
             "message": "No migrant workers requested for this item ID."
         }
     ), 404
+
+# endregion
+
+# region DELIVERY
+# get all delivery requests matches 
+@app.route("/getDeliveryRequests")
+def getDeliveryRequests():
+    deliveryRequests = Matches.query.join(Delivery, Delivery.matchID == Matches.matchID).join(
+        Request, Matches.reqID == Request.reqID).add_columns(
+        Delivery.matchID, Delivery.driverID, Matches.migrantID, 
+        Request.deliveryLocation, Delivery.status).distinct()
+    data = []
+    for delivery in deliveryRequests:
+        deliveryRow = delivery._asdict()
+        deliveryRow.pop("Matches")
+        data.append(deliveryRow)
+    columns = list(data[0].keys())
+    if deliveryRequests:
+        return jsonify(
+            {
+                "code": 200,
+                "columnHeaders": columns,
+                "data": data
+            }
+        )
+    return jsonify(
+        {
+            "code": 404,
+            "message": "There are no delivery requests at the moment."
+        }
+    ), 404
+
+# get specific delivery request 
+@app.route("/getDeliveryRequests/<matchID>")
+def getDeliveryRequestsByMatchID(matchID):
+    deliveryRequest = Delivery.query.filter_by(matchID=matchID).join(Matches, Delivery.matchID == Matches.matchID).join(
+        Request, Matches.reqID == Request.reqID).add_columns(Delivery.matchID, Delivery.driverID, Matches.migrantID, 
+        Request.deliveryLocation, Delivery.status).first()
+    columns = list(deliveryRequest.keys())
+    columns.pop(0)
+    if deliveryRequest:
+        data = deliveryRequest._asdict()
+        data.pop("Delivery")
+        return jsonify(
+            {
+                "code": 200,
+                "columnHeaders": columns,
+                "data": data
+            }
+        )
+    return jsonify(
+        {
+            "code": 404,
+            "message": "Delivery request not found."
+        }
+    ), 404
+
+# get delivery locations
+def getDeliveryLocations():
+    deliveryLocations = Matches.query.join(Delivery, Delivery.matchID == Matches.matchID).join(
+        Request, Matches.reqID == Request.reqID).add_columns(Request.deliveryLocation).distinct()
+    data = []
+    for location in deliveryLocations:
+        deliveryLoc = location._asdict()
+        deliveryLoc.pop("Matches")
+        data.append(list(deliveryLoc.values())[0])
+    return data
+
+# get delivery locations in lat, lng format 
+@app.route("/getDeliveryLocationsLatLng")
+def getDeliveryLocationsLatLng():
+    deliveryLocList = getDeliveryLocations()
+    if len(deliveryLocList) > 0:
+        deliveryLocationsLatLng = []
+        apikey = "AIzaSyDVeyfqXbHHtj2BLTu18XEo-MYoq5q4R5c"
+        for loc in deliveryLocList:
+            geocodeAPI = "https://maps.googleapis.com/maps/api/geocode/json?address=" + loc + "&components=country:SG&key=" + apikey
+            response = requests.get(geocodeAPI)
+            lat = response.json()["results"][0]["geometry"]["location"]["lat"]
+            lon = response.json()["results"][0]["geometry"]["location"]["lng"]
+            deliveryLocationsLatLng.append({"lat": lat, "lng": lon})
+        deliveryLocationsLatLng = [{"lat": 1.368042, "lng": 103.9563529}, {"lat": 1.366873, "lng": 103.954398}]
+        return jsonify(
+            {
+                "code": 200,
+                "data": deliveryLocationsLatLng
+            }
+        )
+
+
+# edit deliveryRequest in table
+@app.route("/updateDeliveryRequest/<matchID>", methods=["PUT"])
+def updateDeliveryRequest(matchID):
+    deliveryRequest = Delivery.query.filter_by(matchID=matchID).join(Matches, Delivery.matchID == Matches.matchID).join(
+        Request, Matches.reqID == Request.reqID).add_columns(Delivery.matchID, Delivery.driverID, Matches.migrantID, 
+        Request.deliveryLocation, Delivery.status).first()
+    data = request.get_json()
+    print(data)
+    columns = list(deliveryRequest.keys())
+    columns.pop(0)
+    if (deliveryRequest is None):
+        return jsonify( 
+            {
+                "code": 404,
+                "message": "This matchID is not found in the database."
+            }
+        )
+    else:
+        deliveryReq = Delivery.query.filter_by(matchID=matchID).first()
+        match = Matches.query.filter_by(matchID=matchID).first()
+        req = Request.query.filter_by(reqID=match.reqID).first()
+        migrantWorker = User.query.filter_by(username=match.migrantID).first()
+        req.deliveryLocation = data['deliveryLocation']
+        db.session.add(req)
+        db.session.commit()
+        deliveryReq.status = data['status']
+        db.session.add(deliveryReq)
+        db.session.commit()
+        return jsonify(
+            {
+                "code": 200,
+                "message": "Match successfully updated."
+                # "match": match.json(),
+                # "data": data,
+                # "olddata": data
+            }
+        )
+
+# add new delivery request
+@app.route("/addDeliveryRequest", methods=['POST'])
+def addDeliveryRequest():
+    formData = request.form
+    formDict = formData.to_dict()
+    print(formDict)
+    addtodb = {}
+    addtodb["matchID"] = formDict['matchID']
+    addtodb["driverID"] = formDict['driverID']
+    addtodb["status"] = formDict['status']
+
+    print(addtodb)
+    delivery = Delivery(**addtodb)
+    
+    try:
+        db.session.add(delivery)
+        db.session.commit()
+        return jsonify (
+            {
+                "code": 200,
+                "message": "Delivery Request added successfully!"
+            }
+        )
+    except Exception as e:
+        print(e)
+        return jsonify(
+            {
+                "code": 500,
+                "message": "An error occurred while adding your match, please try again later"
+            }
+        ), 500
+
+# delete delivery request by matchID
+@app.route("/deleteDeliveryRequest/<matchID>", methods=["DELETE"])
+def deleteDeliveryRequest(matchID):
+    delivery = Delivery.query.filter_by(matchID=matchID).first()
+    try:
+        db.session.delete(delivery)
+        db.session.commit()
+        return jsonify (
+            {
+                "code": 200,
+                "message": "Row deleted successfully!"
+            }
+        )
+    except Exception as e:
+        print(e)
+        return jsonify(
+            {
+                "code": 500,
+                "message": "An error occurred while deleting the data, please try again later"
+            }
+        ), 500
 
 # endregion
 

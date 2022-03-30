@@ -10,13 +10,6 @@ CREATE TABLE IF NOT EXISTS `user` (
   PRIMARY KEY (`username`)
 ) ;
 
-DROP TABLE IF EXISTS `driver`;
-CREATE TABLE IF NOT EXISTS `driver` (
-  `contactNo` int NOT NULL,
-  PRIMARY KEY (`contactNo`),
-  FOREIGN KEY (`contactNo`) references user (`username`)
-) ;
-
 DROP TABLE IF EXISTS `faq`;
 CREATE TABLE IF NOT EXISTS `faq` (
   `faqID` int NOT NULL AUTO_INCREMENT,
@@ -69,15 +62,6 @@ CREATE TABLE IF NOT EXISTS `request` (
   FOREIGN KEY (`donationID`) REFERENCES donation (`donationID`)
 );
 
-DROP TABLE IF EXISTS `delivery`;
-CREATE TABLE IF NOT EXISTS `delivery` (
-  `deliveryReqID` int NOT NULL AUTO_INCREMENT,
-  `accepted` varchar(50) NOT NULL,
-  `reqID` int NOT NULL,
-  PRIMARY KEY (`deliveryReqID`),
-  FOREIGN KEY (`reqID`) references request (`reqID`)
-) ;
-
 DROP TABLE IF EXISTS `formbuilder`;
 CREATE TABLE IF NOT EXISTS `formbuilder` (
   `fieldID` int NOT NULL AUTO_INCREMENT,
@@ -112,11 +96,22 @@ CREATE TABLE IF NOT EXISTS `matches` (
   FOREIGN KEY fk_2 (`migrantID`) references user (`username`) 
 ) ;
 
+DROP TABLE IF EXISTS `delivery`;
+CREATE TABLE IF NOT EXISTS `delivery` (
+  `matchID` int NOT NULL,
+  `status` varchar(50) NOT NULL,
+  `driverID` int NOT NULL,
+  PRIMARY KEY (`matchID`),
+  FOREIGN KEY (`matchID`) references matches (`matchID`),
+  FOREIGN KEY (`driverID`) references user (`username`)
+) ;
+
 
 -- INSERT values
 INSERT INTO user (`username`, `password`, `usertype`) VALUES 
 (12345678, 'test1', 'worker'),
-(93261073, '$2b$12$hPh2gudOwUvmBs18PBa.deDRGOLiiDXuSkCV5qkA056I/n97blTJG', 'master');
+(93261073, '$2b$12$hPh2gudOwUvmBs18PBa.deDRGOLiiDXuSkCV5qkA056I/n97blTJG', 'master'),
+(12312312, 'driver1', 'driver');
 
 
 -- for faq
@@ -128,7 +123,7 @@ INSERT INTO faq (`question`, `answer`, `section`) VALUES ('How do I drive?', 'Ju
 
 -- for formbuilder table
 INSERT INTO formbuilder (`formName`, `fieldName`, `fieldType`) VALUES
-('donation', 'Address', 'text');
+('donation', 'Postal Code', 'number');
 INSERT INTO formbuilder (`formName`, `fieldName`, `fieldType`, `options`) VALUES
 ('donation', 'Area', 'radio', 'North;South;East;West;Central');
 INSERT INTO formbuilder (`formName`, `fieldName`, `fieldType`) VALUES
@@ -144,7 +139,7 @@ INSERT INTO formbuilder (`formName`, `fieldName`, `fieldType`) VALUES
 
 
 -- for formanswers table
-INSERT INTO formanswers (`submissionID`,`formName`,`fieldID`,`answer`) VALUES ('2022-02-15 21:35:42 92251521', 'donation', '1', 'pasir ris grove');
+INSERT INTO formanswers (`submissionID`,`formName`,`fieldID`,`answer`) VALUES ('2022-02-15 21:35:42 92251521', 'donation', '1', 510323);
 INSERT INTO formanswers (`submissionID`,`formName`,`fieldID`,`answer`) VALUES ('2022-02-15 21:35:42 92251521', 'donation', '2', 'East');
 INSERT INTO formanswers (`submissionID`,`formName`,`fieldID`,`answer`) VALUES ('2022-02-15 21:35:42 92251521', 'donation', '3', 'toothbrush.png');
 INSERT INTO formanswers (`submissionID`,`formName`,`fieldID`,`answer`) VALUES ('2022-02-15 21:35:42 92251521', 'donation', '4', 'can make teeth sparkle sparkle');
@@ -359,7 +354,9 @@ INSERT INTO request (`reqID`, `migrantID`, `deliveryLocation`, `donationID`, `ti
 INSERT INTO matches (`matchID`, `reqID`, `migrantID`, `donorID`, `matchDate`) VALUES
 (1, 1, 12345678, 11888811, now());
 
-select * from wishlist;
+-- for delivery table
+INSERT INTO delivery (`matchID`, `status`, `driverID`) VALUES
+(1, 'available', 12312312);
 
 -- UPDATE user set usertype = 'master' where username = 93261073;
 -- select * from donation;

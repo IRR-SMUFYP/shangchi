@@ -1,68 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
 
-    <head>
-        <meta charset="utf-8">
-        <meta content="width=device-width, initial-scale=1.0" name="viewport">
+<head>
+    <meta charset="utf-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-        <title>IMatch | Admin Homepage</title>
-        <meta content="" name="description">
-        <meta content="" name="keywords">
+    <title>IMatch | Admin Homepage</title>
+    <meta content="" name="description">
+    <meta content="" name="keywords">
 
-        <!-- Favicons -->
-        <link rel="icon"
-            href="../assets/img/logo/cropped-ItsRainingRaincoats-Logo-A-2-32x32.png"
-            sizes="32x32" />
-        <link rel="icon"
-            href="../assets/img/logo/cropped-ItsRainingRaincoats-Logo-A-2-192x192.png"
-            sizes="192x192" />
-        <link rel="apple-touch-icon"
-            href="../assets/img/logo/cropped-ItsRainingRaincoats-Logo-A-2-180x180.png" />
+    <!-- Favicons -->
+    <link rel="icon" href="../assets/img/logo/cropped-ItsRainingRaincoats-Logo-A-2-32x32.png" sizes="32x32" />
+    <link rel="icon" href="../assets/img/logo/cropped-ItsRainingRaincoats-Logo-A-2-192x192.png" sizes="192x192" />
+    <link rel="apple-touch-icon" href="../assets/img/logo/cropped-ItsRainingRaincoats-Logo-A-2-180x180.png" />
 
-        <!-- Google Fonts -->
-        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link
+        href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Raleway:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i"
+        rel="stylesheet">
 
-        <!-- Vendor CSS Files -->
-        <link href="../assets/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
-        <link href="../assets/vendor/animate.css/animate.min.css" rel="stylesheet">
-        <link href="../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
-        <link href="../assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
-        <link href="../assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
-        <link href="../assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
-        <link href="../assets/vendor/remixicon/remixicon.css" rel="stylesheet">
-        <link href="../assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
+    <!-- Vendor CSS Files -->
+    <link href="../assets/vendor/fontawesome-free/css/all.min.css" rel="stylesheet">
+    <link href="../assets/vendor/animate.css/animate.min.css" rel="stylesheet">
+    <link href="../assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="../assets/vendor/bootstrap-icons/bootstrap-icons.css" rel="stylesheet">
+    <link href="../assets/vendor/boxicons/css/boxicons.min.css" rel="stylesheet">
+    <link href="../assets/vendor/glightbox/css/glightbox.min.css" rel="stylesheet">
+    <link href="../assets/vendor/remixicon/remixicon.css" rel="stylesheet">
+    <link href="../assets/vendor/swiper/swiper-bundle.min.css" rel="stylesheet">
 
-        <!-- Template Main CSS File -->
-        <link href="adminStyle.css" rel="stylesheet">
+    <!-- Template Main CSS File -->
+    <link href="adminStyle.css" rel="stylesheet">
 
-        <!-- datatables.net -->
-        <link href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+    <!-- datatables.net -->
+    <link href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap5.min.css" rel="stylesheet">
 
-        <!-- jQuery & Popper.js -->
-        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
-        <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+    <!-- jQuery & Popper.js -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js"
+        integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous">
+    </script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js"
+        integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous">
+    </script>
 
-        <!-- =======================================================
+    <!-- =======================================================
         * Template Name: Medilab - v4.7.0
         * Template URL: https://bootstrapmade.com/medilab-free-medical-bootstrap-theme/
         * Author: BootstrapMade.com
         * License: https://bootstrapmade.com/license/
         ======================================================== -->
-    </head>
+</head>
 
-<body onload="checkLogin()">
+<body onload="checkLogin(); initViz(); initViz2()">
 
     <!-- ======= Top Bar ======= -->
     <div id="topbar" class="d-flex align-items-center fixed-top">
         <div class="container d-flex justify-content-between">
             <div class="contact-info d-flex align-items-center">
-                <i class="bi bi-envelope"></i> <a href="mailto:tsrainingraincoats@gmail.com">itsrainingraincoats@gmail.com</a>
+                <i class="bi bi-envelope"></i> <a
+                    href="mailto:tsrainingraincoats@gmail.com">itsrainingraincoats@gmail.com</a>
             </div>
             <div class="d-none d-lg-flex social-links align-items-center">
-                <a href="https://www.facebook.com/itsrainingraincoats/" class="facebook"><i class="bi bi-facebook"></i></a>
-                <a href="https://www.instagram.com/itsrainingraincoats/" class="instagram"><i class="bi bi-instagram"></i></a>
-                <a href="https://www.linkedin.com/company/itsrainingraincoats/?originalSubdomain=sg" class="linkedin"><i class="bi bi-linkedin"></i></i></a>
+                <a href="https://www.facebook.com/itsrainingraincoats/" class="facebook"><i
+                        class="bi bi-facebook"></i></a>
+                <a href="https://www.instagram.com/itsrainingraincoats/" class="instagram"><i
+                        class="bi bi-instagram"></i></a>
+                <a href="https://www.linkedin.com/company/itsrainingraincoats/?originalSubdomain=sg" class="linkedin"><i
+                        class="bi bi-linkedin"></i></i></a>
             </div>
         </div>
     </div>
@@ -85,34 +90,75 @@
                     <li><a class="nav-link" href="adminViewDelivery.html">Delivery</a></li>
                     <li><a class="nav-link" href="adminViewAccounts.html">Accounts</a></li>
                     <li><a class="nav-link" href="adminEditFaq.html">FAQ</a></li>
-                    </ul>
+                </ul>
                 <i class="bi bi-list mobile-nav-toggle"></i>
-                </nav><!-- .navbar -->
-                <a id="loginLogoutButton" onclick="loginLogout()" style="cursor: pointer;"
+            </nav><!-- .navbar -->
+            <a id="loginLogoutButton" onclick="loginLogout()" style="cursor: pointer;"
                 class="appointment-btn scrollto">Login</a>
-            </div>
+        </div>
     </header><!-- End Header -->
 
     <main id="main">
-    <section></section>
-    <section style="padding-bottom: 0px;">
-        <div class="section-title">
-            <h2>Home Page</h2>
-            <p>Dashboard showing analytics of donations should appear here</p>
-        </div>
-    </section>
-    <section class="inner-page">
-        <div class="container">
-        </div>
-    </section>
+        <section></section>
+        <section style="padding-bottom: 0px;">
+            <div class="section-title">
+                <h2>Home Page</h2>
+            </div>
+            <div class="container">
+                <div class="mx-auto">
+                    <div id="vizContainer" style="width: 1200px; height:710px;"></div>
+                    <div id="vizContainer2" style="width:1200px; height:710px;"></div>
+                </div>
+            </div>
+        </section>
+        <section class="inner-page">
+            <div class="container">
+            </div>
+        </section>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
-    <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
-    <script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap5.min.js"></script>
+        <!-- Tableau JS -->
+        <script>
+            // for popular requests by migrant workers (duration)
+            function initViz() {
+                var containerDiv = document.getElementById("vizContainer"),
+                    url =
+                    "https://public.tableau.com/views/Book1_16475056819130/Dashboard2?:language=en-US&publish=yes&:display_count=n&:origin=viz_share_link",
+                    options = {
+                        hideTabs: true,
+                        onFirstInteractive: function () {
+                            console.log("Run this code when the viz has finished loading.");
+                        }
+                    };
+
+                var viz = new tableau.Viz(containerDiv, url, options);
+                // Create a viz object and embed it in the container div.
+            }
+
+            // for popular requests by migrant workers (items & categories)
+            function initViz2() {
+                var containerDiv = document.getElementById("vizContainer2"),
+                    url =
+                    "https://public.tableau.com/views/Book1_16475056819130/Dashboard1?:language=en-US&publish=yes&:display_count=n&:origin=viz_share_link",
+                    options = {
+                        hideTabs: true,
+                        onFirstInteractive: function () {
+                            console.log("Run this code when the viz has finished loading.");
+                        }
+                    };
+
+                var viz = new tableau.Viz(containerDiv, url, options);
+                // Create a viz object and embed it in the container div.
+            }
+        </script>
+
+        <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+        <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap5.min.js"></script>
     </main><!-- End #main -->
 
     <div id="preloader"></div>
-    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i class="bi bi-arrow-up-short"></i></a>
+    <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
+            class="bi bi-arrow-up-short"></i></a>
 
     <!-- Vendor JS Files -->
     <script src="../assets/vendor/purecounter/purecounter.js"></script>
@@ -121,8 +167,12 @@
     <script src="../assets/vendor/swiper/swiper-bundle.min.js"></script>
     <script src="../assets/vendor/php-email-form/validate.js"></script>
     <script src="login.js"></script>
+
     <!-- Template Main JS File -->
     <script src="../assets/js/main.js"></script>
+
+    <!-- Tableau JS files -->
+    <script type="text/javascript" src="https://public.tableau.com/javascripts/api/tableau-2.min.js"></script>
 
 </body>
 
