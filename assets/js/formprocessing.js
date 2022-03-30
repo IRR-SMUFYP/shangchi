@@ -4,7 +4,7 @@ function submitForm(formName, form) {
 
     var formData = new FormData(form);
     formData.append("formName",formName)
-    
+
     console.log(form)
     for (var pair of formData.entries()) {
         console.log(pair[0]+ ', ' + pair[1]); 
@@ -27,7 +27,7 @@ async function addDonation(formdata, url) {
         .then(data => {
             console.log(data);
             alert(data.message)
-            // window.location.href = 'index.html'
+            window.location.href = 'index.html'
         })
         .catch(error => {console.log(error);alert(error);})
     

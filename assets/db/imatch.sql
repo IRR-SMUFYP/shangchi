@@ -123,7 +123,7 @@ INSERT INTO faq (`question`, `answer`, `section`) VALUES ('How do I drive?', 'Ju
 
 -- for formbuilder table
 INSERT INTO formbuilder (`formName`, `fieldName`, `fieldType`) VALUES
-('donation', 'Address', 'text');
+('donation', 'Postal Code', 'number');
 INSERT INTO formbuilder (`formName`, `fieldName`, `fieldType`, `options`) VALUES
 ('donation', 'Area', 'radio', 'North;South;East;West;Central');
 INSERT INTO formbuilder (`formName`, `fieldName`, `fieldType`) VALUES
@@ -139,7 +139,7 @@ INSERT INTO formbuilder (`formName`, `fieldName`, `fieldType`) VALUES
 
 
 -- for formanswers table
-INSERT INTO formanswers (`submissionID`,`formName`,`fieldID`,`answer`) VALUES ('2022-02-15 21:35:42 92251521', 'donation', '1', 'pasir ris grove');
+INSERT INTO formanswers (`submissionID`,`formName`,`fieldID`,`answer`) VALUES ('2022-02-15 21:35:42 92251521', 'donation', '1', 510323);
 INSERT INTO formanswers (`submissionID`,`formName`,`fieldID`,`answer`) VALUES ('2022-02-15 21:35:42 92251521', 'donation', '2', 'East');
 INSERT INTO formanswers (`submissionID`,`formName`,`fieldID`,`answer`) VALUES ('2022-02-15 21:35:42 92251521', 'donation', '3', 'toothbrush.png');
 INSERT INTO formanswers (`submissionID`,`formName`,`fieldID`,`answer`) VALUES ('2022-02-15 21:35:42 92251521', 'donation', '4', 'can make teeth sparkle sparkle');
