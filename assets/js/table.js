@@ -36,7 +36,9 @@ function editSpecificRow(form) {
     else if (form == "SuccessfulMatches") {
         document.querySelector('[placeholder="matchID"]').setAttribute("onchange", "fillSuccessfulMatchesDetails(this.value)");
     }
-
+    else if (form == "DeliveryRequest") {
+        document.querySelector('[placeholder="matchID"]').setAttribute("onchange", "fillDeliveryRequestDetails(this.value)");
+    }
 }
 
 function getEditDetails(fields) {
@@ -97,6 +99,9 @@ async function retrieveFormAdmin(formName) {
     }
     else if (formName == "account") {
         $("#account").show();
+    }
+    else if (formName == "deliveryRequest") {
+        $("#deliveryRequest").show();
     }
     else if (formName == "donation" || formName == "wishlist") {
         var serviceURL = "http://127.0.0.1:5003/formbuilder/" + formName;
@@ -207,21 +212,24 @@ async function retrieveFormAdmin(formName) {
 }
 
 function addRow(formName) {
-    reqFormElements = document.forms[0].elements
+    reqFormElements = document.forms[0].elements;
     // console.log(reqFormElements);
-    var formData = new FormData()
+    var formData = new FormData();
     for (ele in reqFormElements) {
         // console.log(reqFormElements[ele])
-        if ((["donationID", "migrantID", "deliveryLocation","donorID", "reqID"]).includes(reqFormElements[ele].id)) {
+        console.log(reqFormElements[ele].id);
+        if ((["donationID", "migrantID", "deliveryLocation","donorID", "reqID", "matchID", "driverID"]).includes(reqFormElements[ele].id)) {
             if (reqFormElements[ele].value == "") {
                 alert("Please do not leave any blanks.");
                 return "error";
             }
-            eleName = reqFormElements[ele].name;
-            eleVal = reqFormElements[ele].value;
-            formData.append(eleName, eleVal);
         }
+        eleName = reqFormElements[ele].name;
+        eleVal = reqFormElements[ele].value;
+        console.log(eleName, eleVal);
+        formData.append(eleName, eleVal);
     }
+    console.log(formData);
     if (formName == "request") {
         var serviceURL = "http://127.0.0.1:5003/request";
     }
@@ -230,6 +238,9 @@ function addRow(formName) {
     }
     else if (formName == "account") {
         var serviceURL = "http://127.0.0.1:5003/addUser"
+    }
+    else if (formName == "deliveryRequest") {
+        var serviceURL = "http://127.0.0.1:5003/addDeliveryRequest"
     }
     $(async () => {
         try {
@@ -273,6 +284,9 @@ function deleteRow(formName) {
     else if (formName == "account") {
         id = "username"
     }
+    else if (formName == "deliveryRequest") {
+        id = "matchID (delivery)"
+    }
     document.getElementById("edit-section").innerHTML = `<div class='col-md-6'>
                                                             <label for="${id}" class="form-label">${id}</label>
                                                             <input required type="text" class="form-control" id="${id}" placeholder="${id}"> 
@@ -300,6 +314,9 @@ function confirmDeleteRow(id) {
         }
         else if (id == "matchID") {
             var serviceURL = "http://127.0.0.1:5003/deleteMatch/" + val;
+        }
+        else if (id == "matchID (delivery)") {
+            var serviceURL = "http://127.0.0.1:5003/deleteDeliveryRequest/" + val;
         }
         else {
             var serviceURL = "http://127.0.0.1:5003/deleteRow/" + formName + "/" + val;

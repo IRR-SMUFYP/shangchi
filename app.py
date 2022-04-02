@@ -1,3 +1,4 @@
+from codecs import getdecoder
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import load_only
@@ -11,6 +12,7 @@ from werkzeug.utils import secure_filename
 import bcrypt
 import random
 import requests
+import json
 
 app = Flask(__name__)
 
@@ -123,16 +125,19 @@ class Matches(db.Model):
     donorID = db.Column(db.Integer, nullable=False)
     matchDate = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
 
-    # def __init__(self, matchID, reqID, migrantID, donorID, matchDate):
-    #     self.matchID = matchID
-    #     self.reqID = reqID
-    #     self.migrantID = migrantID
-    #     self.donorID = donorID
-    #     self.matchDate = matchDate
-
     def json(self):
         return { "matchID": self.matchID, "reqID": self.reqID, "migrantID": self.migrantID, 
                 "donorID": self.donorID, "matchDate": self.matchDate }
+
+class Delivery(db.Model):
+    __tablename__ = 'delivery'
+
+    matchID = db.Column(db.Integer, primary_key=True, nullable=False)
+    status = db.Column(db.String(50), nullable=False)
+    driverID = db.Column(db.Integer, nullable=False)
+
+    def json(self):
+        return { "matchID": self.matchID, "status": self.status, "driverID": self.driverID }
 
 class Faq(db.Model):
     __tablename__ = 'faq'
@@ -543,6 +548,7 @@ def createSubmission():
         # file uploading
         for fileId in files:
             file = files[fileId]
+            formDict[fileId] = file.filename
             # save file
             fileName = secure_filename(file.filename)
             file.save(os.path.join(uploads_dir, fileName))
@@ -584,7 +590,7 @@ def createSubmission():
                 "message": "Unable to submit donation to database.",
                 "data" : submission.json()
             }), 500
-
+    print(formDict)
     # submit into formAnswers
     for id in formDict:
         answer = {"submissionID": submissionID, "formName": formName, "fieldID": id, "answer": formDict[id]}
@@ -1308,8 +1314,8 @@ def updateSuccessfulMatches(matchID):
                 "code": 200,
                 "message": "Match successfully updated.",
                 "match": match.json(),
-                "data": data,
-                "olddata": data
+                # "data": data,
+                # "olddata": data
             }
         )
 
@@ -1323,7 +1329,7 @@ def addNewMatch():
     addtodb["migrantID"] = formDict['migrantID']
     addtodb["donorID"] = formDict['donorID']
 
-    # Get datetime of donation posting
+    # Get datetime of match
     now = datetime.now()
     currentDT = now.strftime("%Y-%m-%d %H:%M:%S")
     timeSubmitted = currentDT
@@ -1517,6 +1523,187 @@ def matchingAlgorithm(donationID):
             "message": "No migrant workers requested for this item ID."
         }
     ), 404
+
+# endregion
+
+# region DELIVERY
+# get all delivery requests matches 
+@app.route("/getDeliveryRequests")
+def getDeliveryRequests():
+    deliveryRequests = Matches.query.join(Delivery, Delivery.matchID == Matches.matchID).join(
+        Request, Matches.reqID == Request.reqID).add_columns(
+        Delivery.matchID, Delivery.driverID, Matches.migrantID, 
+        Request.deliveryLocation, Delivery.status).distinct()
+    data = []
+    for delivery in deliveryRequests:
+        deliveryRow = delivery._asdict()
+        deliveryRow.pop("Matches")
+        data.append(deliveryRow)
+    columns = list(data[0].keys())
+    if deliveryRequests:
+        return jsonify(
+            {
+                "code": 200,
+                "columnHeaders": columns,
+                "data": data
+            }
+        )
+    return jsonify(
+        {
+            "code": 404,
+            "message": "There are no delivery requests at the moment."
+        }
+    ), 404
+
+# get specific delivery request 
+@app.route("/getDeliveryRequests/<matchID>")
+def getDeliveryRequestsByMatchID(matchID):
+    deliveryRequest = Delivery.query.filter_by(matchID=matchID).join(Matches, Delivery.matchID == Matches.matchID).join(
+        Request, Matches.reqID == Request.reqID).add_columns(Delivery.matchID, Delivery.driverID, Matches.migrantID, 
+        Request.deliveryLocation, Delivery.status).first()
+    columns = list(deliveryRequest.keys())
+    columns.pop(0)
+    if deliveryRequest:
+        data = deliveryRequest._asdict()
+        data.pop("Delivery")
+        return jsonify(
+            {
+                "code": 200,
+                "columnHeaders": columns,
+                "data": data
+            }
+        )
+    return jsonify(
+        {
+            "code": 404,
+            "message": "Delivery request not found."
+        }
+    ), 404
+
+# get delivery locations
+def getDeliveryLocations():
+    deliveryLocations = Matches.query.join(Delivery, Delivery.matchID == Matches.matchID).join(
+        Request, Matches.reqID == Request.reqID).add_columns(Request.deliveryLocation).distinct()
+    data = []
+    for location in deliveryLocations:
+        deliveryLoc = location._asdict()
+        deliveryLoc.pop("Matches")
+        data.append(list(deliveryLoc.values())[0])
+    return data
+
+# get delivery locations in lat, lng format 
+@app.route("/getDeliveryLocationsLatLng")
+def getDeliveryLocationsLatLng():
+    deliveryLocList = getDeliveryLocations()
+    if len(deliveryLocList) > 0:
+        deliveryLocationsLatLng = []
+        apikey = "AIzaSyDVeyfqXbHHtj2BLTu18XEo-MYoq5q4R5c"
+        for loc in deliveryLocList:
+            geocodeAPI = "https://maps.googleapis.com/maps/api/geocode/json?address=" + loc + "&components=country:SG&key=" + apikey
+            response = requests.get(geocodeAPI)
+            lat = response.json()["results"][0]["geometry"]["location"]["lat"]
+            lon = response.json()["results"][0]["geometry"]["location"]["lng"]
+            deliveryLocationsLatLng.append({"lat": lat, "lng": lon})
+        deliveryLocationsLatLng = [{"lat": 1.368042, "lng": 103.9563529}, {"lat": 1.366873, "lng": 103.954398}]
+        return jsonify(
+            {
+                "code": 200,
+                "data": deliveryLocationsLatLng
+            }
+        )
+
+
+# edit deliveryRequest in table
+@app.route("/updateDeliveryRequest/<matchID>", methods=["PUT"])
+def updateDeliveryRequest(matchID):
+    deliveryRequest = Delivery.query.filter_by(matchID=matchID).join(Matches, Delivery.matchID == Matches.matchID).join(
+        Request, Matches.reqID == Request.reqID).add_columns(Delivery.matchID, Delivery.driverID, Matches.migrantID, 
+        Request.deliveryLocation, Delivery.status).first()
+    data = request.get_json()
+    print(data)
+    columns = list(deliveryRequest.keys())
+    columns.pop(0)
+    if (deliveryRequest is None):
+        return jsonify( 
+            {
+                "code": 404,
+                "message": "This matchID is not found in the database."
+            }
+        )
+    else:
+        deliveryReq = Delivery.query.filter_by(matchID=matchID).first()
+        match = Matches.query.filter_by(matchID=matchID).first()
+        req = Request.query.filter_by(reqID=match.reqID).first()
+        migrantWorker = User.query.filter_by(username=match.migrantID).first()
+        req.deliveryLocation = data['deliveryLocation']
+        db.session.add(req)
+        db.session.commit()
+        deliveryReq.status = data['status']
+        db.session.add(deliveryReq)
+        db.session.commit()
+        return jsonify(
+            {
+                "code": 200,
+                "message": "Match successfully updated."
+                # "match": match.json(),
+                # "data": data,
+                # "olddata": data
+            }
+        )
+
+# add new delivery request
+@app.route("/addDeliveryRequest", methods=['POST'])
+def addDeliveryRequest():
+    formData = request.form
+    formDict = formData.to_dict()
+    print(formDict)
+    addtodb = {}
+    addtodb["matchID"] = formDict['matchID']
+    addtodb["driverID"] = formDict['driverID']
+    addtodb["status"] = formDict['status']
+
+    print(addtodb)
+    delivery = Delivery(**addtodb)
+    
+    try:
+        db.session.add(delivery)
+        db.session.commit()
+        return jsonify (
+            {
+                "code": 200,
+                "message": "Delivery Request added successfully!"
+            }
+        )
+    except Exception as e:
+        print(e)
+        return jsonify(
+            {
+                "code": 500,
+                "message": "An error occurred while adding your match, please try again later"
+            }
+        ), 500
+
+# delete delivery request by matchID
+@app.route("/deleteDeliveryRequest/<matchID>", methods=["DELETE"])
+def deleteDeliveryRequest(matchID):
+    delivery = Delivery.query.filter_by(matchID=matchID).first()
+    try:
+        db.session.delete(delivery)
+        db.session.commit()
+        return jsonify (
+            {
+                "code": 200,
+                "message": "Row deleted successfully!"
+            }
+        )
+    except Exception as e:
+        print(e)
+        return jsonify(
+            {
+                "code": 500,
+                "message": "An error occurred while deleting the data, please try again later"
+            }
+        ), 500
 
 # endregion
 
