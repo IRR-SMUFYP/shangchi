@@ -79,6 +79,7 @@
         </ul>
         <i class="bi bi-list mobile-nav-toggle"></i>
       </nav><!-- .navbar -->
+      
       <a id="loginLogoutButton" onclick="loginLogout()" style="cursor: pointer;"
         class="appointment-btn scrollto">Login</a>
 
@@ -95,7 +96,7 @@
     <section id="carouselheader" class="carouselheader">
       <div class="container">
         <div class="row">
-          <div class="col-lg-6 col-sm-12">
+          <div class="col-6">
             <h2>Welcome to iMatch</h2>
             <p style="font-style: italic">Find the items you need here</p>
 
@@ -103,7 +104,7 @@
             <div>
               <div id="catDropdown">
                 <label for="catSearchList" class="form-label pt-3">Category:</label> <button
-                  class="badge badge-pill badge-primary" style="color:white; background-color: #E3A587;"
+                  class="badge badge-pill badge-primary" style="color:white; background-color: #3291E6;"
                   onclick="refreshpage()">Reset
                   Filter</button>
                 <select onchange="populateSubCat(this)" class="form-select" style="width: 50%;" id="catSearchList"
@@ -121,7 +122,7 @@
 
           </div>
           <!-- wishlist starts here (auto populate using db) -->
-          <div class="col-lg-6 col-sm-12" id="table-wrapper">
+          <div class="col-6" id="table-wrapper">
             <h2 class="text-center">Wishlist</h2>
             <table id="wishListTable"
               class="table table-hover float-end text-center d-none table-bordered border border-2">
