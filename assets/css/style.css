@@ -207,7 +207,10 @@ body {
 
   #loginLogoutButton {
     cursor: pointer; 
-    background-color: #E19587
+    background-color: #FFF102;
+    color: black;
+    font-weight: bold;
+    opacity: 90%;
   }
   
   /**
