@@ -1597,7 +1597,7 @@ def getDeliveryLocationsLatLng():
     deliveryLocList = getDeliveryLocations()
     if len(deliveryLocList) > 0:
         deliveryLocationsLatLng = []
-        apikey = "AIzaSyDVeyfqXbHHtj2BLTu18XEo-MYoq5q4R5c"
+        apikey = ""
         for loc in deliveryLocList:
             geocodeAPI = "https://maps.googleapis.com/maps/api/geocode/json?address=" + loc + "&components=country:SG&key=" + apikey
             response = requests.get(geocodeAPI)
