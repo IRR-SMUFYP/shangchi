@@ -226,6 +226,8 @@
 
         var itemNameOptions = document.getElementById("itemNameOptions")
 
+        var errorArr = [] // Used to store errors to be displayed
+
         function checkLogin() {
 
             if (sessionStorage.getItem("user") != null) {
@@ -235,10 +237,11 @@
                 document.getElementById("loginLogoutButton").innerText = "Logout"
             }
         }
-
         const form = document.getElementById("registerFormMW")
 
         function registerUser() {
+            errorArr = []
+
             var registerFormElements = document.forms[0].elements
 
             let userName = ""
@@ -253,8 +256,7 @@
                     userName = registerFormElements[ele].value
                 }
             }
-            var errorArr = [] // Used to store errors to be displayed
-
+            
             // Validate passwords
             if (pw1.length != pw2.length) {
                 errorArr.push("Length of your password and your confirmation password are not the same")
@@ -320,13 +322,22 @@
             if (response.status >= 200 && response.status < 300) {
                 data = await response.json()
                 if (data.code == "200") {
-                    alert("User registered successfully!")
+                    alert(data.message)
                     window.location.href = "login.html"
                 } else {
                     alert(data.message)
                 }
             } else {
-                alert("The contact number you have entered has already been registered")
+                errorArr.push("The contact number you have entered has already been registered")
+                errorDiv.classList.remove("d-none")
+                errorDiv.classList.add("d-block")
+
+                for (err of errorArr) {
+                    errorList.innerHTML += `
+                    <li>${err}</li>
+                    `
+                }
+
             }
         }
 
