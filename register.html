@@ -228,6 +228,14 @@
 
         var errorArr = [] // Used to store errors to be displayed
 
+        // Enable users on computer to click enter to submit
+        document.onkeyup = function(e) {
+            e = e || window.event;
+            if (e.keyCode == 13) {
+                registerUser()
+            }
+        }
+
         function checkLogin() {
 
             if (sessionStorage.getItem("user") != null) {
