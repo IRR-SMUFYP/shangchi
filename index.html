@@ -290,13 +290,12 @@
                                             <h4 class="card-title">Item Name: ${donationItemList[i].itemName}</h4>
                                             <h6 class="card-subtitle mb-2">Category: ${donationItemList[i].category}</h6>
                                             <h6 class="card-subtitle">Sub-Category: ${donationItemList[i].subCat}</h6>
-                                            <button data-tip="${donationItemList[i].donationID}" onclick="checkUserType(this)" ${disable} class="btn btn-primary">${req}</button>
+                                            <button data-tip="${donationItemList[i].donationID}" onclick="checkUserType(this)" ${disable} class="btn btn-primary donatedItems">${req}</button>
                                         </div>
                                         </div>
                                     </div>
                                     </div>
                                 `
-
               } else {
                 mainCarouselDisplay.innerHTML =
                   "<div class='text-center alert alert-warning rounded-3' style='height: 120px'> <p class='mt-3'> There are no items available for request at the moment, please try again later </p> </div>"
@@ -308,8 +307,6 @@
               "<div class='text-center alert alert-warning rounded-3' style='height: 120px'> <p class='mt-3'> There are no items available for request at the moment, please try again later </p> </div>"
           }
         }
-
-
       })
 
       loadWishList().then(function getWishList(result) {
@@ -523,6 +520,24 @@
         // console.log(itemData)
       }
     }
+
+
+    // get all donationID of donation
+    function matchDonationsAndMW() {
+      classElement = document.getElementsByClassName("donationItem");
+        for (let i = 0; i < classElement.length; i++) {
+            let donationID = classElement[i].getAttribute("data-tip");
+            let request = await fetch("http://127.0.0.1:5003/matchingAlgorithm/" + donationID);
+            let response = await response.json();
+
+            if (response.code == 200) {
+                return response.finalMW
+            } else {
+                alert(response.message)
+            }
+        }
+    }
+
   </script>
 
 </body>

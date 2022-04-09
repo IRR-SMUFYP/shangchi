@@ -1530,7 +1530,7 @@ def matchingAlgorithm(donationID):
     return jsonify(
         {
             "code": 404,
-            "message": "No migrant workers requested for this item ID."
+            "message": "No migrant workers requested for this donation ID."
         }
     ), 404
 
