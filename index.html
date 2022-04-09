@@ -447,9 +447,10 @@
 
     // Search function on Cat & Sub Cat once Sub Cat is selected
     async function filter() {
+      let catVal = cat.value
       let subCatVal = subCatList.value
 
-      let response = await fetch("http://127.0.0.1:5003/getItemsBySubCat/" + subCatVal)
+      let response = await fetch("http://127.0.0.1:5003/getItemsBySubCat/" + catVal + "/" + subCatVal)
       let responseCode = await response.json()
 
       if (responseCode.code == 200) {
