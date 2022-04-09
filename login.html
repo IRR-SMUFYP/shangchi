@@ -83,7 +83,7 @@
                 <i class="bi bi-list mobile-nav-toggle"></i>
             </nav><!-- .navbar -->
 
-            <a href="login.html" class="appointment-btn scrollto">Login</a>
+            <a id="loginLogoutButton" href="login.html" class="appointment-btn scrollto">Login</a>
 
         </div>
     </header><!-- End Header -->
@@ -219,6 +219,14 @@
     <script src="assets/js/main.js"></script>
 
     <script>
+        // Enable users on computer to click enter to login
+        document.onkeyup = function(e) {
+            e = e || window.event;
+            if (e.keyCode == 13) {
+                login()
+            }
+        }
+
         function login() {
             let errorArr = []
 

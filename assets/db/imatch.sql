@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS `request` (
   `reqID` int NOT NULL AUTO_INCREMENT,
   `donationID` varchar(30) NOT NULL,
   `migrantID` int NOT NULL,
-  `deliveryLocation` varchar(300) NOT NULL,
+  `postalCode` varchar(6) NOT NULL,
   `timeSubmitted` datetime NOT NULL,
   PRIMARY KEY (`reqID`),
   FOREIGN KEY (`migrantID`) REFERENCES user (`username`),
@@ -123,7 +123,7 @@ INSERT INTO faq (`question`, `answer`, `section`) VALUES ('How do I drive?', 'Ju
 
 -- for formbuilder table
 INSERT INTO formbuilder (`formName`, `fieldName`, `fieldType`) VALUES
-('donation', 'Address', 'text');
+('donation', 'Postal Code', 'number');
 INSERT INTO formbuilder (`formName`, `fieldName`, `fieldType`, `options`) VALUES
 ('donation', 'Area', 'radio', 'North;South;East;West;Central');
 INSERT INTO formbuilder (`formName`, `fieldName`, `fieldType`) VALUES
@@ -139,7 +139,7 @@ INSERT INTO formbuilder (`formName`, `fieldName`, `fieldType`) VALUES
 
 
 -- for formanswers table
-INSERT INTO formanswers (`submissionID`,`formName`,`fieldID`,`answer`) VALUES ('2022-02-15 21:35:42 92251521', 'donation', '1', 'pasir ris grove');
+INSERT INTO formanswers (`submissionID`,`formName`,`fieldID`,`answer`) VALUES ('2022-02-15 21:35:42 92251521', 'donation', '1', 510323);
 INSERT INTO formanswers (`submissionID`,`formName`,`fieldID`,`answer`) VALUES ('2022-02-15 21:35:42 92251521', 'donation', '2', 'East');
 INSERT INTO formanswers (`submissionID`,`formName`,`fieldID`,`answer`) VALUES ('2022-02-15 21:35:42 92251521', 'donation', '3', 'toothbrush.png');
 INSERT INTO formanswers (`submissionID`,`formName`,`fieldID`,`answer`) VALUES ('2022-02-15 21:35:42 92251521', 'donation', '4', 'can make teeth sparkle sparkle');
@@ -347,8 +347,8 @@ INSERT INTO wishlist (`wishlistID`, `migrantID`, `itemID`, `timeSubmitted`, `ite
 ('test', 12345678, 1, now(), 'available');
 
 -- for request table
-INSERT INTO request (`reqID`, `migrantID`, `deliveryLocation`, `donationID`, `timeSubmitted`) VALUES
-(1, 12345678, 'pasir ris', '2022-02-15 21:35:42 92251521', now());
+INSERT INTO request (`reqID`, `migrantID`, `postalCode`, `donationID`, `timeSubmitted`) VALUES
+(1, 12345678, '518136', '2022-02-15 21:35:42 92251521', now());
 
 -- for matches table
 INSERT INTO matches (`matchID`, `reqID`, `migrantID`, `donorID`, `matchDate`) VALUES

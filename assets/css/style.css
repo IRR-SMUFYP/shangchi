@@ -175,7 +175,7 @@ body {
   # Header
   --------------------------------------------------------------*/
   #header {
-    background: #3291E6;
+    background: #b8f2fe;
     transition: all 0.5s;
     z-index: 997;
     padding: 15px 0;
@@ -203,6 +203,14 @@ body {
   
   #header .logo img {
     max-height: 40px;
+  }
+
+  #loginLogoutButton {
+    cursor: pointer; 
+    background-color: #FFF102;
+    color: black;
+    font-weight: bold;
+    opacity: 90%;
   }
   
   /**
@@ -266,7 +274,7 @@ body {
     align-items: center;
     justify-content: space-between;
     font-size: 14px;
-    color: white;
+    color: black;
     white-space: nowrap;
     transition: 0.3s;
     padding: 5px 2px;
@@ -283,7 +291,7 @@ body {
   .navbar .active,
   .navbar .active:focus,
   .navbar li:hover>a {
-    border-bottom: 2px solid white;
+    border-bottom: 2px solid black;
   }
   
   .navbar .dropdown ul {

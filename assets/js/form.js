@@ -46,13 +46,15 @@ async function retrieveForm(formName) {
             }
 
             // compulsory fields
-            var disable = ""
+            var readonly = "";
             if (formName == "wishlist") {
-                disable = "disabled"
+                readonly = "readonly";
             }
             // console.log(user.username)
             var contactField = `<label for="contactNo" class="form-label">Contact Number</label>
-                                <input required type="number" ${disable} class="form-control" value=${user.username} id="contactNo" name="contactNo">`
+            
+                                <input required type="number" ${readonly} class="form-control" value=${user.username} id="contactNo" name="contactNo">`
+
             var itemNameField = `<!--On change of this dropdown, auto get item names listed under this category-->
                                 <div class="col-6">
                                     <label for="itemCategoryOptions" class="form-label">Item Category</label>
