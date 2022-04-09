@@ -10,6 +10,8 @@ from werkzeug.utils import secure_filename
 import bcrypt
 import random
 import requests
+import json
+# import config
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -447,9 +449,9 @@ def getSubCat(cat):
         }
     ), 404
 
-@app.route("/getItemsInSubCat/<subcat>")
-def getItemsInSubCat(subcat):
-    itemsInCategory = CategoryItem.query.filter_by(subCat=subcat)
+@app.route("/getItemNames/<cat>/<subcat>")
+def getItemNames(cat, subcat):
+    itemsInCategory = CategoryItem.query.filter_by(category=cat).filter_by(subCat=subcat).all()
     # print(itemsInCategory)
 
     if (itemsInCategory):
@@ -925,9 +927,9 @@ def getItemsByCategory(cat):
         }
     ), 404
 
-@app.route("/getItemsBySubCat/<subcat>")
-def filterItems(subcat):
-    subcatList = CategoryItem.query.filter_by(subCat=subcat).all()
+@app.route("/getItemsBySubCat/<cat>/<subcat>")
+def filterItems(cat, subcat):
+    subcatList = CategoryItem.query.filter_by(category=cat).filter_by(subCat=subcat).all()
     subcatItemList = []
     for category in subcatList:
         itemList = Donation.query.filter_by(itemID=category.itemID).all()
@@ -1409,11 +1411,17 @@ def matchingAlgorithm(donationID):
         deliveryFieldID = FormBuilder.query.filter_by(fieldName="Delivery Method").first().fieldID
         deliveryOption = FormAnswers.query.filter_by(submissionID=donationID).filter_by(fieldID=deliveryFieldID).first()
         deliveryMWOption = Request.query.filter_by(postalCode="Self Pickup").filter_by()
+
+        # variable to check whether criteria 3 has to be done
+        needCheckDist = 0
+
         # check whether donor opt for self pickup
         if deliveryOption == "Delivery required":
             # if delivery required, all MW start with 0 points
             for mw in priorityMW:
                 mwPoints[mw] = 0
+            # need check Distance criteria
+            needCheckDist += 1
         else:
             # check whether migrant worker opt for self pickup (but donor opt for delivery/arranged by donor)
             for mw in priorityMW:
@@ -1426,50 +1434,53 @@ def matchingAlgorithm(donationID):
                 for mw in priorityMW:
                     deliveryMWOption = Request.query.filter_by(donationID=donationID).filter_by(migrantID=mw).first()
                     mwPoints[mw] = 0
+                # need check Distance criteria
+                needCheckDist += 1
                 
         # CRITERIA 3: FIND MIGRANT WORKER WITH THE SHORTEST DISTANCE
-        mwDist = {}
-        for mw, points in mwPoints.items():
-            mwLoc = Request.query.filter_by(donationID=donationID).filter_by(migrantID=mw).first().postalCode
-            addressFieldID = FormBuilder.query.filter_by(fieldName="Address").first().fieldID
-            donorLoc = FormAnswers.query.filter_by(submissionID=donationID).filter_by(fieldID=addressFieldID).first().answer 
-            # google maps api to calculate distance
-            apikey = environ.get('GOOGLE_API_KEY')
-            geocodeAPI1 = "https://maps.googleapis.com/maps/api/geocode/json?address=" + donorLoc + "&components=country:SG&key=" + apikey
-            response1 = requests.get(geocodeAPI1)
-            if response1.status_code == 200:
-                donorPlace_id = response1.json()["results"][0]["place_id"]
-            geocodeAPI2 = "https://maps.googleapis.com/maps/api/geocode/json?address=" + mwLoc + "&components=country:SG&key=" + apikey
-            response2 = requests.get(geocodeAPI2)
-            if response2.status_code == 200:
-                mwPlace_id = response2.json()["results"][0]["place_id"]
-            distanceAPI = "https://maps.googleapis.com/maps/api/distancematrix/json?destinations=place_id:" + donorPlace_id + "&origins=place_id:" + mwPlace_id + "&key=" + apikey
-            response3 = requests.get(distanceAPI)
-            # value is the distance in meters
-            if response3.status_code == 200:
-                # print(response3.json()["rows"][0]["elements"][0]["distance"]["value"])
-                distance = response3.json()["rows"][0]["elements"][0]["distance"]["value"]
-                if distance not in mwDist.keys():
-                    mwDist[distance] = [mw]
-                else:
-                    mwDist[distance].append(mw)
-                if distance < 3000:
-                    points += 1
-                elif 3000 <= distance < 5000:
-                    points += 2
-                elif 5000 <= distance < 7000:
-                    points += 3
-                elif 7000 <= distance < 9000:
-                    points += 4
-                else:
-                    points += 5
-        # least no. of points = shortest distance
-        shortestDist = min(list(mwDist.keys()))
-        # finding nearest migrant worker using mwDist dict
-        nearestMW = mwDist[shortestDist]
-        for n in nearestMW:
-            mwPoints[n] -= 1
-        # mwPoints dict to minus the points they currently have
+        if needCheckDist > 0:
+            mwDist = {}
+            for mw, points in mwPoints.items():
+                mwLoc = Request.query.filter_by(donationID=donationID).filter_by(migrantID=mw).first().postalCode
+                addressFieldID = FormBuilder.query.filter_by(fieldName="Address").first().fieldID
+                donorLoc = FormAnswers.query.filter_by(submissionID=donationID).filter_by(fieldID=addressFieldID).first().answer 
+                # google maps api to calculate distance
+                apikey = environ.get('GOOGLE_API_KEY')
+                geocodeAPI1 = "https://maps.googleapis.com/maps/api/geocode/json?address=" + donorLoc + "&components=country:SG&key=" + apikey
+                response1 = requests.get(geocodeAPI1)
+                if response1.status_code == 200:
+                    donorPlace_id = response1.json()["results"][0]["place_id"]
+                geocodeAPI2 = "https://maps.googleapis.com/maps/api/geocode/json?address=" + mwLoc + "&components=country:SG&key=" + apikey
+                response2 = requests.get(geocodeAPI2)
+                if response2.status_code == 200:
+                    mwPlace_id = response2.json()["results"][0]["place_id"]
+                distanceAPI = "https://maps.googleapis.com/maps/api/distancematrix/json?destinations=place_id:" + donorPlace_id + "&origins=place_id:" + mwPlace_id + "&key=" + apikey
+                response3 = requests.get(distanceAPI)
+                # value is the distance in meters
+                if response3.status_code == 200:
+                    # print(response3.json()["rows"][0]["elements"][0]["distance"]["value"])
+                    distance = response3.json()["rows"][0]["elements"][0]["distance"]["value"]
+                    if distance not in mwDist.keys():
+                        mwDist[distance] = [mw]
+                    else:
+                        mwDist[distance].append(mw)
+                    if distance < 3000:
+                        points += 1
+                    elif 3000 <= distance < 5000:
+                        points += 2
+                    elif 5000 <= distance < 7000:
+                        points += 3
+                    elif 7000 <= distance < 9000:
+                        points += 4
+                    else:
+                        points += 5
+            # least no. of points = shortest distance
+            shortestDist = min(list(mwDist.keys()))
+            # finding nearest migrant worker using mwDist dict
+            nearestMW = mwDist[shortestDist]
+            for n in nearestMW:
+                mwPoints[n] -= 1
+            # mwPoints dict to minus the points they currently have
         
         # CRITERIA 4: HOW LONG SINCE THEIR LAST MATCH
         timeNow = datetime.now()
@@ -1520,7 +1531,7 @@ def matchingAlgorithm(donationID):
     return jsonify(
         {
             "code": 404,
-            "message": "No migrant workers requested for this item ID."
+            "message": "No migrant workers requested for this donation ID."
         }
     ), 404
 

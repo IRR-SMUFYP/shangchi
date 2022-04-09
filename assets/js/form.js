@@ -56,7 +56,7 @@ async function retrieveForm(formName) {
                                 <input required type="number" ${readonly} class="form-control" value=${user.username} id="contactNo" name="contactNo">`
 
             var itemNameField = `<!--On change of this dropdown, auto get item names listed under this category-->
-                                <div class="col-6">
+                                <div class="col-md-6">
                                     <label for="itemCategoryOptions" class="form-label">Item Category</label>
                                     <select onchange="populateSubCat(this)" class="form-select" id="itemCategoryOptions" name="category"
                                         required>
@@ -64,7 +64,7 @@ async function retrieveForm(formName) {
                                     </select>
                                 </div>`
 
-            var subCatField = `<div class="col-6">
+            var subCatField = `<div class="col-md-6">
                                     <label for="subCatOptions" class="form-label">Sub-Category</label>
                                     <select onchange="populateItemNames(this)" class="form-select" id="subCatOptions" name="subcat"
                                         required>
@@ -73,7 +73,7 @@ async function retrieveForm(formName) {
                                 </div>`
 
             var catField = `<!--Option value for item name needs to be dynamic, based on category-->
-                                <div class="col-6">
+                                <div class="col-md-6">
                                     <label for="itemNameOptions" class="form-label">Item Name</label>
                                     <select class="form-select" id="itemNameOptions" name="itemName" required>
                                         <!--Dynamically update item names-->
@@ -94,7 +94,7 @@ async function retrieveForm(formName) {
 function buildRadio(field) {
 
     var radioField = `
-            <div class="col-6">
+            <div class="col-md-6">
               <label for="${field.fieldID}" class="form-label">${field.fieldName}</label>
               <br>`;
 
@@ -133,7 +133,7 @@ function buildNumber(field) {
 }
 
 function buildFile(field) {
-    var fileField = `<div class="col-6">
+    var fileField = `<div class="col-md-6">
                         <div class="form-group">
                             <label for="${field.fieldID}" class="form-label">${field.fieldName}</label>
                             <input required type="file" name="${field.fieldID}" class="form-control" id="${field.fieldID}" style="display:block">
@@ -145,7 +145,7 @@ function buildFile(field) {
 
 function buildDropdown(field) {
     var dropdownField = `
-            <div class="col-6">
+            <div class="col-md-6">
               <label for="${field.fieldID}" class="form-label">${field.fieldName}</label>
               <select required class="form-select" id="${field.fieldID}" name="${field.fieldID}">`;
 
@@ -164,7 +164,7 @@ function buildDropdown(field) {
 function buildCheckbox(field) {
 
     var checkboxField = `
-            <div class="col-6">
+            <div class="col-md-6">
               <label for="${field.fieldID}" class="form-label">${field.fieldName}</label>
               <br>`;
 
@@ -296,6 +296,7 @@ async function populateSubCat(cat) {
 async function populateItemNames(cat) {
     $('#itemNameOptions').html("")
     cat = cat.value
+    subcat = document.getElementById("itemCategoryOptions").value;
     let response = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getItemsInSubCat/" + cat)
     let responseCode = await response.json()
     if (responseCode.code == 200) {

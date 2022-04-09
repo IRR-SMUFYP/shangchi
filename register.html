@@ -102,7 +102,7 @@
             </div>
         </section>
 
-        <div style="max-width: 1000px; margin: auto;">
+        <div style="max-width: 1000px; margin: auto; padding: 20px;">
             <div id="errorDiv" class="alert alert-warning d-none" role="alert">
                 <ul id="errorList"></ul>
                 <p class="text-center">Please ensure the above errors are resolved before submitting again.</p>
@@ -227,6 +227,14 @@
         var itemNameOptions = document.getElementById("itemNameOptions")
 
         var errorArr = [] // Used to store errors to be displayed
+
+        // Enable users on computer to click enter to submit
+        document.onkeyup = function(e) {
+            e = e || window.event;
+            if (e.keyCode == 13) {
+                registerUser()
+            }
+        }
 
         function checkLogin() {
 
