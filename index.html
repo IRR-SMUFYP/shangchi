@@ -96,7 +96,7 @@
     <section id="carouselheader" class="carouselheader">
       <div class="container">
         <div class="row">
-          <div class="col-6">
+          <div class="col-12">
             <h2>Welcome to iMatch</h2>
             <p style="font-style: italic">Find the items you need here</p>
 
@@ -122,7 +122,7 @@
 
           </div>
           <!-- wishlist starts here (auto populate using db) -->
-          <div class="col-6" id="table-wrapper">
+          <div class="col-12" id="table-wrapper" style="padding-top: 20px;">
             <h2 class="text-center">Wishlist</h2>
             <table id="wishListTable"
               class="table table-hover float-end text-center d-none table-bordered border border-2">
@@ -523,7 +523,7 @@
 
 
     // get all donationID of donation
-    function matchDonationsAndMW() {
+    async function matchDonationsAndMW() {
       classElement = document.getElementsByClassName("donationItem");
         for (let i = 0; i < classElement.length; i++) {
             let donationID = classElement[i].getAttribute("data-tip");
