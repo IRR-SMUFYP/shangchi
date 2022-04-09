@@ -448,9 +448,9 @@ def getSubCat(cat):
         }
     ), 404
 
-@app.route("/getItemsInSubCat/<subcat>")
-def getItemsInSubCat(subcat):
-    itemsInCategory = CategoryItem.query.filter_by(subCat=subcat)
+@app.route("/getItemNames/<cat>/<subcat>")
+def getItemNames(cat, subcat):
+    itemsInCategory = CategoryItem.query.filter_by(category=cat).filter_by(subCat=subcat).all()
     # print(itemsInCategory)
 
     if (itemsInCategory):
@@ -926,9 +926,9 @@ def getItemsByCategory(cat):
         }
     ), 404
 
-@app.route("/getItemsBySubCat/<subcat>")
-def filterItems(subcat):
-    subcatList = CategoryItem.query.filter_by(subCat=subcat).all()
+@app.route("/getItemsBySubCat/<cat>/<subcat>")
+def filterItems(cat, subcat):
+    subcatList = CategoryItem.query.filter_by(category=cat).filter_by(subCat=subcat).all()
     subcatItemList = []
     for category in subcatList:
         itemList = Donation.query.filter_by(itemID=category.itemID).all()
