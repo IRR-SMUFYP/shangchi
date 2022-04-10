@@ -4,7 +4,7 @@ user = ""
 //#region 
 async function retrieveForm(formName) {
 
-    var serviceURL = "http://127.0.0.1:5003/formbuilder/" + formName;
+    var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/formbuilder/" + formName;
 
     try {
         // Retrieve list of all fields
@@ -56,7 +56,7 @@ async function retrieveForm(formName) {
                                 <input required type="number" ${readonly} class="form-control" value=${user.username} id="contactNo" name="contactNo">`
 
             var itemNameField = `<!--On change of this dropdown, auto get item names listed under this category-->
-                                <div class="col-6">
+                                <div class="col-md-6">
                                     <label for="itemCategoryOptions" class="form-label">Item Category</label>
                                     <select onchange="populateSubCat(this)" class="form-select" id="itemCategoryOptions" name="category"
                                         required>
@@ -64,7 +64,7 @@ async function retrieveForm(formName) {
                                     </select>
                                 </div>`
 
-            var subCatField = `<div class="col-6">
+            var subCatField = `<div class="col-md-6">
                                     <label for="subCatOptions" class="form-label">Sub-Category</label>
                                     <select onchange="populateItemNames(this)" class="form-select" id="subCatOptions" name="subcat"
                                         required>
@@ -73,7 +73,7 @@ async function retrieveForm(formName) {
                                 </div>`
 
             var catField = `<!--Option value for item name needs to be dynamic, based on category-->
-                                <div class="col-6">
+                                <div class="col-md-6">
                                     <label for="itemNameOptions" class="form-label">Item Name</label>
                                     <select class="form-select" id="itemNameOptions" name="itemName" required>
                                         <!--Dynamically update item names-->
@@ -94,7 +94,7 @@ async function retrieveForm(formName) {
 function buildRadio(field) {
 
     var radioField = `
-            <div class="col-6">
+            <div class="col-md-6">
               <label for="${field.fieldID}" class="form-label">${field.fieldName}</label>
               <br>`;
 
@@ -133,7 +133,7 @@ function buildNumber(field) {
 }
 
 function buildFile(field) {
-    var fileField = `<div class="col-6">
+    var fileField = `<div class="col-md-6">
                         <div class="form-group">
                             <label for="${field.fieldID}" class="form-label">${field.fieldName}</label>
                             <input required type="file" name="${field.fieldID}" class="form-control" id="${field.fieldID}" style="display:block">
@@ -145,7 +145,7 @@ function buildFile(field) {
 
 function buildDropdown(field) {
     var dropdownField = `
-            <div class="col-6">
+            <div class="col-md-6">
               <label for="${field.fieldID}" class="form-label">${field.fieldName}</label>
               <select required class="form-select" id="${field.fieldID}" name="${field.fieldID}">`;
 
@@ -164,7 +164,7 @@ function buildDropdown(field) {
 function buildCheckbox(field) {
 
     var checkboxField = `
-            <div class="col-6">
+            <div class="col-md-6">
               <label for="${field.fieldID}" class="form-label">${field.fieldName}</label>
               <br>`;
 
@@ -252,7 +252,7 @@ function checkLogin() {
 }
 
 async function getCatalog() {
-    let response = await fetch("http://127.0.0.1:5003/getCatalog")
+    let response = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getCatalog")
     let res = await response.json()
 
     if (res.code == 200) {
@@ -263,7 +263,7 @@ async function getCatalog() {
 }
 
 async function getDropDownCat() {
-    let response = await fetch("http://127.0.0.1:5003/getCat")
+    let response = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getCat")
     let responseCode = await response.json()
 
     if (responseCode.code == 200) {
@@ -276,7 +276,7 @@ async function getDropDownCat() {
 async function populateSubCat(cat) {
     $('#subCatOptions').html("")
     cat = cat.value
-    let response = await fetch("http://127.0.0.1:5003/getSubCat/" + cat)
+    let response = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getSubCat/" + cat)
     let responseCode = await response.json()
 
     if (responseCode.code == 200) {
@@ -296,7 +296,8 @@ async function populateSubCat(cat) {
 async function populateItemNames(cat) {
     $('#itemNameOptions').html("")
     cat = cat.value
-    let response = await fetch("http://127.0.0.1:5003/getItemsInSubCat/" + cat)
+    subcat = document.getElementById("itemCategoryOptions").value;
+    let response = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getItemsInSubCat/" + cat)
     let responseCode = await response.json()
     if (responseCode.code == 200) {
         $('#itemNameOptions').append("<option disabled selected> </option>")
@@ -380,7 +381,7 @@ async function addField(formName, fieldID = "") {
         })
     }
 
-    var serviceURL = "http://127.0.0.1:5003/formbuilder" + fieldID;
+    var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/formbuilder" + fieldID;
 
     return fetch(serviceURL, {
             method: "POST",
@@ -397,7 +398,7 @@ async function addField(formName, fieldID = "") {
 };
 
 async function editField(fieldID) {
-    var serviceURL = "http://127.0.0.1:5003/formbuilder/" + fieldID;
+    var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/formbuilder/" + fieldID;
 
     try {
         // Retrieve list of all FAQ
@@ -465,7 +466,7 @@ async function editField(fieldID) {
 
 async function deleteField(fieldID) {
     if (confirm("Are you sure you want to delete this field? This will also delete all data related to the field.")) {
-        var serviceURL = "http://127.0.0.1:5003/formbuilder/" + fieldID;
+        var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/formbuilder/" + fieldID;
 
         try {
             // Retrieve list of all FAQ

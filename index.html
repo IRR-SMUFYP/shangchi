@@ -96,7 +96,7 @@
     <section id="carouselheader" class="carouselheader">
       <div class="container">
         <div class="row">
-          <div class="col-6">
+          <div class="col-12">
             <h2>Welcome to iMatch</h2>
             <p style="font-style: italic">Find the items you need here</p>
 
@@ -122,7 +122,7 @@
 
           </div>
           <!-- wishlist starts here (auto populate using db) -->
-          <div class="col-6" id="table-wrapper">
+          <div class="col-12" id="table-wrapper" style="padding-top: 20px;">
             <h2 class="text-center">Wishlist</h2>
             <table id="wishListTable"
               class="table table-hover float-end text-center d-none table-bordered border border-2">
@@ -290,13 +290,12 @@
                                             <h4 class="card-title">Item Name: ${donationItemList[i].itemName}</h4>
                                             <h6 class="card-subtitle mb-2">Category: ${donationItemList[i].category}</h6>
                                             <h6 class="card-subtitle">Sub-Category: ${donationItemList[i].subCat}</h6>
-                                            <button data-tip="${donationItemList[i].donationID}" onclick="checkUserType(this)" ${disable} class="btn btn-primary">${req}</button>
+                                            <button data-tip="${donationItemList[i].donationID}" onclick="checkUserType(this)" ${disable} class="btn btn-primary donatedItems">${req}</button>
                                         </div>
                                         </div>
                                     </div>
                                     </div>
                                 `
-
               } else {
                 mainCarouselDisplay.innerHTML =
                   "<div class='text-center alert alert-warning rounded-3' style='height: 120px'> <p class='mt-3'> There are no items available for request at the moment, please try again later </p> </div>"
@@ -308,8 +307,6 @@
               "<div class='text-center alert alert-warning rounded-3' style='height: 120px'> <p class='mt-3'> There are no items available for request at the moment, please try again later </p> </div>"
           }
         }
-
-
       })
 
       loadWishList().then(function getWishList(result) {
@@ -369,7 +366,7 @@
     // Function to load donations
     async function loadCarousel() {
       try {
-        let response = await fetch("http://127.0.0.1:5003/donation")
+        let response = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/donation")
         let responseCode = await response.json()
         if (responseCode.code == 200) {
           return responseCode.data.items
@@ -384,7 +381,7 @@
     // Function to view wishlist items
     async function loadWishList() {
       try {
-        let response = await fetch("http://127.0.0.1:5003/wishlist")
+        let response = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/wishlist")
         let responseCode = await response.json()
         if (responseCode.code == 200) {
           return responseCode.data.items
@@ -396,7 +393,7 @@
 
     // Async function for Search Dropdown (Index Page)
     async function getDropDownCat() {
-      let response = await fetch("http://127.0.0.1:5003/getCat")
+      let response = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getCat")
       let responseCode = await response.json()
 
       if (responseCode.code == 200) {
@@ -409,7 +406,7 @@
     async function populateSubCat(cat) {
       subCatList.innerHTML = ""
       cat = cat.value
-      let response = await fetch("http://127.0.0.1:5003/getSubCat/" + cat)
+      let response = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getSubCat/" + cat)
       let responseCode = await response.json()
 
       if (responseCode.code == 200) {
@@ -427,7 +424,7 @@
     }
 
     async function checkRequestedItems() {
-      let response = await fetch("http://127.0.0.1:5003/request/" + user.username)
+      let response = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/request/" + user.username)
       let data = await response.json()
       if (data.code == 200) {
         return data.requestedItemIds
@@ -450,9 +447,10 @@
 
     // Search function on Cat & Sub Cat once Sub Cat is selected
     async function filter() {
+      let catVal = cat.value
       let subCatVal = subCatList.value
 
-      let response = await fetch("http://127.0.0.1:5003/getItemsBySubCat/" + subCatVal)
+      let response = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getItemsBySubCat/" + catVal + "/" + subCatVal)
       let responseCode = await response.json()
 
       if (responseCode.code == 200) {
@@ -523,6 +521,24 @@
         // console.log(itemData)
       }
     }
+
+
+    // get all donationID of donation
+    async function matchDonationsAndMW() {
+      classElement = document.getElementsByClassName("donationItem");
+        for (let i = 0; i < classElement.length; i++) {
+            let donationID = classElement[i].getAttribute("data-tip");
+            let request = await fetch("http://127.0.0.1:5003/matchingAlgorithm/" + donationID);
+            let response = await response.json();
+
+            if (response.code == 200) {
+                return response.finalMW
+            } else {
+                alert(response.message)
+            }
+        }
+    }
+
   </script>
 
 </body>
