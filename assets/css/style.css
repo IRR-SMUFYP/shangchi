@@ -718,6 +718,18 @@ body {
     display: flex;
     justify-content: center;
   }
+
+  /* Extra small devices (phones, 600px and down) */
+@media (max-width: 600px){
+  #indexTitle {text-align: center !important;}
+}
+@media (max-width: 600px){
+  #searchBoxes {text-align: center !important;};
+}
+@media (max-width: 600px){
+  select {width: 100% !important;}
+}
+
   
   /*--------------------------------------------------------------
   # Login/Register Page

@@ -95,13 +95,14 @@
     <!-- ======= Carousel Section ======= -->
     <section id="carouselheader" class="carouselheader">
       <div class="container">
-        <div class="row">
-          <div class="col-12">
+        <div id="indexTitle">
             <h2>Welcome to iMatch</h2>
             <p style="font-style: italic">Find the items you need here</p>
-
+        </div>
+        <div class="row">
+          <div class="col-lg-6 col-sm-12">
             <!-- search box for categories, add onchange event here -->
-            <div>
+            <div id="searchBoxes">
               <div id="catDropdown">
                 <label for="catSearchList" class="form-label pt-3">Category:</label> <button
                   class="badge badge-pill badge-primary" style="color:black; background-color: #b8f2fe;"
@@ -122,7 +123,7 @@
 
           </div>
           <!-- wishlist starts here (auto populate using db) -->
-          <div class="col-12" id="table-wrapper" style="padding-top: 20px;">
+          <div class="col-lg-6 col-sm-12" id="table-wrapper" style="padding-top: 20px;">
             <h2 class="text-center">Wishlist</h2>
             <table id="wishListTable"
               class="table table-hover float-end text-center d-none table-bordered border border-2">
