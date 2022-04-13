@@ -14,7 +14,7 @@ DROP TABLE IF EXISTS `faq`;
 CREATE TABLE IF NOT EXISTS `faq` (
   `faqID` int NOT NULL AUTO_INCREMENT,
   `question` varchar(300) NOT NULL,
-  `answer` varchar(300) NOT NULL,
+  `answer` text NOT NULL,
   `section` varchar(10) NOT NULL,
   PRIMARY KEY (`faqID`)
 ) ;
