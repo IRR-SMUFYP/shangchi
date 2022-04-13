@@ -145,7 +145,7 @@
 
                 <div class="mb-3">
                     <label for="answer" class="form-label">Answer</label>
-                    <input type="textarea" class="form-control" id="answer" placeholder="Enter answer here" required>
+                    <textarea row="3" class="form-control" id="answer" placeholder="Enter answer here" required></textarea>
                 </div>
 
                 <div class="col-12" style='text-align: right; color: #A57F60;'>
@@ -276,7 +276,7 @@
                         item = `<li data-aos="fade-up">
                                     <i class="bx bx-help-circle icon-help"></i><a data-bs-toggle="collapse" class="collapsed" data-bs-target="#id` + faq.faqID + `">` + faq.question + ` <i class="bx bx-chevron-down icon-show"></i><i class="bx bx-chevron-up icon-close"></i></a>
                                     <div id="id` + faq.faqID + `" class="collapse">
-                                    <p>` + faq.answer + `</p>
+                                    <p style="white-space: pre-line">` + faq.answer + `</p>
                                     </div>
                                     <br>
                                     <button type="button" onclick="editFaq(` + faq.faqID + `)" class="btn btn-secondary btn-sm">Edit</button>
