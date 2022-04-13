@@ -340,7 +340,7 @@
         // Function to load donations
         async function loadCarousel() {
             try {
-                let response = await fetch("http://127.0.0.1:5003/donation")
+                let response = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/donation")
                 let responseCode = await response.json()
                 if (responseCode.code == 200) {
                     return responseCode.data.items
@@ -351,60 +351,62 @@
                 alert(error)
             }
         }
-    
-    // Function to load donations
-    async function loadCarousel() {
-      try {
-        let response = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/donation")
-        let responseCode = await response.json()
-        if (responseCode.code == 200) {
-          return responseCode.data.items
-        } else {
-          return "Empty"
+
+        // Function to view wishlist items
+        async function loadWishList() {
+            try {
+                let response = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/wishlist")
+                let responseCode = await response.json()
+                if (responseCode.code == 200) {
+                    return responseCode.data.items
+                }
+            } catch (error) {
+                alert(error)
+            }
         }
-      } catch (error) {
-        alert(error)
-      }
-    }
 
-    // Function to view wishlist items
-    async function loadWishList() {
-      try {
-        let response = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/wishlist")
-        let responseCode = await response.json()
-        if (responseCode.code == 200) {
-          return responseCode.data.items
+        // Async function for Search Dropdown (Index Page)
+        async function getDropDownCat() {
+            let response = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getCat")
+            let responseCode = await response.json()
+
+            if (responseCode.code == 200) {
+                return responseCode.data.categories
+            } else {
+                alert(responseCode.message)
+            }
         }
-      } catch (error) {
-        alert(error)
-      }
-    }
 
-    // Async function for Search Dropdown (Index Page)
-    async function getDropDownCat() {
-      let response = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getCat")
-      let responseCode = await response.json()
+        async function populateSubCat(cat) {
+            subCatList.innerHTML = ""
+            cat = cat.value
+            let response = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getSubCat/" + cat)
+            let responseCode = await response.json()
 
-      if (responseCode.code == 200) {
-        return responseCode.data.categories
-      } else {
-        alert(responseCode.message)
-      }
-    }
+            if (responseCode.code == 200) {
+                subCatList.innerHTML += "<option selected> </option>"
+                let subCatArr = []
+                for (subcat of responseCode.data.subcats) {
+                    if (!subCatArr.includes(subcat.subCat)) {
+                        subCatArr.push(subcat.subCat)
+                    }
+                }
+                for (sub of subCatArr) {
+                    subCatList.innerHTML += `<option value="${sub}">${sub}</option>`
+                }
+            }
+        }
 
-    async function populateSubCat(cat) {
-      subCatList.innerHTML = ""
-      cat = cat.value
-      let response = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getSubCat/" + cat)
-      let responseCode = await response.json()
+        async function checkRequestedItems() {
+            let response = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/request/" + user.username)
+            let data = await response.json()
+            if (data.code == 200) {
+                return data.requestedItemIds
+            }
+        }
 
-      if (responseCode.code == 200) {
-        subCatList.innerHTML += "<option selected> </option>"
-        let subCatArr = []
-        for (subcat of responseCode.data.subcats) {
-          if (!subCatArr.includes(subcat.subCat)) {
-            subCatArr.push(subcat.subCat)
-          }
+        function refreshpage() {
+            window.location.reload()
         }
 
         function loginLogout() {
@@ -416,63 +418,37 @@
                 window.location.reload()
             }
         }
-      }
-    }
 
-    async function checkRequestedItems() {
-      let response = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/request/" + user.username)
-      let data = await response.json()
-      if (data.code == 200) {
-        return data.requestedItemIds
-      }
-    }
+        // Search function on Cat & Sub Cat once Sub Cat is selected
+        async function filter() {
+            let catVal = document.getElementById("catSearchList").value
+            let subCatVal = subCatList.value
 
-    function refreshpage() {
-      window.location.reload()
-    }
+            let response = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getItemsBySubCat/" + catVal + "/" + subCatVal)
+            let responseCode = await response.json()
 
-    function loginLogout() {
-      if (document.getElementById("loginLogoutButton").innerText === "Login") {
-        window.location.href = "login.html"
-      } else {
-        // user = ""
-        sessionStorage.removeItem("user")
-        window.location.reload()
-      }
-    }
+            if (responseCode.code == 200) {
+                mainCarouselDisplay.innerHTML = ""
+                let itemCheck = []
+                for (item of responseCode.data.items) {
+                    console.log(item)
+                    date = new Date(item.timeSubmitted);
+                    lastDate = date.setDate(date.getDate() + 1);
+                    dateNow = Date.now();
+                    // if current date is earlier/smaller than expiry date
+                    if ((dateNow - lastDate) < 0) {
+                        itemCheck.push(item)
 
-    // Search function on Cat & Sub Cat once Sub Cat is selected
-    async function filter() {
-      let catVal = cat.value
-      let subCatVal = subCatList.value
+                        if (itemCheck.length > 0) {
+                            var req = "Request!";
+                            var disable = "";
+                            if (reqItemArr.indexOf(item.donationID) != -1) {
+                                var req = "Requested!";
+                                var disable = "disabled";
+                            }
 
-      let response = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getItemsBySubCat/" + catVal + "/" + subCatVal)
-      let responseCode = await response.json()
-
-      if (responseCode.code == 200) {
-        mainCarouselDisplay.innerHTML = ""
-        let itemCheck = []
-        for (item of responseCode.data.items) {
-          console.log(item)
-          date = new Date(item.timeSubmitted);
-          lastDate = date.setDate(date.getDate() + 1);
-          dateNow = Date.now();
-          // if current date is earlier/smaller than expiry date
-          if ((dateNow - lastDate) < 0) {
-            itemCheck.push(item)
-
-            if (itemCheck.length > 0) {
-              var req = "Request!";
-              var disable = "";
-              if (reqItemArr.indexOf(item.donationID) != -1) {
-                var req = "Requested!";
-                var disable = "disabled";
-              }
-
-              mainCarouselDisplay.innerHTML += `
-                                <div class="col-lg-4 d-flex align-items-stretch p-3 rounded-2">
                             mainCarouselDisplay.innerHTML += `
-                                <div class="col-lg-4 d-flex align-items-stretch p-3 rounded-2">
+                                <div class="col-lg-4 d-flex justify-content-center align-items-stretch p-3 rounded-2">
                                 <div class="card" style="width: 20rem;">
                                     <img src="./assets/img/donations/${item["Item Photo"]}" class="card-img-top" alt="...">
                                     <div class="card-content">
@@ -527,7 +503,7 @@
             classElement = document.getElementsByClassName("donationItem");
             for (let i = 0; i < classElement.length; i++) {
                 let donationID = classElement[i].getAttribute("data-tip");
-                let request = await fetch("http://127.0.0.1:5003/matchingAlgorithm/" + donationID);
+                let request = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/matchingAlgorithm/" + donationID);
                 let response = await response.json();
 
                 if (response.code == 200) {
