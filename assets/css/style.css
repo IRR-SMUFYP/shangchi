@@ -274,19 +274,19 @@ body {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 14px;
+    font-size: 18px;
     color: black;
     white-space: nowrap;
     transition: 0.3s;
     padding: 5px 2px;
   }
   
-  .navbar a i,
+  /* .navbar a i,
   .navbar a:focus i {
     font-size: 12px;
     line-height: 0;
     margin-left: 5px;
-  }
+  } */
   
   .navbar a:hover,
   .navbar .active,
