@@ -438,34 +438,34 @@
                     // if current date is earlier/smaller than expiry date
                     if ((dateNow - lastDate) < 0) {
                         itemCheck.push(item)
-
-                        if (itemCheck.length > 0) {
-                            var req = "Request!";
-                            var disable = "";
-                            if (reqItemArr.indexOf(item.donationID) != -1) {
-                                var req = "Requested!";
-                                var disable = "disabled";
-                            }
-
-                            mainCarouselDisplay.innerHTML += `
-                                <div class="col-lg-4 d-flex align-items-stretch p-3 rounded-2">
-                                <div class="card" style="width: 20rem;">
-                                    <img src="./assets/img/donations/${item["Item Photo"]}" class="card-img-top" alt="...">
-                                    <div class="card-content">
-                                    <div class="card-body">
-                                        <h4 class="card-title">Item Name: ${item.itemName}</h5>
-                                        <h6 class="card-subtitle mb-2">Category: ${item.category}</h6>
-                                        <h6 class="card-subtitle">Sub-Category: ${item.subCat}</h6>
-                                        <button data-tip="${item.donationID}" onclick="checkUserType(this)" ${disable} class="btn btn-primary">${req}</button>
-                                    </div>
-                                    </div>
-                                </div>
-                                </div>
-                            `
-                        } else {
-                            mainCarouselDisplay.innerHTML =
-                                "<div class='text-center alert alert-warning rounded-3' style='height: 120px'> <p class='mt-3'> There are no items available for request at the moment, please try again later </p> </div>"
+                    }
+                    
+                    if (itemCheck.length > 0) {
+                        var req = "Request!";
+                        var disable = "";
+                        if (reqItemArr.indexOf(item.donationID) != -1) {
+                            var req = "Requested!";
+                            var disable = "disabled";
                         }
+
+                        mainCarouselDisplay.innerHTML += `
+                            <div class="col-lg-4 d-flex align-items-stretch p-3 rounded-2">
+                            <div class="card" style="width: 20rem;">
+                                <img src="./assets/img/donations/${item["Item Photo"]}" class="card-img-top" alt="...">
+                                <div class="card-content">
+                                <div class="card-body">
+                                    <h4 class="card-title">Item Name: ${item.itemName}</h5>
+                                    <h6 class="card-subtitle mb-2">Category: ${item.category}</h6>
+                                    <h6 class="card-subtitle">Sub-Category: ${item.subCat}</h6>
+                                    <button data-tip="${item.donationID}" onclick="checkUserType(this)" ${disable} class="btn btn-primary">${req}</button>
+                                </div>
+                                </div>
+                            </div>
+                            </div>
+                        `
+                    } else {
+                        mainCarouselDisplay.innerHTML =
+                            "<div class='text-center alert alert-warning rounded-3' style='height: 120px'> <p class='mt-3'> There are no items available for request at the moment, please try again later </p> </div>"
                     }
                 }
             } else {
