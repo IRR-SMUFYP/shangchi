@@ -464,6 +464,7 @@
                     date = new Date(item.timeSubmitted);
                     lastDate = date.setDate(date.getDate() + 1);
                     dateNow = Date.now();
+                    console.log(dateNow, lastDate);
                     // if current date is earlier/smaller than expiry date
                     if ((dateNow - lastDate) < 0) {
                         itemCheck.push(item)
