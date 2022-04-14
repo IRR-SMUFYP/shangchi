@@ -1,4 +1,3 @@
-from codecs import getdecoder
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import load_only
@@ -7,17 +6,19 @@ from datetime import datetime
 import xlsxwriter
 import os
 from os import environ
-from sqlalchemy import ForeignKey
 from werkzeug.utils import secure_filename
 import bcrypt
 import random
 import requests
 import json
-import config
+# import config
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:@localhost:3306/imatch'
+app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'pool_recycle': 299}
 
@@ -448,9 +449,9 @@ def getSubCat(cat):
         }
     ), 404
 
-@app.route("/getItemsInSubCat/<subcat>")
-def getItemsInSubCat(subcat):
-    itemsInCategory = CategoryItem.query.filter_by(subCat=subcat)
+@app.route("/getItemNames/<cat>/<subcat>")
+def getItemNames(cat, subcat):
+    itemsInCategory = CategoryItem.query.filter_by(category=cat).filter_by(subCat=subcat).all()
     # print(itemsInCategory)
 
     if (itemsInCategory):
@@ -926,9 +927,9 @@ def getItemsByCategory(cat):
         }
     ), 404
 
-@app.route("/getItemsBySubCat/<subcat>")
-def filterItems(subcat):
-    subcatList = CategoryItem.query.filter_by(subCat=subcat).all()
+@app.route("/getItemsBySubCat/<cat>/<subcat>")
+def filterItems(cat, subcat):
+    subcatList = CategoryItem.query.filter_by(category=cat).filter_by(subCat=subcat).all()
     subcatItemList = []
     for category in subcatList:
         itemList = Donation.query.filter_by(itemID=category.itemID).all()
@@ -1444,7 +1445,7 @@ def matchingAlgorithm(donationID):
                 addressFieldID = FormBuilder.query.filter_by(fieldName="Address").first().fieldID
                 donorLoc = FormAnswers.query.filter_by(submissionID=donationID).filter_by(fieldID=addressFieldID).first().answer 
                 # google maps api to calculate distance
-                apikey = config.api_key
+                apikey = environ.get('GOOGLE_API_KEY')
                 geocodeAPI1 = "https://maps.googleapis.com/maps/api/geocode/json?address=" + donorLoc + "&components=country:SG&key=" + apikey
                 response1 = requests.get(geocodeAPI1)
                 if response1.status_code == 200:
@@ -1530,7 +1531,7 @@ def matchingAlgorithm(donationID):
     return jsonify(
         {
             "code": 404,
-            "message": "No migrant workers requested for this item ID."
+            "message": "No migrant workers requested for this donation ID."
         }
     ), 404
 
