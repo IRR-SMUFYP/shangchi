@@ -12,9 +12,9 @@ import random
 import requests
 import json
 # import config
-from dotenv import load_dotenv
+# from dotenv import load_dotenv
 
-load_dotenv()
+# load_dotenv()
 
 app = Flask(__name__)
 
