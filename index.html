@@ -340,7 +340,8 @@
         // Function to load donations
         async function loadCarousel() {
             try {
-                let response = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/donation")
+                let response = await fetch(
+                    "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/donation")
                 let responseCode = await response.json()
                 if (responseCode.code == 200) {
                     return responseCode.data.items
@@ -355,7 +356,8 @@
         // Function to view wishlist items
         async function loadWishList() {
             try {
-                let response = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/wishlist")
+                let response = await fetch(
+                    "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/wishlist")
                 let responseCode = await response.json()
                 if (responseCode.code == 200) {
                     return responseCode.data.items
@@ -380,7 +382,8 @@
         async function populateSubCat(cat) {
             subCatList.innerHTML = ""
             cat = cat.value
-            let response = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getSubCat/" + cat)
+            let response = await fetch(
+                "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getSubCat/" + cat)
             let responseCode = await response.json()
 
             if (responseCode.code == 200) {
@@ -398,7 +401,8 @@
         }
 
         async function checkRequestedItems() {
-            let response = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/request/" + user.username)
+            let response = await fetch(
+                "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/request/" + user.username)
             let data = await response.json()
             if (data.code == 200) {
                 return data.requestedItemIds
@@ -419,57 +423,60 @@
             }
         }
 
-    async function checkRequestedItems() {
-      let response = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/request/" + user.username)
-      let data = await response.json()
-      if (data.code == 200) {
-        return data.requestedItemIds
-      }
-    }
+        async function checkRequestedItems() {
+            let response = await fetch(
+                "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/request/" + user.username)
+            let data = await response.json()
+            if (data.code == 200) {
+                return data.requestedItemIds
+            }
+        }
 
-    function refreshpage() {
-      window.location.reload()
-    }
+        function refreshpage() {
+            window.location.reload()
+        }
 
-    function loginLogout() {
-      if (document.getElementById("loginLogoutButton").innerText === "Login") {
-        window.location.href = "login.html"
-      } else {
-        // user = ""
-        sessionStorage.removeItem("user")
-        window.location.reload()
-      }
-    }
+        function loginLogout() {
+            if (document.getElementById("loginLogoutButton").innerText === "Login") {
+                window.location.href = "login.html"
+            } else {
+                // user = ""
+                sessionStorage.removeItem("user")
+                window.location.reload()
+            }
+        }
 
-    // Search function on Cat & Sub Cat once Sub Cat is selected
-    async function filter() {
-      let catVal = cat.value
-      let subCatVal = subCatList.value
+        // Search function on Cat & Sub Cat once Sub Cat is selected
+        async function filter() {
+            let catVal = cat.value
+            let subCatVal = subCatList.value
 
-      let response = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getItemsBySubCat/" + catVal + "/" + subCatVal)
-      let responseCode = await response.json()
+            let response = await fetch(
+                "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getItemsBySubCat/" +
+                catVal + "/" + subCatVal)
+            let responseCode = await response.json()
 
-      if (responseCode.code == 200) {
-        mainCarouselDisplay.innerHTML = ""
-        let itemCheck = []
-        for (item of responseCode.data.items) {
-          console.log(item)
-          date = new Date(item.timeSubmitted);
-          lastDate = date.setDate(date.getDate() + 1);
-          dateNow = Date.now();
-          // if current date is earlier/smaller than expiry date
-          if ((dateNow - lastDate) < 0) {
-            itemCheck.push(item)
+            if (responseCode.code == 200) {
+                mainCarouselDisplay.innerHTML = ""
+                let itemCheck = []
+                for (item of responseCode.data.items) {
+                    console.log(item)
+                    date = new Date(item.timeSubmitted);
+                    lastDate = date.setDate(date.getDate() + 1);
+                    dateNow = Date.now();
+                    // if current date is earlier/smaller than expiry date
+                    if ((dateNow - lastDate) < 0) {
+                        itemCheck.push(item)
+                    }
+                    if (itemCheck.length > 0) {
+                        var req = "Request!";
+                        var disable = "";
+                        if (reqItemArr.indexOf(item.donationID) != -1) {
+                            var req = "Requested!";
+                            var disable = "disabled";
+                        }
 
-            if (itemCheck.length > 0) {
-              var req = "Request!";
-              var disable = "";
-              if (reqItemArr.indexOf(item.donationID) != -1) {
-                var req = "Requested!";
-                var disable = "disabled";
-              }
-
-              mainCarouselDisplay.innerHTML += `
+                        mainCarouselDisplay.innerHTML += `
                                 <div class="col-lg-4 d-flex align-items-stretch p-3 rounded-2">
                                 <div class="card" style="width: 20rem;">
                                     <img src="./assets/img/donations/${item["Item Photo"]}" class="card-img-top" alt="...">
@@ -503,7 +510,7 @@
             if (user == "") {
                 let confirmMsg = confirm(
                     "Only Migrant Workers who are logged in are able to request for items, click 'Ok' to go to the Login Page."
-                    )
+                )
 
                 if (confirmMsg == true) {
                     window.location.href = "login.html"
@@ -526,7 +533,9 @@
             classElement = document.getElementsByClassName("donationItem");
             for (let i = 0; i < classElement.length; i++) {
                 let donationID = classElement[i].getAttribute("data-tip");
-                let request = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/matchingAlgorithm/" + donationID);
+                let request = await fetch(
+                    "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/matchingAlgorithm/" +
+                    donationID);
                 let response = await response.json();
 
                 if (response.code == 200) {
