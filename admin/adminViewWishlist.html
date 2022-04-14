@@ -141,7 +141,7 @@
         var columns = [];
         function getDT() {
             $.ajax({
-                url: "http://127.0.0.1:5003/getFormAnswers/wishlist",
+                url: "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getFormAnswers/wishlist",
                 success: function (data) {
                     columnNames = Object.keys(data.data[0]);
                     // items = data.data.items;
@@ -179,7 +179,7 @@
 
             function fillWishlistDetails(val) {
                 $(async () => {
-                    var serviceURL = "http://127.0.0.1:5003/getFormAnswers/wishlist/" + val;
+                    var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getFormAnswers/wishlist/" + val;
                     try {
                         const response =
                             await fetch(
@@ -238,7 +238,7 @@
 
                 var jsondata = JSON.stringify(data);
                 $(async () => {
-                    var serviceURL = "http://127.0.0.1:5003/updateFormAnswers/wishlist/" + wishlistID;
+                    var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/updateFormAnswers/wishlist/" + wishlistID;
                     try {
                         const response =
                             await fetch(
