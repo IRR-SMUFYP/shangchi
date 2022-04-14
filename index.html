@@ -448,7 +448,7 @@
 
         // Search function on Cat & Sub Cat once Sub Cat is selected
         async function filter() {
-            let catVal = cat.value
+            let catVal = document.getElementById("catSearchList").value
             let subCatVal = subCatList.value
 
             let response = await fetch(
