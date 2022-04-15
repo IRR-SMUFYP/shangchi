@@ -1402,6 +1402,7 @@ def matchingAlgorithm(donationID):
         minValue = min(allKeys, default="EMPTY")
         # get list of migrantID(s) with the least match count
         priorityMW = reqHist[minValue]
+        print(priorityMW)
         # new dictionary to calc migrant worker points
         mwPoints = {}
 
@@ -1518,12 +1519,16 @@ def matchingAlgorithm(donationID):
         reqID = Request.query.filter_by(donationID=donationID).filter_by(migrantID=finalMW).first().reqID
         donorID = Donation.query.filter_by(donationID=donationID).first().donorID
         match = {"reqID": reqID, "migrantID": finalMW, "donorID": donorID, "matchDate": timeNow}
-        if Matches.query.filter_by(reqID=reqID).first() is None:
+        donation = Donation.query.filter_by(donationID=donationID).first()
+        if donation.itemStatus == "Available":
             match = Matches(**match)
             db.session.add(match)
             db.session.commit()
-            print(reqID, donorID)
-            print(match)
+            donation.itemStatus = "Unavailable"
+            db.session.add(donation)
+            db.session.commit()
+            # print(reqID, donorID)
+            # print(match)
             # newMatch = Matches(**match)
             # db.session.add(newMatch)
             # db.session.commit()
