@@ -275,6 +275,16 @@
                                     "<div class='text-center alert alert-warning rounded-3' style='height: 120px'> <p class='mt-3'> There are no items available for request at the moment, please try again later </p> </div>"
                             }
                         }
+                        else {
+                            // matching algorithm
+                            let request = await fetch("http://127.0.0.1:5003/matchingAlgorithm/" + donationItemList[i].itemName);
+                            if (response.code == 200) {
+                                return response.finalMW;
+                            } else {
+                                console.log(response.message);
+                                alert(response.message);
+                            }
+                        }
                     }
                     if (mainCarouselDisplay.innerHTML == "") {
                         mainCarouselDisplay.innerHTML =
