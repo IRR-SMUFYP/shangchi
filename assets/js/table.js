@@ -318,6 +318,9 @@ function confirmDeleteRow(id) {
         else if (id == "matchID (delivery)") {
             var serviceURL = "http://127.0.0.1:5003/deleteDeliveryRequest/" + val;
         }
+        else if (id == "username") {
+            var serviceURL = "http://127.0.0.1:5003/deleteUser/" + val;
+        }
         else {
             var serviceURL = "http://127.0.0.1:5003/deleteRow/" + formName + "/" + val;
         }
