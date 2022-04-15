@@ -153,7 +153,7 @@ async function retrieveFormAdmin(formName) {
     
                 var contactField = `<div id="contactField" class="col-md-6">
                                         <label for="contactNo" class="form-label">Contact Number</label>
-                                        <input required type="number" class="form-control" id="contactNo">
+                                        <input required type="number" class="form-control" id="contactNo" value="undefined" name="contactNo">
                                     </div>`
                 var itemNameField = `<!--On change of this dropdown, auto get item names listed under this category-->
                                     <div class="col-6">
@@ -177,7 +177,7 @@ async function retrieveFormAdmin(formName) {
                                             <!--Dynamically update item names-->
                                         </select>
                                     </div>`;
-                var addButton = `<br><button type="button" onclick="submitForm('${formName}')" class="btn btn-outline-secondary col-2">Submit</button>`
+                var addButton = `<br><button type="button" onclick="submitForm('${formName}', form)" class="btn btn-outline-secondary col-2">Submit</button>`
     
                 // document.getElementById('contactField').innerHTML += contactField;
                 document.getElementById(formName).innerHTML += contactField + itemNameField + subCatField + catField + addButton;
@@ -218,7 +218,7 @@ function addRow(formName) {
     for (ele in reqFormElements) {
         // console.log(reqFormElements[ele])
         console.log(reqFormElements[ele].id);
-        if ((["donationID", "migrantID", "deliveryLocation","donorID", "reqID", "matchID", "driverID"]).includes(reqFormElements[ele].id)) {
+        if ((["donationID", "migrantID", "postalCode","donorID", "reqID", "matchID", "driverID"]).includes(reqFormElements[ele].id)) {
             if (reqFormElements[ele].value == "") {
                 alert("Please do not leave any blanks.");
                 return "error";
