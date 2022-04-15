@@ -529,7 +529,7 @@
         //             alert(response.message)
         //         }
         //     }
-            let request = await fetch("http://127.0.0.1:5003/matchingAlgorithm/" + donationID);
+            let request = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/matchingAlgorithm/" + donationID);
             let response = await request.json();
             if (response.code == 200) {
                 return response.finalMW;
