@@ -277,7 +277,7 @@
                         }
                         else {
                             // matching algorithm
-                            matchDonationsAndMW(donationItemList[i].itemName);
+                            matchDonationsAndMW(donationItemList[i].donationID);
                         }
                     }
                     if (mainCarouselDisplay.innerHTML == "") {
@@ -539,7 +539,7 @@
 
 
         // matching algo
-        async function matchDonationsAndMW(itemName) {
+        async function matchDonationsAndMW(donationID) {
             // classElement = document.getElementsByClassName("donationItem");
             // for (let i = 0; i < classElement.length; i++) {
             //     let donationID = classElement[i].getAttribute("data-tip");
@@ -554,7 +554,7 @@
             //         alert(response.message)
             //     }
             // }
-            let request = await fetch("http://127.0.0.1:5003/matchingAlgorithm/" + itemName);
+            let request = await fetch("http://127.0.0.1:5003/matchingAlgorithm/" + donationID);
             if (response.code == 200) {
                 return response.finalMW;
             } else {
