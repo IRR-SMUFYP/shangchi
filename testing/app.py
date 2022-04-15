@@ -10,8 +10,6 @@ from werkzeug.utils import secure_filename
 import bcrypt
 import random
 import requests
-import json
-import config
 from dotenv import load_dotenv
 
 load_dotenv()
