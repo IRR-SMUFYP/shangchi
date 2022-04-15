@@ -279,13 +279,7 @@
                         }
                         else {
                             // matching algorithm
-                            let request = await fetch("http://127.0.0.1:5003/matchingAlgorithm/" + donationItemList[i].itemName);
-                            if (response.code == 200) {
-                                return response.finalMW;
-                            } else {
-                                console.log(response.message);
-                                alert(response.message);
-                            }
+                            matchDonationsAndMW(donationItemList[i].donationID);
                         }
                     }
                     if (mainCarouselDisplay.innerHTML == "") {
@@ -514,7 +508,7 @@
         }
 
         // matching algorithm
-        // async function matchDonationsAndMW() {
+        async function matchDonationsAndMW(donationID) {
         //     classElement = document.getElementsByClassName("donationItem");
         //     for (let i = 0; i < classElement.length; i++) {
         //         let donationID = classElement[i].getAttribute("data-tip");
@@ -527,7 +521,15 @@
         //             alert(response.message)
         //         }
         //     }
-        // }
+            let request = await fetch("http://127.0.0.1:5003/matchingAlgorithm/" + donationID);
+            let response = await request.json();
+            if (response.code == 200) {
+                return response.finalMW;
+            } else {
+                console.log(response.message);
+                // alert(response.message);
+            }
+        }
 
 
     </script>
