@@ -277,13 +277,7 @@
                         }
                         else {
                             // matching algorithm
-                            let request = await fetch("http://127.0.0.1:5003/matchingAlgorithm/" + donationItemList[i].itemName);
-                            if (response.code == 200) {
-                                return response.finalMW;
-                            } else {
-                                console.log(response.message);
-                                alert(response.message);
-                            }
+                            matchDonationsAndMW(donationItemList[i].itemName);
                         }
                     }
                     if (mainCarouselDisplay.innerHTML == "") {
@@ -545,22 +539,29 @@
 
 
         // matching algo
-        // async function matchDonationsAndMW() {
-        //     classElement = document.getElementsByClassName("donationItem");
-        //     for (let i = 0; i < classElement.length; i++) {
-        //         let donationID = classElement[i].getAttribute("data-tip");
-        //         let request = await fetch(
-        //             "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/matchingAlgorithm/" +
-        //             donationID);
-        //         let response = await response.json();
+        async function matchDonationsAndMW(itemName) {
+            // classElement = document.getElementsByClassName("donationItem");
+            // for (let i = 0; i < classElement.length; i++) {
+            //     let donationID = classElement[i].getAttribute("data-tip");
+            //     let request = await fetch(
+            //         "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/matchingAlgorithm/" +
+            //         donationID);
+            //     let response = await response.json();
 
-        //         if (response.code == 200) {
-        //             return response.finalMW
-        //         } else {
-        //             alert(response.message)
-        //         }
-        //     }
-        // }
+            //     if (response.code == 200) {
+            //         return response.finalMW
+            //     } else {
+            //         alert(response.message)
+            //     }
+            // }
+            let request = await fetch("http://127.0.0.1:5003/matchingAlgorithm/" + itemName);
+            if (response.code == 200) {
+                return response.finalMW;
+            } else {
+                console.log(response.message);
+                alert(response.message);
+            }
+        }
     </script>
 
 </body>
