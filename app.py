@@ -1403,6 +1403,7 @@ def matchingAlgorithm(donationID):
         minValue = min(allKeys, default="EMPTY")
         # get list of migrantID(s) with the least match count
         priorityMW = reqHist[minValue]
+        print(priorityMW)
         # new dictionary to calc migrant worker points
         mwPoints = {}
 
@@ -1442,7 +1443,7 @@ def matchingAlgorithm(donationID):
             mwDist = {}
             for mw, points in mwPoints.items():
                 mwLoc = Request.query.filter_by(donationID=donationID).filter_by(migrantID=mw).first().postalCode
-                addressFieldID = FormBuilder.query.filter_by(fieldName="Address").first().fieldID
+                addressFieldID = FormBuilder.query.filter_by(fieldName="Postal Code").first().fieldID
                 donorLoc = FormAnswers.query.filter_by(submissionID=donationID).filter_by(fieldID=addressFieldID).first().answer 
                 # google maps api to calculate distance
                 apikey = environ.get('GOOGLE_API_KEY')
@@ -1514,20 +1515,30 @@ def matchingAlgorithm(donationID):
             randomInt = random.randint(1, len(finalMWs))
             finalMW = finalMWs[randomInt - 1]
 
+        print(finalMW)
         # LAST STEP: add the match to the db
         reqID = Request.query.filter_by(donationID=donationID).filter_by(migrantID=finalMW).first().reqID
         donorID = Donation.query.filter_by(donationID=donationID).first().donorID
         match = {"reqID": reqID, "migrantID": finalMW, "donorID": donorID, "matchDate": timeNow}
-        newMatch = Matches(**match)
-        db.session.add(newMatch)
-        db.session.commit()
-        
-        return jsonify(
-            {
-                "code": 200,
-                "finalMW": finalMW
-            }
-        )
+        donation = Donation.query.filter_by(donationID=donationID).first()
+        if donation.itemStatus == "Available":
+            match = Matches(**match)
+            db.session.add(match)
+            db.session.commit()
+            donation.itemStatus = "Unavailable"
+            db.session.add(donation)
+            db.session.commit()
+            # print(reqID, donorID)
+            # print(match)
+            # newMatch = Matches(**match)
+            # db.session.add(newMatch)
+            # db.session.commit()
+            return jsonify(
+                {
+                    "code": 200,
+                    "finalMW": finalMW
+                }
+            )
     return jsonify(
         {
             "code": 404,
