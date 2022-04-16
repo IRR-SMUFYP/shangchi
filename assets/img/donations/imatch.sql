@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS `request` (
   `reqID` int NOT NULL AUTO_INCREMENT,
   `donationID` varchar(30) NOT NULL,
   `migrantID` int NOT NULL,
-  `deliveryLocation` varchar(300) NOT NULL,
+  `postalCode` varchar(300) NOT NULL,
   `timeSubmitted` datetime NOT NULL,
   PRIMARY KEY (`reqID`),
   FOREIGN KEY (`migrantID`) REFERENCES user (`username`),
@@ -353,7 +353,7 @@ INSERT INTO wishlist (`wishlistID`, `migrantID`, `itemID`, `timeSubmitted`, `ite
 ('test', 12345678, 1, now(), 'available');
 
 -- for request table
-INSERT INTO request (`reqID`, `migrantID`, `deliveryLocation`, `donationID`, `timeSubmitted`) VALUES
+INSERT INTO request (`reqID`, `migrantID`, `postalCode`, `donationID`, `timeSubmitted`) VALUES
 (1, 12345678, 'pasir ris', '2022-02-15 21:35:42 92251521', now());
 
 -- for matches table

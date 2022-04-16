@@ -1373,7 +1373,7 @@ def updateSuccessfulMatches(matchID):
         db.session.add(match)
         db.session.commit()
         req.postalCode = data['postalCode']
-        req.requestQty = data['requestQty']
+        # req.requestQty = data['requestQty']
         db.session.add(req)
         db.session.commit()
         donationItem.itemStatus = data['itemStatus']
