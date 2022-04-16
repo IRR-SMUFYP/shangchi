@@ -319,7 +319,7 @@ function confirmDeleteRow(id) {
             var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/deleteDeliveryRequest/" + val;
         }
         else if (id == "username") {
-            var serviceURL = "http://127.0.0.1:5003/deleteUser/" + val;
+            var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/deleteUser/" + val;
         }
         else {
             var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/deleteRow/" + formName + "/" + val;
