@@ -1,4 +1,3 @@
-from codecs import getdecoder
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy.orm import load_only
@@ -7,17 +6,18 @@ from datetime import datetime
 import xlsxwriter
 import os
 from os import environ
-from sqlalchemy import ForeignKey
 from werkzeug.utils import secure_filename
 import bcrypt
 import random
 import requests
 import json
-import config
+# import config
+from dotenv import load_dotenv
+load_dotenv()
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:@localhost:3306/imatch'
+app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'pool_recycle': 299}
 
@@ -160,19 +160,6 @@ class Faq(db.Model):
 #endregion
 
 
-# region USER
-# get All Users
-@app.route("/getAllUsers")
-def getAllUsers():
-    users = User.query.all()
-    columnHeaders = User.metadata.tables["user"].columns.keys()
-    return jsonify(
-        {
-        "code": 200,
-        "columnHeaders": columnHeaders,
-        "data": [user.json() for user in users]
-    })
-
 # get user by username
 @app.route("/getUser/<username>")
 def getUser(username):
@@ -185,33 +172,45 @@ def getUser(username):
         "data": user.json()
     })
 
+# get All Users
+@app.route("/getAllUsers")
+def getAllUsers():
+    users = User.query.all()
+    columnHeaders = User.metadata.tables["user"].columns.keys()
+    return jsonify(
+        {
+        "code": 200,
+        "columnHeaders": columnHeaders,
+        "data": [user.json() for user in users]
+    })
+
 # Register MW 
 @app.route("/registermw", methods=['POST'])
 def registerMW():
-    formData = request.form
-    formDict = formData.to_dict()
-    username = formDict['userName']
-    pw = formDict['pw']
-    hashedpw = bcrypt.hashpw(str(pw).encode('utf-8'), bcrypt.gensalt())
+        formData = request.form
+        formDict = formData.to_dict()
+        username = formDict['userName']
+        pw = formDict['pw']
+        hashedpw = bcrypt.hashpw(str(pw).encode('utf-8'), bcrypt.gensalt())
 
-    addtodb = User(username, hashedpw, "worker")
-    
-    try:
-        db.session.add(addtodb)
-        db.session.commit()
-        return jsonify (
-            {
-                "code": 200,
-                "message": "Worker account for " + username + " successfully created!"
-            }
-        )
-    except Exception as e:
-        return jsonify(
-            {
-                "code": 500,
-                "message": "An error occurred while registering user :" + str(e)
-            }
-        ), 500
+        addtodb = User(username, hashedpw, "worker")
+        
+        try:
+            db.session.add(addtodb)
+            db.session.commit()
+            return jsonify (
+                {
+                    "code": 200,
+                    "message": "Worker account for " + username + " successfully created!"
+                }
+            )
+        except Exception as e:
+            return jsonify(
+                {
+                    "code": 500,
+                    "message": "An error occurred while registering user :" + str(e)
+                }
+            ), 500
 
 # Register admin account
 @app.route("/registeradmin", methods=['POST'])
@@ -244,78 +243,30 @@ def registerAdmin():
 # Register Driver Account
 @app.route("/registerDriver", methods=['POST'])
 def registerDriver():
-    formData = request.form
-    formDict = formData.to_dict()
-    username = formDict['userName']
-    pw = formDict['pw']
-    hashedpw = bcrypt.hashpw(str(pw).encode('utf-8'), bcrypt.gensalt())
+        formData = request.form
+        formDict = formData.to_dict()
+        username = formDict['userName']
+        pw = formDict['pw']
+        hashedpw = bcrypt.hashpw(str(pw).encode('utf-8'), bcrypt.gensalt())
 
-    addtodb = User(username, hashedpw, "driver")
-    
-    try:
-        db.session.add(addtodb)
-        db.session.commit()
-        return jsonify (
-            {
-                "code": 200,
-                "message": "Driver account for " + username + " successfully created!"
-            }
-        )
-    except Exception as e:
-        return jsonify(
-            {
-                "code": 500,
-                "message": "An error occurred while registering user :" + str(e)
-            }
-        ), 500
-            
-# edit Account in table
-@app.route("/updateUser/<username>", methods=["PUT"])
-def updateAccountInfo(username):
-    user = User.query.filter_by(username=username).first()
-    data = request.get_json()
-    # print(data)
-    if (user is None):
-        return jsonify( 
-            {
-                "code": 404,
-                "message": "This username is not found in the database."
-            }
-        )
-    else:
-        user.password = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt())
-        user.userType = data['userType']
-        db.session.add(user)
-        db.session.commit()
-        return jsonify(
-            {
-                "code": 200,
-                "message": "Account info updated successfully.",
-                "user": user.json(),
-            }
-        )
-
-# delete account by username
-@app.route("/deleteUser/<username>", methods=["DELETE"])
-def deleteUser(username):
-    user = User.query.filter_by(username=username).first()
-    try:
-        db.session.delete(user)
-        db.session.commit()
-        return jsonify (
-            {
-                "code": 200,
-                "message": "Row deleted successfully!"
-            }
-        )
-    except Exception as e:
-        print(e)
-        return jsonify(
-            {
-                "code": 500,
-                "message": "An error occurred while deleting the data, please try again later"
-            }
-        ), 500
+        addtodb = User(username, hashedpw, "driver")
+        
+        try:
+            db.session.add(addtodb)
+            db.session.commit()
+            return jsonify (
+                {
+                    "code": 200,
+                    "message": "Driver account for " + username + " successfully created!"
+                }
+            )
+        except Exception as e:
+            return jsonify(
+                {
+                    "code": 500,
+                    "message": "An error occurred while registering user :" + str(e)
+                }
+            ), 500
 
 
 # edit Account in table
@@ -1422,7 +1373,7 @@ def updateSuccessfulMatches(matchID):
         db.session.add(match)
         db.session.commit()
         req.postalCode = data['postalCode']
-        # req.requestQty = data['requestQty']
+        req.requestQty = data['requestQty']
         db.session.add(req)
         db.session.commit()
         donationItem.itemStatus = data['itemStatus']
@@ -1564,7 +1515,7 @@ def matchingAlgorithm(donationID):
                 addressFieldID = FormBuilder.query.filter_by(fieldName="Postal Code").first().fieldID
                 donorLoc = FormAnswers.query.filter_by(submissionID=donationID).filter_by(fieldID=addressFieldID).first().answer 
                 # google maps api to calculate distance
-                apikey = config.api_key
+                apikey = environ.get('GOOGLE_API_KEY')
                 geocodeAPI1 = "https://maps.googleapis.com/maps/api/geocode/json?address=" + donorLoc + "&components=country:SG&key=" + apikey
                 response1 = requests.get(geocodeAPI1)
                 if response1.status_code == 200:
