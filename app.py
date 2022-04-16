@@ -13,7 +13,7 @@ import bcrypt
 import random
 import requests
 import json
-import config
+# import config
 
 app = Flask(__name__)
 
@@ -268,7 +268,7 @@ def checkLogin():
     if (user != None):
         if (bcrypt.checkpw(str(pw).encode('utf-8'), str(user.password).encode('utf-8'))):
 
-            print("Password checks out, user", user.username, "is logged in")
+            print("Password checks out, user", user.username, "logged in at ", datetime.now())
 
             return jsonify(
                 {
