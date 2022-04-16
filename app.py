@@ -160,16 +160,16 @@ class Faq(db.Model):
 #endregion
 
 
-# region USER
-@app.route("/getAllUsers")
-def getAllUsers():
-    users = User.query.all()
+# get user by username
+@app.route("/getUser/<username>")
+def getUser(username):
+    user = User.query.filter_by(username=username).first()
     columnHeaders = User.metadata.tables["user"].columns.keys()
     return jsonify(
         {
         "code": 200,
         "columnHeaders": columnHeaders,
-        "data": [user.json() for user in users]
+        "data": user.json()
     })
 
 # get All Users
