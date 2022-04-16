@@ -172,6 +172,18 @@ def getAllUsers():
         "data": [user.json() for user in users]
     })
 
+# get All Users
+@app.route("/getAllUsers")
+def getAllUsers():
+    users = User.query.all()
+    columnHeaders = User.metadata.tables["user"].columns.keys()
+    return jsonify(
+        {
+        "code": 200,
+        "columnHeaders": columnHeaders,
+        "data": [user.json() for user in users]
+    })
+
 # Register MW 
 @app.route("/registermw", methods=['POST'])
 def registerMW():
@@ -255,6 +267,55 @@ def registerDriver():
                     "message": "An error occurred while registering user :" + str(e)
                 }
             ), 500
+
+
+# edit Account in table
+@app.route("/updateUser/<username>", methods=["PUT"])
+def updateAccountInfo(username):
+    user = User.query.filter_by(username=username).first()
+    data = request.get_json()
+    # print(data)
+    if (user is None):
+        return jsonify( 
+            {
+                "code": 404,
+                "message": "This username is not found in the database."
+            }
+        )
+    else:
+        user.password = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt())
+        user.userType = data['userType']
+        db.session.add(user)
+        db.session.commit()
+        return jsonify(
+            {
+                "code": 200,
+                "message": "Account info updated successfully.",
+                "user": user.json(),
+            }
+        )
+
+# delete account by username
+@app.route("/deleteUser/<username>", methods=["DELETE"])
+def deleteUser(username):
+    user = User.query.filter_by(username=username).first()
+    try:
+        db.session.delete(user)
+        db.session.commit()
+        return jsonify (
+            {
+                "code": 200,
+                "message": "Row deleted successfully!"
+            }
+        )
+    except Exception as e:
+        print(e)
+        return jsonify(
+            {
+                "code": 500,
+                "message": "An error occurred while deleting the data, please try again later"
+            }
+        ), 500
 
 # Login function to check if user exists and if password is correct
 @app.route("/login", methods=['POST'])
