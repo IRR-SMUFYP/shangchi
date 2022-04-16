@@ -13,7 +13,7 @@ import bcrypt
 import random
 import requests
 import json
-# import config
+import config
 
 app = Flask(__name__)
 
@@ -177,9 +177,11 @@ def getAllUsers():
 @app.route("/getUser/<username>")
 def getUser(username):
     user = User.query.filter_by(username=username).first()
+    columnHeaders = User.metadata.tables["user"].columns.keys()
     return jsonify(
         {
         "code": 200,
+        "columnHeaders": columnHeaders,
         "data": user.json()
     })
 
@@ -266,6 +268,32 @@ def registerDriver():
                 "message": "An error occurred while registering user :" + str(e)
             }
         ), 500
+            
+# edit Account in table
+@app.route("/updateUser/<username>", methods=["PUT"])
+def updateAccountInfo(username):
+    user = User.query.filter_by(username=username).first()
+    data = request.get_json()
+    # print(data)
+    if (user is None):
+        return jsonify( 
+            {
+                "code": 404,
+                "message": "This username is not found in the database."
+            }
+        )
+    else:
+        user.password = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt())
+        user.userType = data['userType']
+        db.session.add(user)
+        db.session.commit()
+        return jsonify(
+            {
+                "code": 200,
+                "message": "Account info updated successfully.",
+                "user": user.json(),
+            }
+        )
 
 # delete account by username
 @app.route("/deleteUser/<username>", methods=["DELETE"])
@@ -1345,7 +1373,7 @@ def updateSuccessfulMatches(matchID):
         db.session.add(match)
         db.session.commit()
         req.postalCode = data['postalCode']
-        req.requestQty = data['requestQty']
+        # req.requestQty = data['requestQty']
         db.session.add(req)
         db.session.commit()
         donationItem.itemStatus = data['itemStatus']

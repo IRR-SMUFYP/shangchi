@@ -105,12 +105,12 @@ class Request(db.Model):
     
     reqId = db.Column(db.Integer, primary_key=True, nullable=False, autoincrement=True)
     migrantID = db.Column(db.Integer, nullable=False)           #, ForeignKey('user.username')
-    deliveryLocation = db.Column(db.Integer, nullable=False)
+    postalCode = db.Column(db.Integer, nullable=False)
     carouselID = db.Column(db.String(30), nullable=False)       #, ForeignKey('carousel.id')
     timeSubmitted = db.Column(db.Date, nullable=False)
         
     def json(self):
-        return {"reqId": self.reqId, "migrantID": self.migrantID, "deliveryLocation": self.deliveryLocation, "carouselID": self.carouselID, "timeSubmitted": self.timeSubmitted}
+        return {"reqId": self.reqId, "migrantID": self.migrantID, "postalCode": self.postalCode, "carouselID": self.carouselID, "timeSubmitted": self.timeSubmitted}
 
 #endregion
 
@@ -651,7 +651,7 @@ def addNewRequest():
         formDict = formData.to_dict()
         addtodb = {}
         addtodb["carouselID"] = formDict['id']
-        addtodb["deliveryLocation"] = formDict['destination']
+        addtodb["postalCode"] = formDict['destination']
         addtodb["migrantID"] = formDict['contact']
 
         # Get datetime of donation posting

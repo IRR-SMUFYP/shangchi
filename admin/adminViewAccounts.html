@@ -193,7 +193,7 @@
         function fillUserDetails(val) {
             console.log(val);
             $(async () => {
-                var serviceURL = "http://127.0.0.1:5003/getRequests/" + val;
+                var serviceURL = "http://127.0.0.1:5003/getUser/" + val;
                 try {
                     const response =
                     await fetch(
@@ -204,13 +204,13 @@
                     const result = await response.json();
                     if (response.status == 200) {
                         // success case
+                        console.log(result.data);
                         for (var i in result.data) {
-                            if (["deliveryLocation", "donorID", "itemStatus", "requestQty", "migrantID"].includes(i)) {
-                                for (id in result.columnHeaders) {
-                                    if (result.columnHeaders[id] == i) {
-                                        document.querySelector('[placeholder="' + i + '"]').value = result.data[i];
-                                    }
-                                }
+                            // field = result.data[i];
+                            // console.log(result)
+                            if (i != "username") {
+                                // console.log(result.columnHeaders)
+                                document.querySelector('[placeholder="' + i + '"]').value = result.data[i]
                             }
                         }
 
@@ -227,10 +227,10 @@
             });
         }
 
-        function editUser() {
+        function editAccounts() {
             var data = {};
             var inputFields = document.getElementById("edit-section").children;
-            var reqID = document.querySelector('[placeholder="reqID"]').value;
+            var username = document.querySelector('[placeholder="username"]').value;
             for (var i in inputFields) {
                 input = inputFields[i];
                 inputChildrenCount = input.childElementCount;
@@ -250,7 +250,7 @@
             }
             var jsondata = JSON.stringify(data);
             $(async () => {
-                var serviceURL = "http://127.0.0.1:5003/updateUser/" + reqID;
+                var serviceURL = "http://127.0.0.1:5003/updateUser/" + username;
                 try {
                     const response =
                     await fetch(
