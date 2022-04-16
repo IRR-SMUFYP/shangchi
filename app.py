@@ -161,6 +161,7 @@ class Faq(db.Model):
 
 
 # region USER
+# get All Users
 @app.route("/getAllUsers")
 def getAllUsers():
     users = User.query.all()
@@ -170,6 +171,16 @@ def getAllUsers():
         "code": 200,
         "columnHeaders": columnHeaders,
         "data": [user.json() for user in users]
+    })
+
+# get user by username
+@app.route("/getUser/<username>")
+def getUser(username):
+    user = User.query.filter_by(username=username).first()
+    return jsonify(
+        {
+        "code": 200,
+        "data": user.json()
     })
 
 # Register MW 
