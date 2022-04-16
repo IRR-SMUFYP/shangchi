@@ -13,7 +13,7 @@ import bcrypt
 import random
 import requests
 import json
-# import config
+import config
 
 app = Flask(__name__)
 
@@ -177,9 +177,11 @@ def getAllUsers():
 @app.route("/getUser/<username>")
 def getUser(username):
     user = User.query.filter_by(username=username).first()
+    columnHeaders = User.metadata.tables["user"].columns.keys()
     return jsonify(
         {
         "code": 200,
+        "columnHeaders": columnHeaders,
         "data": user.json()
     })
 
