@@ -208,7 +208,7 @@
                         if (response.status == 200) {
                             // success case
                             for (var i in result.data) {
-                                if (["deliveryLocation", "donorID", "itemStatus", "requestQty", "migrantID"]
+                                if (["postalCode", "donorID", "itemStatus", "requestQty", "migrantID"]
                                     .includes(i)) {
                                     document.querySelector('[placeholder="' + i + '"]').value = result.data[
                                         i];

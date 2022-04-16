@@ -67,8 +67,6 @@
             <h1 class="logo me-auto"><a href="index.html"></a></h1>
             <!-- Uncomment below if you prefer to use an image logo -->
             <!-- <a href="index.html" class="logo me-auto"><img src="assets/img/logo.png" alt="" class="img-fluid"></a>-->
-    </div>
-  </header><!-- End Header -->
 
             <nav id="navbar" class="navbar order-last order-lg-0">
                 <ul>
@@ -81,8 +79,8 @@
             </nav><!-- .navbar -->
 
             <a id="loginLogoutButton" onclick="loginLogout()" style="cursor: pointer;"
-                class="appointment-btn scrollto">Login</a>
-
+            class="appointment-btn scrollto">Login</a>
+            
         </div>
     </header><!-- End Header -->
 
@@ -277,6 +275,10 @@
                                     "<div class='text-center alert alert-warning rounded-3' style='height: 120px'> <p class='mt-3'> There are no items available for request at the moment, please try again later </p> </div>"
                             }
                         }
+                        else {
+                            // matching algorithm
+                            matchDonationsAndMW(donationItemList[i].donationID);
+                        }
                     }
                     if (mainCarouselDisplay.innerHTML == "") {
                         mainCarouselDisplay.innerHTML =
@@ -342,7 +344,8 @@
         // Function to load donations
         async function loadCarousel() {
             try {
-                let response = await fetch("http://127.0.0.1:5003/donation")
+                let response = await fetch(
+                    "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/donation")
                 let responseCode = await response.json()
                 if (responseCode.code == 200) {
                     return responseCode.data.items
@@ -357,7 +360,8 @@
         // Function to view wishlist items
         async function loadWishList() {
             try {
-                let response = await fetch("http://127.0.0.1:5003/wishlist")
+                let response = await fetch(
+                    "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/wishlist")
                 let responseCode = await response.json()
                 if (responseCode.code == 200) {
                     return responseCode.data.items
@@ -369,7 +373,7 @@
 
         // Async function for Search Dropdown (Index Page)
         async function getDropDownCat() {
-            let response = await fetch("http://127.0.0.1:5003/getCat")
+            let response = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getCat")
             let responseCode = await response.json()
 
             if (responseCode.code == 200) {
@@ -382,7 +386,8 @@
         async function populateSubCat(cat) {
             subCatList.innerHTML = ""
             cat = cat.value
-            let response = await fetch("http://127.0.0.1:5003/getSubCat/" + cat)
+            let response = await fetch(
+                "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getSubCat/" + cat)
             let responseCode = await response.json()
 
             if (responseCode.code == 200) {
@@ -400,7 +405,8 @@
         }
 
         async function checkRequestedItems() {
-            let response = await fetch("http://127.0.0.1:5003/request/" + user.username)
+            let response = await fetch(
+                "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/request/" + user.username)
             let data = await response.json()
             if (data.code == 200) {
                 return data.requestedItemIds
@@ -426,7 +432,9 @@
             let catVal = document.getElementById("catSearchList").value
             let subCatVal = subCatList.value
 
-            let response = await fetch("http://127.0.0.1:5003/getItemsBySubCat/" + catVal + "/" + subCatVal)
+            let response = await fetch(
+                "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getItemsBySubCat/" +
+                catVal + "/" + subCatVal)
             let responseCode = await response.json()
 
             if (responseCode.code == 200) {
@@ -437,37 +445,39 @@
                     date = new Date(item.timeSubmitted);
                     lastDate = date.setDate(date.getDate() + 1);
                     dateNow = Date.now();
+                    console.log(dateNow, lastDate);
                     // if current date is earlier/smaller than expiry date
                     if ((dateNow - lastDate) < 0) {
                         itemCheck.push(item)
-                    }
-                    
-                    if (itemCheck.length > 0) {
-                        var req = "Request!";
-                        var disable = "";
-                        if (reqItemArr.indexOf(item.donationID) != -1) {
-                            var req = "Requested!";
-                            var disable = "disabled";
-                        }
+                        if (itemCheck.length > 0) {
+                            var req = "Request!";
+                            var disable = "";
+                            if (reqItemArr.indexOf(item.donationID) != -1) {
+                                var req = "Requested!";
+                                var disable = "disabled";
+                            }
 
-                        mainCarouselDisplay.innerHTML += `
-                            <div class="col-lg-4 d-flex align-items-stretch p-3 rounded-2">
-                            <div class="card" style="width: 20rem;">
-                                <img src="./assets/img/donations/${item["Item Photo"]}" class="card-img-top" alt="...">
-                                <div class="card-content">
-                                <div class="card-body">
-                                    <h4 class="card-title">Item Name: ${item.itemName}</h5>
-                                    <h6 class="card-subtitle mb-2">Category: ${item.category}</h6>
-                                    <h6 class="card-subtitle">Sub-Category: ${item.subCat}</h6>
-                                    <button data-tip="${item.donationID}" onclick="checkUserType(this)" ${disable} class="btn btn-primary">${req}</button>
+                            mainCarouselDisplay.innerHTML += `
+                                    <div class="col-lg-4 d-flex align-items-stretch p-3 rounded-2">
+                                    <div class="card" style="width: 20rem;">
+                                        <img src="./assets/img/donations/${item["Item Photo"]}" class="card-img-top" alt="...">
+                                        <div class="card-content">
+                                        <div class="card-body">
+                                            <h4 class="card-title">Item Name: ${item.itemName}</h5>
+                                            <h6 class="card-subtitle mb-2">Category: ${item.category}</h6>
+                                            <h6 class="card-subtitle">Sub-Category: ${item.subCat}</h6>
+                                            <button data-tip="${item.donationID}" onclick="checkUserType(this)" ${disable} class="btn btn-primary">${req}</button>
+                                        </div>
+                                        </div>
+                                    </div>
+                                    </div>
                                 </div>
                                 </div>
-                            </div>
-                            </div>
-                        `
-                    } else {
-                        mainCarouselDisplay.innerHTML =
-                            "<div class='text-center alert alert-warning rounded-3' style='height: 120px'> <p class='mt-3'> There are no items available for request at the moment, please try again later </p> </div>"
+                            `
+                        } else {
+                            mainCarouselDisplay.innerHTML =
+                                "<div class='text-center alert alert-warning rounded-3' style='height: 120px'> <p class='mt-3'> There are no items available for request at the moment, please try again later </p> </div>"
+                        }
                     }
                 }
                 if (itemCheck.length == 0) {
@@ -486,7 +496,7 @@
             if (user == "") {
                 let confirmMsg = confirm(
                     "Only Migrant Workers who are logged in are able to request for items, click 'Ok' to go to the Login Page."
-                    )
+                )
 
                 if (confirmMsg == true) {
                     window.location.href = "login.html"
@@ -503,22 +513,30 @@
             }
         }
 
+        // matching algorithm
+        async function matchDonationsAndMW(donationID) {
+        //     classElement = document.getElementsByClassName("donationItem");
+        //     for (let i = 0; i < classElement.length; i++) {
+        //         let donationID = classElement[i].getAttribute("data-tip");
+        //         let request = await fetch("http://127.0.0.1:5003/matchingAlgorithm/" + donationID);
+        //         let response = await response.json();
 
-        // get all donationID of donation
-        async function matchDonationsAndMW() {
-            classElement = document.getElementsByClassName("donationItem");
-            for (let i = 0; i < classElement.length; i++) {
-                let donationID = classElement[i].getAttribute("data-tip");
-                let request = await fetch("http://127.0.0.1:5003/matchingAlgorithm/" + donationID);
-                let response = await response.json();
-
-                if (response.code == 200) {
-                    return response.finalMW
-                } else {
-                    alert(response.message)
-                }
+        //         if (response.code == 200) {
+        //             return response.finalMW
+        //         } else {
+        //             alert(response.message)
+        //         }
+        //     }
+            let request = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/matchingAlgorithm/" + donationID);
+            let response = await request.json();
+            if (response.code == 200) {
+                return response.finalMW;
+            } else {
+                console.log(response.message);
             }
         }
+
+
     </script>
 
 </body>

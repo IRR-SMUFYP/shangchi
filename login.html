@@ -261,7 +261,7 @@
                 data = await response.json()
                 // alert(data.data.message)
 
-                if (data.code == 404) {
+                if (data.code == 404 || data.code == 401) {
                     alert(data.message)
                 } else {
                     var userData = data.data.userType

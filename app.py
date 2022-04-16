@@ -13,7 +13,6 @@ import requests
 import json
 import config
 from dotenv import load_dotenv
-
 load_dotenv()
 
 app = Flask(__name__)
@@ -161,7 +160,19 @@ class Faq(db.Model):
 #endregion
 
 
-# region USER
+# get user by username
+@app.route("/getUser/<username>")
+def getUser(username):
+    user = User.query.filter_by(username=username).first()
+    columnHeaders = User.metadata.tables["user"].columns.keys()
+    return jsonify(
+        {
+        "code": 200,
+        "columnHeaders": columnHeaders,
+        "data": user.json()
+    })
+
+# get All Users
 @app.route("/getAllUsers")
 def getAllUsers():
     users = User.query.all()
@@ -257,6 +268,55 @@ def registerDriver():
                 }
             ), 500
 
+
+# edit Account in table
+@app.route("/updateUser/<username>", methods=["PUT"])
+def updateAccountInfo(username):
+    user = User.query.filter_by(username=username).first()
+    data = request.get_json()
+    # print(data)
+    if (user is None):
+        return jsonify( 
+            {
+                "code": 404,
+                "message": "This username is not found in the database."
+            }
+        )
+    else:
+        user.password = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt())
+        user.userType = data['userType']
+        db.session.add(user)
+        db.session.commit()
+        return jsonify(
+            {
+                "code": 200,
+                "message": "Account info updated successfully.",
+                "user": user.json(),
+            }
+        )
+
+# delete account by username
+@app.route("/deleteUser/<username>", methods=["DELETE"])
+def deleteUser(username):
+    user = User.query.filter_by(username=username).first()
+    try:
+        db.session.delete(user)
+        db.session.commit()
+        return jsonify (
+            {
+                "code": 200,
+                "message": "Row deleted successfully!"
+            }
+        )
+    except Exception as e:
+        print(e)
+        return jsonify(
+            {
+                "code": 500,
+                "message": "An error occurred while deleting the data, please try again later"
+            }
+        ), 500
+
 # Login function to check if user exists and if password is correct
 @app.route("/login", methods=['POST'])
 def checkLogin():
@@ -269,7 +329,7 @@ def checkLogin():
     if (user != None):
         if (bcrypt.checkpw(str(pw).encode('utf-8'), str(user.password).encode('utf-8'))):
 
-            print("Password checks out")
+            print("Password checks out, user", user.username, "logged in at ", datetime.now())
 
             return jsonify(
                 {
@@ -278,6 +338,13 @@ def checkLogin():
                         "message": "Authentication success!",
                         "userType": user.json()
                     }
+                }
+            )
+        elif (user.password != pw):
+            return jsonify(
+                {
+                    "code": 401,
+                    "message": "Password is incorrect"
                 }
             )
     else:
@@ -531,6 +598,8 @@ def createSubmission():
     try:
         formData = request.form
         formDict = formData.to_dict()
+        print(formData)
+        print(formDict)
         
         if '' in formDict.values():
             return jsonify({
@@ -1403,6 +1472,7 @@ def matchingAlgorithm(donationID):
         minValue = min(allKeys, default="EMPTY")
         # get list of migrantID(s) with the least match count
         priorityMW = reqHist[minValue]
+        print(priorityMW)
         # new dictionary to calc migrant worker points
         mwPoints = {}
 
@@ -1442,7 +1512,7 @@ def matchingAlgorithm(donationID):
             mwDist = {}
             for mw, points in mwPoints.items():
                 mwLoc = Request.query.filter_by(donationID=donationID).filter_by(migrantID=mw).first().postalCode
-                addressFieldID = FormBuilder.query.filter_by(fieldName="Address").first().fieldID
+                addressFieldID = FormBuilder.query.filter_by(fieldName="Postal Code").first().fieldID
                 donorLoc = FormAnswers.query.filter_by(submissionID=donationID).filter_by(fieldID=addressFieldID).first().answer 
                 # google maps api to calculate distance
                 apikey = environ.get('GOOGLE_API_KEY')
@@ -1514,20 +1584,30 @@ def matchingAlgorithm(donationID):
             randomInt = random.randint(1, len(finalMWs))
             finalMW = finalMWs[randomInt - 1]
 
+        print(finalMW)
         # LAST STEP: add the match to the db
         reqID = Request.query.filter_by(donationID=donationID).filter_by(migrantID=finalMW).first().reqID
         donorID = Donation.query.filter_by(donationID=donationID).first().donorID
         match = {"reqID": reqID, "migrantID": finalMW, "donorID": donorID, "matchDate": timeNow}
-        newMatch = Matches(**match)
-        db.session.add(newMatch)
-        db.session.commit()
-        
-        return jsonify(
-            {
-                "code": 200,
-                "finalMW": finalMW
-            }
-        )
+        donation = Donation.query.filter_by(donationID=donationID).first()
+        if donation.itemStatus == "Available":
+            match = Matches(**match)
+            db.session.add(match)
+            db.session.commit()
+            donation.itemStatus = "Unavailable"
+            db.session.add(donation)
+            db.session.commit()
+            # print(reqID, donorID)
+            # print(match)
+            # newMatch = Matches(**match)
+            # db.session.add(newMatch)
+            # db.session.commit()
+            return jsonify(
+                {
+                    "code": 200,
+                    "finalMW": finalMW
+                }
+            )
     return jsonify(
         {
             "code": 404,
@@ -1544,7 +1624,7 @@ def getDeliveryRequests():
     deliveryRequests = Matches.query.join(Delivery, Delivery.matchID == Matches.matchID).join(
         Request, Matches.reqID == Request.reqID).add_columns(
         Delivery.matchID, Delivery.driverID, Matches.migrantID, 
-        Request.deliveryLocation, Delivery.status).distinct()
+        Request.postalCode, Delivery.status).distinct()
     data = []
     for delivery in deliveryRequests:
         deliveryRow = delivery._asdict()
@@ -1571,7 +1651,7 @@ def getDeliveryRequests():
 def getDeliveryRequestsByMatchID(matchID):
     deliveryRequest = Delivery.query.filter_by(matchID=matchID).join(Matches, Delivery.matchID == Matches.matchID).join(
         Request, Matches.reqID == Request.reqID).add_columns(Delivery.matchID, Delivery.driverID, Matches.migrantID, 
-        Request.deliveryLocation, Delivery.status).first()
+        Request.postalCode, Delivery.status).first()
     columns = list(deliveryRequest.keys())
     columns.pop(0)
     if deliveryRequest:
@@ -1594,7 +1674,7 @@ def getDeliveryRequestsByMatchID(matchID):
 # get delivery locations
 def getDeliveryLocations():
     deliveryLocations = Matches.query.join(Delivery, Delivery.matchID == Matches.matchID).join(
-        Request, Matches.reqID == Request.reqID).add_columns(Request.deliveryLocation).distinct()
+        Request, Matches.reqID == Request.reqID).add_columns(Request.postalCode).distinct()
     data = []
     for location in deliveryLocations:
         deliveryLoc = location._asdict()
@@ -1629,7 +1709,7 @@ def getDeliveryLocationsLatLng():
 def updateDeliveryRequest(matchID):
     deliveryRequest = Delivery.query.filter_by(matchID=matchID).join(Matches, Delivery.matchID == Matches.matchID).join(
         Request, Matches.reqID == Request.reqID).add_columns(Delivery.matchID, Delivery.driverID, Matches.migrantID, 
-        Request.deliveryLocation, Delivery.status).first()
+        Request.postalCode, Delivery.status).first()
     data = request.get_json()
     print(data)
     columns = list(deliveryRequest.keys())
@@ -1646,7 +1726,7 @@ def updateDeliveryRequest(matchID):
         match = Matches.query.filter_by(matchID=matchID).first()
         req = Request.query.filter_by(reqID=match.reqID).first()
         migrantWorker = User.query.filter_by(username=match.migrantID).first()
-        req.deliveryLocation = data['deliveryLocation']
+        req.postalCode = data['postalCode']
         db.session.add(req)
         db.session.commit()
         deliveryReq.status = data['status']

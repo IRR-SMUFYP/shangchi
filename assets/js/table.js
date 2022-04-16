@@ -36,6 +36,9 @@ function editSpecificRow(form) {
     else if (form == "SuccessfulMatches") {
         document.querySelector('[placeholder="matchID"]').setAttribute("onchange", "fillSuccessfulMatchesDetails(this.value)");
     }
+    else if (form == "Accounts") {
+        document.querySelector('[placeholder="username"]').setAttribute("onchange", "fillUserDetails(this.value)");
+    }
     else if (form == "DeliveryRequest") {
         document.querySelector('[placeholder="matchID"]').setAttribute("onchange", "fillDeliveryRequestDetails(this.value)");
     }
@@ -58,7 +61,7 @@ function getEditDetails(fields) {
         if (field == "reqID") {
             fieldArr.unshift(fieldObj);
         }
-        else if (["donationID", "wishlistID", "matchID"].includes(field)) {
+        else if (["donationID", "wishlistID", "matchID", "username"].includes(field)) {
             fieldArr.unshift(fieldObj);
         }
         else if (field != "timeSubmitted") {
@@ -153,7 +156,7 @@ async function retrieveFormAdmin(formName) {
     
                 var contactField = `<div id="contactField" class="col-md-6">
                                         <label for="contactNo" class="form-label">Contact Number</label>
-                                        <input required type="number" class="form-control" id="contactNo">
+                                        <input required type="number" class="form-control" id="contactNo" value="undefined" name="contactNo">
                                     </div>`
                 var itemNameField = `<!--On change of this dropdown, auto get item names listed under this category-->
                                     <div class="col-6">
@@ -177,7 +180,7 @@ async function retrieveFormAdmin(formName) {
                                             <!--Dynamically update item names-->
                                         </select>
                                     </div>`;
-                var addButton = `<br><button type="button" onclick="submitForm('${formName}')" class="btn btn-outline-secondary col-2">Submit</button>`
+                var addButton = `<br><button type="button" onclick="submitForm('${formName}', form)" class="btn btn-outline-secondary col-2">Submit</button>`
     
                 // document.getElementById('contactField').innerHTML += contactField;
                 document.getElementById(formName).innerHTML += contactField + itemNameField + subCatField + catField + addButton;
@@ -218,7 +221,7 @@ function addRow(formName) {
     for (ele in reqFormElements) {
         // console.log(reqFormElements[ele])
         console.log(reqFormElements[ele].id);
-        if ((["donationID", "migrantID", "deliveryLocation","donorID", "reqID", "matchID", "driverID"]).includes(reqFormElements[ele].id)) {
+        if ((["donationID", "migrantID", "postalCode","donorID", "reqID", "matchID", "driverID"]).includes(reqFormElements[ele].id)) {
             if (reqFormElements[ele].value == "") {
                 alert("Please do not leave any blanks.");
                 return "error";
@@ -317,6 +320,9 @@ function confirmDeleteRow(id) {
         }
         else if (id == "matchID (delivery)") {
             var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/deleteDeliveryRequest/" + val;
+        }
+        else if (id == "username") {
+            var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/deleteUser/" + val;
         }
         else {
             var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/deleteRow/" + formName + "/" + val;
