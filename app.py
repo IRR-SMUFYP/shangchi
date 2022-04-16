@@ -255,6 +255,32 @@ def registerDriver():
                     "message": "An error occurred while registering user :" + str(e)
                 }
             ), 500
+            
+# edit Account in table
+@app.route("/updateUser/<username>", methods=["PUT"])
+def updateAccountInfo(username):
+    user = User.query.filter_by(username=username).first()
+    data = request.get_json()
+    # print(data)
+    if (user is None):
+        return jsonify( 
+            {
+                "code": 404,
+                "message": "This username is not found in the database."
+            }
+        )
+    else:
+        user.password = bcrypt.hashpw(data['confirmPw'].encode('utf-8'), bcrypt.gensalt())
+        user.userType = data['userType']
+        db.session.add(user)
+        db.session.commit()
+        return jsonify(
+            {
+                "code": 200,
+                "message": "Account info updated successfully.",
+                "user": user.json(),
+            }
+        )
 
 # Login function to check if user exists and if password is correct
 @app.route("/login", methods=['POST'])
