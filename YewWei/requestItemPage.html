@@ -5,20 +5,13 @@
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>Request for Item</title>
-    
+    <title>Medilab Bootstrap Template - Index</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
     <!-- Favicons -->
-    <link rel="icon"
-        href="assets/img/logo/cropped-ItsRainingRaincoats-Logo-A-2-32x32.png"
-        sizes="32x32" />
-    <link rel="icon"
-        href="assets/img/logo/cropped-ItsRainingRaincoats-Logo-A-2-192x192.png"
-        sizes="192x192" />
-    <link rel="apple-touch-icon"
-        href="assets/img/logo/cropped-ItsRainingRaincoats-Logo-A-2-180x180.png" />
+    <link href="assets/img/favicon.png" rel="icon">
+    <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
 
     <!-- Google Fonts -->
     <link
@@ -95,7 +88,7 @@
 
     <main id="main">
 
-        <!-- Adaptive section to auto populate data carried over from donation page click -->
+        <!-- Adaptive section to auto populate data carried over from carousel page click -->
         <section id="pageTitle">
             <div class="container" id="itemReqDisplay">
             </div>
@@ -120,18 +113,22 @@
 
 
         <section id="formDisplay" class="d-none">
-            <div style="max-width: 1000px; margin: auto; padding: 20px;">
+            <div style="max-width: 1000px; margin: auto;">
                 <h2 class="m-4 text-center">Please fill in the following details</h2>
-                <form id="requestForm" class="row g-3" style="padding: 20px;">
-                    <div class="col-md-6">
+                <form id="requestForm" class="row g-3">
+                    <div class="col-4">
                         <label for="contactNo">Requestor Contact:</label>
                         <input style="width: 300px;" type="text" name="contact" id="contactNo" disabled>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-4">
                         <label for="dAddress">Postal Code:</label>
                         <input style="width: 300px;" type="number" name="destination" id="dAddress" required>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-4">
+                        <label for="quantity">Required Quantity:</label>
+                        <input style="width: 300px;" type="number" name="iQuantity" id="quantity" required>
+                    </div>
+                    <div class="col-6">
                         <input type="hidden" name="id" id="itemid">
                     </div>
                     <div class="col-12" style='text-align: center'>
@@ -148,48 +145,78 @@
 
     <!-- ======= Footer ======= -->
     <footer id="footer">
+
         <div class="footer-top">
             <div class="container">
                 <div class="row">
+
                     <div class="col-lg-3 col-md-6 footer-contact">
-                        <!-- <h3>ItsRainingRaincoats</h3> -->
-                        <img src="assets\img\logo\cropped-ItsRainingRaincoats-Logo-A-e1615185723991.png"
-                            style="max-width: 200px; max-height: 50px;">
-                        <p style="padding-top: 20px;">
-                            ItsRainingRaincoats (IRR) is a welfare organisation that aims to improve the lives of
-                            migrant workers in Singapore
+                        <h3>Medilab</h3>
+                        <p>
+                            A108 Adam Street <br>
+                            New York, NY 535022<br>
+                            United States <br><br>
+                            <strong>Phone:</strong> +1 5589 55488 55<br>
+                            <strong>Email:</strong> info@example.com<br>
                         </p>
                     </div>
-                    <div class="col-lg-2 col-md-6"></div>
-                    <div class="col-lg-2 col-md-6"></div>
+
                     <div class="col-lg-2 col-md-6 footer-links">
-                        <h4>Quick Links</h4>
-                        <hr>
+                        <h4>Useful Links</h4>
                         <ul>
-                            <li><a href="index.html">Home</a></li>
-                            <li><a href="donateGeneral.html">Donate to us</a></li>
-                            <li><a href="login.html">Login</a></li>
-                            <li><a href="register.html">Register</a></li>
+                            <li><i class="bx bx-chevron-right"></i> <a href="#">Home</a></li>
+                            <li><i class="bx bx-chevron-right"></i> <a href="#">About us</a></li>
+                            <li><i class="bx bx-chevron-right"></i> <a href="#">Services</a></li>
+                            <li><i class="bx bx-chevron-right"></i> <a href="#">Terms of service</a></li>
+                            <li><i class="bx bx-chevron-right"></i> <a href="#">Privacy policy</a></li>
                         </ul>
                     </div>
+
                     <div class="col-lg-3 col-md-6 footer-links">
-                        <h4>Follow Us</h4>
-                        <hr>
-                        <div class="social-links pt-3">
-                            <a href="#" class="twitter"><i class="bx bxl-twitter"></i></a>
-                            <a href="https://www.facebook.com/itsrainingraincoats/" class="facebook"><i
-                                    class="bx bxl-facebook"></i></a>
-                            <a href="https://www.instagram.com/itsrainingraincoats/?hl=en" class="instagram"><i
-                                    class="bx bxl-instagram"></i></a>
-                            <a href="https://www.linkedin.com/company/itsrainingraincoats/?originalSubdomain=sg"
-                                class="linkedin"><i class="bx bxl-linkedin"></i></a>
-                        </div>
+                        <h4>Our Services</h4>
+                        <ul>
+                            <li><i class="bx bx-chevron-right"></i> <a href="#">Web Design</a></li>
+                            <li><i class="bx bx-chevron-right"></i> <a href="#">Web Development</a></li>
+                            <li><i class="bx bx-chevron-right"></i> <a href="#">Product Management</a></li>
+                            <li><i class="bx bx-chevron-right"></i> <a href="#">Marketing</a></li>
+                            <li><i class="bx bx-chevron-right"></i> <a href="#">Graphic Design</a></li>
+                        </ul>
+                    </div>
+
+                    <div class="col-lg-4 col-md-6 footer-newsletter">
+                        <h4>Join Our Newsletter</h4>
+                        <p>Tamen quem nulla quae legam multos aute sint culpa legam noster magna</p>
+                        <form action="" method="post">
+                            <input type="email" name="email"><input type="submit" value="Subscribe">
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
-    </footer>
-    <!-- End Footer -->
+
+        <div class="container d-md-flex py-4">
+
+            <div class="me-md-auto text-center text-md-start">
+                <div class="copyright">
+                    &copy; Copyright <strong><span>Medilab</span></strong>. All Rights Reserved
+                </div>
+                <div class="credits">
+                    <!-- All the links in the footer should remain intact. -->
+                    <!-- You can delete the links only if you purchased the pro version. -->
+                    <!-- Licensing information: https://bootstrapmade.com/license/ -->
+                    <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/medilab-free-medical-bootstrap-theme/ -->
+                    Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+                </div>
+            </div>
+            <div class="social-links text-center text-md-right pt-3 pt-md-0">
+                <a href="#" class="twitter"><i class="bx bxl-twitter"></i></a>
+                <a href="#" class="facebook"><i class="bx bxl-facebook"></i></a>
+                <a href="#" class="instagram"><i class="bx bxl-instagram"></i></a>
+                <a href="#" class="google-plus"><i class="bx bxl-skype"></i></a>
+                <a href="#" class="linkedin"><i class="bx bxl-linkedin"></i></a>
+            </div>
+        </div>
+    </footer><!-- End Footer -->
 
     <div id="preloader"></div>
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
@@ -226,51 +253,63 @@
                 itemId = urlParams.get('id');
 
                 loadItem().then(function retriveInfo(result) {
-                    var item = result;
-                    // console.log(result)
+                    var itemInfo = result
 
-                    itemReqDisplay.innerHTML = `
+                    for (i of itemInfo) {
+                        availQty = i.quantity
+                    }
+
+                    // item info API Works but request is not done up for dynamic work 
+                    var x = setInterval(function () {
+                        for (item of itemInfo) {
+                            itemReqDisplay.innerHTML = `
                         <div class="row">
                             <div class="col-sm-12 col-lg-6">
                                 <div class="pt-3">
                                     <h2 id="itemName">${item.itemName}</h2>
-                                    <p style="font-style: italic;">Category: <span id="itemCat">${item.category}</span>, &nbsp Sub-Category: <span id="itemSubCat">${item.subCat}</span></p>
+                                    <p style="font-style: italic;">Category: <span id="itemCat">${item.category}</span>, &nbsp Sub-Category: <span id="itemSubCat">${item.subcat}</span></p>
                                 </div>
                             </div>
                         </div>
                         `
 
-                    itemImage.innerHTML = `
-                        <img style="width: 300px; width: 300px;" src="assets/img/donations/${item["Item Photo"]}" alt="">
+                            itemImage.innerHTML = `
+                        <img style="width: 300px; width: 300px;" src="assets/img/donations/${item.fileName}" alt="">
                         `
 
-                    donorInfo.innerHTML = `
-                        <div class="pt-5">
-                            <p>Delivery Method: <span id="itemDelivery">${item["Delivery Method"]}</span></p>
-                            <p>Quantity: <span id="itemQuantity">${item.Quantity}</span></p>
-                            <p>Time left to request for item: <span id="timeLeft"></span></p>
-                            <button class="btn btn-success" onclick="showReqForm()">Request!</button>
-                        </div>
-                    `
+                            var date = new Date(item.timeSubmitted).toUTCString();
+                            var finalDate = new Date(date.slice(0, -4));
+                            var lastDate = finalDate.setDate(finalDate.getDate() + 1);
+                            var dateNow = Date.now();
+                            difference = lastDate - dateNow
+                            hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                            mins = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
+                            seconds = Math.floor((difference % (1000 * 60)) / 1000);
 
-                    // item info API Works but request is not done up for dynamic work 
-                    var x = setInterval(function () {
-
-                        var date = new Date(item.timeSubmitted)
-                        var lastDate = date.setDate(date.getDate() + 1)
-                        var dateNow = Date.now();
-                        difference = lastDate - dateNow
-                        hours = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-                        mins = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60));
-                        seconds = Math.floor((difference % (1000 * 60)) / 1000);
-
-
-                        document.getElementById('timeLeft').innerHTML =
-                            `${hours} hours ${mins} mins ${seconds} secs`
-                        // If the count down is over, show that item has expired and clear interval 
-                        if (difference < 0) {
-                            clearInterval(x);
-                            document.getElementById("timeLeft").innerHTML = "ITEM EXPIRED";
+                            if (item.requireDelivery == 1) {
+                                donorInfo.innerHTML = `
+                            <div class="pt-5">
+                                <p>Delivery Method: <span id="itemDelivery">Driver required</span></p>
+                                <p>Quantity Remaining: <span id="itemQuantity">${item.quantity}</span></p>
+                                <p>Time left to request for item: <span id="timeLeft">${hours} hours ${mins} mins ${seconds} secs</span></p>
+                                <button id="reqButton" class="btn btn-outline-success" onclick="showReqForm()">Request!</button>
+                            </div>
+                        `
+                            } else {
+                                donorInfo.innerHTML = `
+                            <div class="pt-5">
+                                <p>Delivery Method: <span id="itemDelivery">Arranged by donor</span></p>
+                                <p>Quantity Remaining: <span id="itemQuantity">${item.quantity}</span></p>
+                                <p>Time left to request for item: <span id="timeLeft">${hours} hours ${mins} mins ${seconds} secs</span></p>
+                                <button id="reqButton" class="btn btn-success" onclick="showReqForm()">Request!</button>
+                            </div>
+                        `
+                            }
+                            // If the count down is over, show that item has expired and clear interval 
+                            if (difference < 0) {
+                                clearInterval(x);
+                                document.getElementById("timeLeft").innerHTML = "ITEM EXPIRED";
+                            }
                         }
                     }, 1000)
                 })
@@ -286,10 +325,10 @@
         }
 
         async function loadItem() {
-            let response = await fetch("http://127.0.0.1:5003/donation/" + itemId)
+            let response = await fetch("http://127.0.0.1:5004/getItemById/" + itemId)
             let responseCode = await response.json()
             if (responseCode.code == 200) {
-                return responseCode.data
+                return responseCode.data.itemDetail
             } else {
                 alert(responseCode.message)
             }
@@ -307,20 +346,28 @@
                 formDisplay.classList.remove('d-none')
                 contactNo.value = user.username
                 itemid.value = itemId
-                formDisplay.scrollIntoView()
             }
         }
-        const form = document.getElementById('requestForm');
+        const form = document.getElementById('requestForm')
 
-        var errorDiv = document.getElementById('errorDiv');
-        var errorList = document.getElementById('errorList');
+        var errorDiv = document.getElementById('errorDiv')
+
+        var errorList = document.getElementById('errorList')
 
         function submitReq() {
             let errorArr = []
             reqFormElements = document.forms[0].elements
 
-            if (reqFormElements.destination.value.length != 6) {
+            if (reqFormElements.destination.value.length > 6 || reqFormElements.destination.value.length < 1) {
                 errorArr.push("Postal Codes should be 6 digits long")
+            }
+
+            if (reqFormElements.iQuantity.value == "") {
+                errorArr.push("Please enter the quantity of items you want to request for")
+            }
+
+            if (availQty < reqFormElements.iQuantity.value) {
+                errorArr.push("Quantity requested is more than quantity available")
             }
 
             if (errorArr.length > 0) {
@@ -340,10 +387,13 @@
 
                     formData.append(eleName, eleVal)
                 }
+                // updateCarousel(formData, "http://127.0.0.1:5004/updateItemQuantity")
 
-                addReq(formData, "http://127.0.0.1:5003/request")
+                addReq(formData, "http://127.0.0.1:5004/addRequest")
             }
         }
+
+        
 
         async function addReq(data, url) {
 
@@ -361,9 +411,31 @@
                 data = await response.json()
                 if (data.code == "200") {
                     alert(
-                        "You have registered your interest for this item, you will be notified once the item is ready");
-                    window.location.href = "index.html";
+                        "You have registered your interest for this item, you will be notified once the item is ready")
+
+                    window.location.href = "index.html"
                 }
+            }
+        }
+
+        async function updateCarousel(data, url) {
+            const response = await fetch(url, {
+                method: 'POST', // *GET, POST, PUT, DELETE, etc.
+                mode: 'cors', // no-cors, *cors, same-origin
+                cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+                credentials: 'same-origin', // include, *same-origin, omit
+                redirect: 'follow', // manual, *follow, error
+                referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+                body: data // body data type must match "Content-Type" header
+            });
+            if (response.status >= 200 && response.status < 300) {
+                data = await response.json()
+                console.log(data)
+                if (data.code == "500") {
+                    alert("Quantity requested is more than quantity available")
+                }
+            } else if (data.code == "200" || data.code == "201") {
+                return "All good"
             }
         }
 
