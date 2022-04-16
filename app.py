@@ -283,7 +283,7 @@ def updateAccountInfo(username):
             }
         )
     else:
-        user.password = bcrypt.hashpw(data['confirmPw'].encode('utf-8'), bcrypt.gensalt())
+        user.password = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt())
         user.userType = data['userType']
         db.session.add(user)
         db.session.commit()

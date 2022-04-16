@@ -210,7 +210,6 @@
                             // console.log(result)
                             if (i != "username") {
                                 // console.log(result.columnHeaders)
-                                if (i == "password")
                                 document.querySelector('[placeholder="' + i + '"]').value = result.data[i]
                             }
                         }
@@ -228,7 +227,7 @@
             });
         }
 
-        function editUser() {
+        function editAccounts() {
             var data = {};
             var inputFields = document.getElementById("edit-section").children;
             var username = document.querySelector('[placeholder="username"]').value;
