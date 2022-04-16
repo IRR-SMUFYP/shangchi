@@ -193,7 +193,7 @@
         function fillUserDetails(val) {
             console.log(val);
             $(async () => {
-                var serviceURL = "http://127.0.0.1:5003/getUser/" + val;
+                var serviceURL = "http://127.0.0.1:5003/getRequests/" + val;
                 try {
                     const response =
                     await fetch(

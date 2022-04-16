@@ -297,8 +297,8 @@ async function populateItemNames(cat) {
     $('#itemNameOptions').html("")
     cat = cat.value
     subcat = document.getElementById("itemCategoryOptions").value;
-    let response = await fetch("http://127.0.0.1:5003/getItemsInSubCat/" + cat)
-    let responseCode = await response.json()
+    let response = await fetch("http://127.0.0.1:5003/getItemNames/" + subcat + "/" + cat);
+    let responseCode = await response.json();
     if (responseCode.code == 200) {
         $('#itemNameOptions').append("<option disabled selected> </option>")
         for (cat of responseCode.data.itemsInCat) {
