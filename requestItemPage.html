@@ -286,7 +286,7 @@
         }
 
         async function loadItem() {
-            let response = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/donation/" + itemId)
+            let response = await fetch("http://127.0.0.1:5003/donation/" + itemId)
             let responseCode = await response.json()
             if (responseCode.code == 200) {
                 return responseCode.data
@@ -341,7 +341,7 @@
                     formData.append(eleName, eleVal)
                 }
 
-                addReq(formData, "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/request")
+                addReq(formData, "http://127.0.0.1:5003/request")
             }
         }
 
