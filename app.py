@@ -161,6 +161,7 @@ class Faq(db.Model):
 
 
 # region USER
+# get All Users
 @app.route("/getAllUsers")
 def getAllUsers():
     users = User.query.all()
@@ -172,33 +173,43 @@ def getAllUsers():
         "data": [user.json() for user in users]
     })
 
+# get user by username
+@app.route("/getUser/<username>")
+def getUser(username):
+    user = User.query.filter_by(username=username).first()
+    return jsonify(
+        {
+        "code": 200,
+        "data": user.json()
+    })
+
 # Register MW 
 @app.route("/registermw", methods=['POST'])
 def registerMW():
-        formData = request.form
-        formDict = formData.to_dict()
-        username = formDict['userName']
-        pw = formDict['pw']
-        hashedpw = bcrypt.hashpw(str(pw).encode('utf-8'), bcrypt.gensalt())
+    formData = request.form
+    formDict = formData.to_dict()
+    username = formDict['userName']
+    pw = formDict['pw']
+    hashedpw = bcrypt.hashpw(str(pw).encode('utf-8'), bcrypt.gensalt())
 
-        addtodb = User(username, hashedpw, "worker")
-        
-        try:
-            db.session.add(addtodb)
-            db.session.commit()
-            return jsonify (
-                {
-                    "code": 200,
-                    "message": "Worker account for " + username + " successfully created!"
-                }
-            )
-        except Exception as e:
-            return jsonify(
-                {
-                    "code": 500,
-                    "message": "An error occurred while registering user :" + str(e)
-                }
-            ), 500
+    addtodb = User(username, hashedpw, "worker")
+    
+    try:
+        db.session.add(addtodb)
+        db.session.commit()
+        return jsonify (
+            {
+                "code": 200,
+                "message": "Worker account for " + username + " successfully created!"
+            }
+        )
+    except Exception as e:
+        return jsonify(
+            {
+                "code": 500,
+                "message": "An error occurred while registering user :" + str(e)
+            }
+        ), 500
 
 # Register admin account
 @app.route("/registeradmin", methods=['POST'])
@@ -231,30 +242,30 @@ def registerAdmin():
 # Register Driver Account
 @app.route("/registerDriver", methods=['POST'])
 def registerDriver():
-        formData = request.form
-        formDict = formData.to_dict()
-        username = formDict['userName']
-        pw = formDict['pw']
-        hashedpw = bcrypt.hashpw(str(pw).encode('utf-8'), bcrypt.gensalt())
+    formData = request.form
+    formDict = formData.to_dict()
+    username = formDict['userName']
+    pw = formDict['pw']
+    hashedpw = bcrypt.hashpw(str(pw).encode('utf-8'), bcrypt.gensalt())
 
-        addtodb = User(username, hashedpw, "driver")
-        
-        try:
-            db.session.add(addtodb)
-            db.session.commit()
-            return jsonify (
-                {
-                    "code": 200,
-                    "message": "Driver account for " + username + " successfully created!"
-                }
-            )
-        except Exception as e:
-            return jsonify(
-                {
-                    "code": 500,
-                    "message": "An error occurred while registering user :" + str(e)
-                }
-            ), 500
+    addtodb = User(username, hashedpw, "driver")
+    
+    try:
+        db.session.add(addtodb)
+        db.session.commit()
+        return jsonify (
+            {
+                "code": 200,
+                "message": "Driver account for " + username + " successfully created!"
+            }
+        )
+    except Exception as e:
+        return jsonify(
+            {
+                "code": 500,
+                "message": "An error occurred while registering user :" + str(e)
+            }
+        ), 500
             
 # edit Account in table
 @app.route("/updateUser/<username>", methods=["PUT"])
@@ -281,6 +292,28 @@ def updateAccountInfo(username):
                 "user": user.json(),
             }
         )
+
+# delete account by username
+@app.route("/deleteUser/<username>", methods=["DELETE"])
+def deleteUser(username):
+    user = User.query.filter_by(username=username).first()
+    try:
+        db.session.delete(user)
+        db.session.commit()
+        return jsonify (
+            {
+                "code": 200,
+                "message": "Row deleted successfully!"
+            }
+        )
+    except Exception as e:
+        print(e)
+        return jsonify(
+            {
+                "code": 500,
+                "message": "An error occurred while deleting the data, please try again later"
+            }
+        ), 500
 
 # Login function to check if user exists and if password is correct
 @app.route("/login", methods=['POST'])

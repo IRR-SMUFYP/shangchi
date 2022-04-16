@@ -179,7 +179,7 @@
                     $("#edit-btn3").hide();
                     $("#edit-btn4").hide();
                     $("#account").hide();
-                    document.getElementById("edit-section").innerHTML = "There are currently no successful matches to be found."
+                    document.getElementById("edit-section").innerHTML = "There are currently no users to be found."
                     $("#edit-section").show();
                 }
 
@@ -216,7 +216,7 @@
 
                     }
                     if (response.status == 404) {
-                        alert('There is no such request ID in the database, please enter a valid ID.')
+                        alert('There is no such username in the database, please enter a valid username.')
                     }
                 }
                 catch (error) {
