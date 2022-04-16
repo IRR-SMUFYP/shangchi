@@ -13,7 +13,6 @@ import requests
 import json
 # import config
 from dotenv import load_dotenv
-
 load_dotenv()
 
 app = Flask(__name__)
@@ -269,7 +268,7 @@ def checkLogin():
     if (user != None):
         if (bcrypt.checkpw(str(pw).encode('utf-8'), str(user.password).encode('utf-8'))):
 
-            print("Password checks out")
+            print("Password checks out, user", user.username, "logged in at ", datetime.now())
 
             return jsonify(
                 {
@@ -278,6 +277,13 @@ def checkLogin():
                         "message": "Authentication success!",
                         "userType": user.json()
                     }
+                }
+            )
+        elif (user.password != pw):
+            return jsonify(
+                {
+                    "code": 401,
+                    "message": "Password is incorrect"
                 }
             )
     else:
@@ -531,6 +537,8 @@ def createSubmission():
     try:
         formData = request.form
         formDict = formData.to_dict()
+        print(formData)
+        print(formDict)
         
         if '' in formDict.values():
             return jsonify({
@@ -1555,7 +1563,7 @@ def getDeliveryRequests():
     deliveryRequests = Matches.query.join(Delivery, Delivery.matchID == Matches.matchID).join(
         Request, Matches.reqID == Request.reqID).add_columns(
         Delivery.matchID, Delivery.driverID, Matches.migrantID, 
-        Request.deliveryLocation, Delivery.status).distinct()
+        Request.postalCode, Delivery.status).distinct()
     data = []
     for delivery in deliveryRequests:
         deliveryRow = delivery._asdict()
@@ -1582,7 +1590,7 @@ def getDeliveryRequests():
 def getDeliveryRequestsByMatchID(matchID):
     deliveryRequest = Delivery.query.filter_by(matchID=matchID).join(Matches, Delivery.matchID == Matches.matchID).join(
         Request, Matches.reqID == Request.reqID).add_columns(Delivery.matchID, Delivery.driverID, Matches.migrantID, 
-        Request.deliveryLocation, Delivery.status).first()
+        Request.postalCode, Delivery.status).first()
     columns = list(deliveryRequest.keys())
     columns.pop(0)
     if deliveryRequest:
@@ -1605,7 +1613,7 @@ def getDeliveryRequestsByMatchID(matchID):
 # get delivery locations
 def getDeliveryLocations():
     deliveryLocations = Matches.query.join(Delivery, Delivery.matchID == Matches.matchID).join(
-        Request, Matches.reqID == Request.reqID).add_columns(Request.deliveryLocation).distinct()
+        Request, Matches.reqID == Request.reqID).add_columns(Request.postalCode).distinct()
     data = []
     for location in deliveryLocations:
         deliveryLoc = location._asdict()
@@ -1640,7 +1648,7 @@ def getDeliveryLocationsLatLng():
 def updateDeliveryRequest(matchID):
     deliveryRequest = Delivery.query.filter_by(matchID=matchID).join(Matches, Delivery.matchID == Matches.matchID).join(
         Request, Matches.reqID == Request.reqID).add_columns(Delivery.matchID, Delivery.driverID, Matches.migrantID, 
-        Request.deliveryLocation, Delivery.status).first()
+        Request.postalCode, Delivery.status).first()
     data = request.get_json()
     print(data)
     columns = list(deliveryRequest.keys())
@@ -1657,7 +1665,7 @@ def updateDeliveryRequest(matchID):
         match = Matches.query.filter_by(matchID=matchID).first()
         req = Request.query.filter_by(reqID=match.reqID).first()
         migrantWorker = User.query.filter_by(username=match.migrantID).first()
-        req.deliveryLocation = data['deliveryLocation']
+        req.postalCode = data['postalCode']
         db.session.add(req)
         db.session.commit()
         deliveryReq.status = data['status']
