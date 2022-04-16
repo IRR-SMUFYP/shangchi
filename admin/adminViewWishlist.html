@@ -194,13 +194,10 @@
                             // success case
                             for (var i in result.data) {
                                 // field = result.data[i];
-                                if (i != "timeSubmitted" && i != "Item Photo" && i != "itemID") {
-                                    for (id in result.columnHeaders) {
-                                        // console.log(id, result.columnHeaders[id]);
-                                        if (result.columnHeaders[id] == i) {
-                                            document.getElementById(id).value = result.data[i];
-                                        }
-                                    }
+                                console.log(result.data);
+                                if (i != "timeSubmitted" && i != "Item Photo" && i != "itemID" && i != "submissionID") {
+                                    // console.log(result.columnHeaders)
+                                    document.querySelector('[placeholder="' + i + '"]').value = result.data[i]
                                 }
                             }
                         }
