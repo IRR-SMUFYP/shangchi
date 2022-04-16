@@ -268,7 +268,7 @@ def checkLogin():
     if (user != None):
         if (bcrypt.checkpw(str(pw).encode('utf-8'), str(user.password).encode('utf-8'))):
 
-            print("Password checks out")
+            print("Password checks out, user", user.username, "is logged in")
 
             return jsonify(
                 {
@@ -277,6 +277,13 @@ def checkLogin():
                         "message": "Authentication success!",
                         "userType": user.json()
                     }
+                }
+            )
+        elif (user.password != pw):
+            return jsonify(
+                {
+                    "code": 401,
+                    "message": "Password is incorrect"
                 }
             )
     else:
