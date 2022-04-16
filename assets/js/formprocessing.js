@@ -27,7 +27,12 @@ async function addDonation(formdata, url) {
         .then(data => {
             console.log(data);
             alert(data.message)
-            window.location.href = 'index.html'
+            if (!window.location.href.includes("admin")){
+                window.location.href = 'index.html';
+            }
+            else {
+                window.location.reload();
+            }
         })
         .catch(error => {console.log(error);alert(error);})
     
