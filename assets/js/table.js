@@ -36,6 +36,9 @@ function editSpecificRow(form) {
     else if (form == "SuccessfulMatches") {
         document.querySelector('[placeholder="matchID"]').setAttribute("onchange", "fillSuccessfulMatchesDetails(this.value)");
     }
+    else if (form == "Accounts") {
+        document.querySelector('[placeholder="username"]').setAttribute("onchange", "fillUserDetails(this.value)");
+    }
     else if (form == "DeliveryRequest") {
         document.querySelector('[placeholder="matchID"]').setAttribute("onchange", "fillDeliveryRequestDetails(this.value)");
     }
@@ -58,7 +61,7 @@ function getEditDetails(fields) {
         if (field == "reqID") {
             fieldArr.unshift(fieldObj);
         }
-        else if (["donationID", "wishlistID", "matchID"].includes(field)) {
+        else if (["donationID", "wishlistID", "matchID", "username"].includes(field)) {
             fieldArr.unshift(fieldObj);
         }
         else if (field != "timeSubmitted") {
