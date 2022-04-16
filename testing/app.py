@@ -341,7 +341,7 @@ def createField():
                 "message": "Unable to commit to database."
             }), 500
 
-# edit existing faq
+# edit existing field
 @app.route('/formbuilder/<int:fieldID>', methods=['POST'])
 def edit_field(fieldID):
     data = request.get_json()
@@ -541,9 +541,9 @@ def createSubmission():
         itemID = formDict['itemName']
 
         # calculate submissionID (datetime userID)
-        now = datetime.now()
-        currentDT = now.strftime("%Y-%m-%d %H:%M:%S")
-        submissionID = currentDT + " " + userid
+        currentDT = datetime.now()
+        # currentDT = now.strftime("%Y-%m-%d %H:%M:%S")
+        submissionID = currentDT.strftime("%Y-%m-%d %H:%M:%S") + " " + userid
 
         # file uploading
         for fileId in files:

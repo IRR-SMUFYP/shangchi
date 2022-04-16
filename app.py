@@ -343,7 +343,7 @@ def createField():
                 "message": "Unable to commit to database."
             }), 500
 
-# edit existing faq
+# edit existing field
 @app.route('/formbuilder/<int:fieldID>', methods=['POST'])
 def edit_field(fieldID):
     data = request.get_json()
