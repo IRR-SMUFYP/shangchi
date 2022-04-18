@@ -13,6 +13,7 @@ import random
 import requests
 import json
 import config
+import uuid
 # from dotenv import load_dotenv
 # load_dotenv()
 
@@ -595,6 +596,10 @@ def getAllDetailsBySubmission(submissionID):
         }
     ), 404
 
+# Global UUID Name stored for future use
+uuidGeneratedName = ""
+fileExtension = ""
+
 # create new submission
 @app.route('/formanswers', methods=['POST'])
 def createSubmission():
@@ -625,8 +630,12 @@ def createSubmission():
             formDict[fileId] = file.filename
             # save file
             # fileName = secure_filename(file.filename)
-            fileName = secure_filename(file.filename.replace(" ", ""))
-            file.save(os.path.join(uploads_dir, fileName))
+            # fileName = secure_filename(file.filename.replace(" ", ""))
+            fileName = secure_filename(file.filename)
+            index = fileName.index('.')
+            fileExtension = fileName[index:]
+            uuidGeneratedName = uuid.uuid4()
+            file.save(os.path.join(uploads_dir, str(uuidGeneratedName) + str(fileExtension)))
     except Exception as e:
         print(e)
         return jsonify({
@@ -666,7 +675,8 @@ def createSubmission():
                 "data" : submission.json()
             }), 500
     print(formDict)
-    formDict['3'] = formDict['3'].replace(" ", "")
+    # formDict['3'] = formDict['3'].replace(" ", "")
+    formDict['3'] = str(uuidGeneratedName) + str(fileExtension)
 
     # submit into formAnswers
     for id in formDict:
@@ -860,7 +870,14 @@ def updatePhoto(submissionID):
     fieldID = formField.fieldID
     formAnswer = FormAnswers.query.filter_by(submissionID=submissionID).filter_by(fieldID=fieldID).first()
     # save file
-    fileName = secure_filename(imgFile.filename.replace(" ", ""))
+    # fileName = secure_filename(imgFile.filename.replace(" ", ""))
+
+    # Added lines to test uuid filename
+    fileName = secure_filename(file.filename)
+    index = fileName.index('.')
+    fileExtension = fileName[index:]
+    uuidGeneratedName = uuid.uuid4()
+    file.save(os.path.join(uploads_dir, str(uuidGeneratedName) + str(fileExtension)))
     # print(formDict)
     imgFile.save(os.path.join(uploads_dir, fileName))
     # os.open(uploads_dir+secure_filename(fileName), os.O_RDWR | os.O_CREAT, 0o666)
