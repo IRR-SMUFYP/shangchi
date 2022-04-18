@@ -722,7 +722,7 @@ body {
 
   /* Extra small devices (phones, 600px and down) */
 @media (max-width: 600px){
-    #indexTitle {text-align: center !important;}
+  #indexTitle {text-align: center !important;}
   }
   @media (max-width: 600px){
     #searchBoxes {text-align: center !important;};
