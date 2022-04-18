@@ -78,7 +78,7 @@ class Donation(db.Model):
     itemStatus = db.Column(db.String(50), nullable=False)
         
     def json(self):
-        return {"donationID": self.donationID, "donorID": self.donorID, "donationID": self.donationID, "itemID": self.itemID, "timeSubmitted": self.timeSubmitted, "itemStatus": self.itemStatus}
+        return {"donorID": self.donorID, "donationID": self.donationID, "itemID": self.itemID, "timeSubmitted": self.timeSubmitted, "itemStatus": self.itemStatus}
 
 class Wishlist(db.Model):
     __tablename__ = 'wishlist'
