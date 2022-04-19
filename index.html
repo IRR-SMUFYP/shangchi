@@ -32,6 +32,9 @@
     <!-- Template Main CSS File -->
     <link href="assets/css/style.css" rel="stylesheet">
 
+    <!-- Custom Javascript -->
+    <script src="admin/login.js" type="text/javascript"></script>
+
     <!-- =======================================================
   * Template Name: Medilab - v4.7.0
   * Template URL: https://bootstrapmade.com/medilab-free-medical-bootstrap-theme/
@@ -213,13 +216,7 @@
         var catSearchList = document.getElementById('catSearchList')
         var subCatList = document.getElementById('subCatList')
 
-        function checkLogin() {
-            if (sessionStorage.getItem("user") != null) {
-                user = JSON.parse(sessionStorage.getItem("user"))
-                // console.log(JSON.parse(user))
-
-                document.getElementById("loginLogoutButton").innerText = "Logout"
-            }
+        $(function(){
 
             // Requested Item Check
             if (user != "") {
@@ -339,13 +336,13 @@
                     `
                 }
             })
-        }
+        })
 
         // Function to load donations
         async function loadCarousel() {
             try {
                 let response = await fetch(
-                    "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/donation")
+                    "http://127.0.0.1:5003/donation")
                 let responseCode = await response.json()
                 if (responseCode.code == 200) {
                     return responseCode.data.items
@@ -361,7 +358,7 @@
         async function loadWishList() {
             try {
                 let response = await fetch(
-                    "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/wishlist")
+                    "http://127.0.0.1:5003/wishlist")
                 let responseCode = await response.json()
                 if (responseCode.code == 200) {
                     return responseCode.data.items
@@ -373,7 +370,7 @@
 
         // Async function for Search Dropdown (Index Page)
         async function getDropDownCat() {
-            let response = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getCat")
+            let response = await fetch("http://127.0.0.1:5003/getCat")
             let responseCode = await response.json()
 
             if (responseCode.code == 200) {
@@ -387,7 +384,7 @@
             subCatList.innerHTML = ""
             cat = cat.value
             let response = await fetch(
-                "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getSubCat/" + cat)
+                "http://127.0.0.1:5003/getSubCat/" + cat)
             let responseCode = await response.json()
 
             if (responseCode.code == 200) {
@@ -406,7 +403,7 @@
 
         async function checkRequestedItems() {
             let response = await fetch(
-                "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/request/" + user.username)
+                "http://127.0.0.1:5003/request/" + user.username)
             let data = await response.json()
             if (data.code == 200) {
                 return data.requestedItemIds
@@ -417,23 +414,13 @@
             window.location.reload()
         }
 
-        function loginLogout() {
-            if (document.getElementById("loginLogoutButton").innerText === "Login") {
-                window.location.href = "login.html"
-            } else {
-                // user = ""
-                sessionStorage.removeItem("user")
-                window.location.reload()
-            }
-        }
-
         // Search function on Cat & Sub Cat once Sub Cat is selected
         async function filter() {
             let catVal = document.getElementById("catSearchList").value
             let subCatVal = subCatList.value
 
             let response = await fetch(
-                "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getItemsBySubCat/" +
+                "http://127.0.0.1:5003/getItemsBySubCat/" +
                 catVal + "/" + subCatVal)
             let responseCode = await response.json()
 
@@ -527,7 +514,7 @@
         //             alert(response.message)
         //         }
         //     }
-            let request = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/matchingAlgorithm/" + donationID);
+            let request = await fetch("http://127.0.0.1:5003/matchingAlgorithm/" + donationID);
             let response = await request.json();
             if (response.code == 200) {
                 return response.finalMW;

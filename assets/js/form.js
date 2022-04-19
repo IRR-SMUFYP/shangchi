@@ -4,7 +4,7 @@ user = ""
 //#region 
 async function retrieveForm(formName) {
 
-    var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/formbuilder/" + formName;
+    var serviceURL = "http://127.0.0.1:5003/formbuilder/" + formName;
 
     try {
         // Retrieve list of all fields
@@ -201,13 +201,8 @@ function addIcons(formName) {
 
 // POPULATING ITEM CATEGORIES, SUB-CATEGORIES AND NAMES DROPDOWN LISTS
 //#region
-function checkLogin() {
+function populateCategoryItems() {
 
-    if (sessionStorage.getItem("user") != null) {
-        user = JSON.parse(sessionStorage.getItem("user"))
-
-        document.getElementById("loginLogoutButton").innerText = "Logout"
-    }
     getDropDownCat().then(function autoPopCategories(result) {
         var catList = result
 
@@ -252,7 +247,7 @@ function checkLogin() {
 }
 
 async function getCatalog() {
-    let response = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getCatalog")
+    let response = await fetch("http://127.0.0.1:5003/getCatalog")
     let res = await response.json()
 
     if (res.code == 200) {
@@ -263,7 +258,7 @@ async function getCatalog() {
 }
 
 async function getDropDownCat() {
-    let response = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getCat")
+    let response = await fetch("http://127.0.0.1:5003/getCat")
     let responseCode = await response.json()
 
     if (responseCode.code == 200) {
@@ -276,7 +271,7 @@ async function getDropDownCat() {
 async function populateSubCat(cat) {
     $('#subCatOptions').html("")
     cat = cat.value
-    let response = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getSubCat/" + cat)
+    let response = await fetch("http://127.0.0.1:5003/getSubCat/" + cat)
     let responseCode = await response.json()
 
     if (responseCode.code == 200) {
@@ -297,7 +292,7 @@ async function populateItemNames(cat) {
     $('#itemNameOptions').html("")
     cat = cat.value
     subcat = document.getElementById("itemCategoryOptions").value;
-    let response = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getItemNames/" + subcat + "/" + cat)
+    let response = await fetch("http://127.0.0.1:5003/getItemNames/" + subcat + "/" + cat)
     let responseCode = await response.json()
     if (responseCode.code == 200) {
         $('#itemNameOptions').append("<option disabled selected> </option>")
@@ -381,7 +376,7 @@ async function addField(formName, fieldID = "") {
         })
     }
 
-    var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/formbuilder" + fieldID;
+    var serviceURL = "http://127.0.0.1:5003/formbuilder" + fieldID;
 
     return fetch(serviceURL, {
             method: "POST",
@@ -398,7 +393,7 @@ async function addField(formName, fieldID = "") {
 };
 
 async function editField(fieldID) {
-    var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/formbuilder/" + fieldID;
+    var serviceURL = "http://127.0.0.1:5003/formbuilder/" + fieldID;
 
     try {
         // Retrieve list of all FAQ
@@ -466,7 +461,7 @@ async function editField(fieldID) {
 
 async function deleteField(fieldID) {
     if (confirm("Are you sure you want to delete this field? This will also delete all data related to the field.")) {
-        var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/formbuilder/" + fieldID;
+        var serviceURL = "http://127.0.0.1:5003/formbuilder/" + fieldID;
 
         try {
             // Retrieve list of all FAQ
