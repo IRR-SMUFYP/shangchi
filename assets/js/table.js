@@ -82,7 +82,7 @@ function getEditDetails(fields) {
 }
 
 async function getDropDownCat() {
-    let response = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getCat")
+    let response = await fetch("http://127.0.0.1:5003/getCat")
     let responseCode = await response.json()
 
     if (responseCode.code == 200) {
@@ -107,7 +107,7 @@ async function retrieveFormAdmin(formName) {
         $("#deliveryRequest").show();
     }
     else if (formName == "donation" || formName == "wishlist") {
-        var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/formbuilder/" + formName;
+        var serviceURL = "http://127.0.0.1:5003/formbuilder/" + formName;
         if (formName == "donation") {
             document.getElementById("edit-photo").style.display = "none";
             document.getElementById("donation").style.display = "block";
@@ -234,16 +234,16 @@ function addRow(formName) {
     }
     console.log(formData);
     if (formName == "request") {
-        var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/request";
+        var serviceURL = "http://127.0.0.1:5003/request";
     }
     else if (formName == "successfulMatch") {
-        var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/addMatch";
+        var serviceURL = "http://127.0.0.1:5003/addMatch";
     }
     else if (formName == "account") {
-        var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/addUser"
+        var serviceURL = "http://127.0.0.1:5003/addUser"
     }
     else if (formName == "deliveryRequest") {
-        var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/addDeliveryRequest"
+        var serviceURL = "http://127.0.0.1:5003/addDeliveryRequest"
     }
     $(async () => {
         try {
@@ -313,19 +313,19 @@ function confirmDeleteRow(id) {
             formName = "donation";
         }
         if (id == "reqID") {
-            var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/deleteRequest/" + val;
+            var serviceURL = "http://127.0.0.1:5003/deleteRequest/" + val;
         }
         else if (id == "matchID") {
-            var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/deleteMatch/" + val;
+            var serviceURL = "http://127.0.0.1:5003/deleteMatch/" + val;
         }
         else if (id == "matchID (delivery)") {
-            var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/deleteDeliveryRequest/" + val;
+            var serviceURL = "http://127.0.0.1:5003/deleteDeliveryRequest/" + val;
         }
         else if (id == "username") {
-            var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/deleteUser/" + val;
+            var serviceURL = "http://127.0.0.1:5003/deleteUser/" + val;
         }
         else {
-            var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/deleteRow/" + formName + "/" + val;
+            var serviceURL = "http://127.0.0.1:5003/deleteRow/" + formName + "/" + val;
         }
         try {
             const response =
