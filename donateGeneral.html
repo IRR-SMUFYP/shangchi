@@ -47,6 +47,7 @@
     </script>
 
     <!-- Custom Javascript -->
+    <script src="admin/login.js" type="text/javascript"></script>
     <script src="assets/js/form.js" type="text/javascript"></script>
     <script src="assets/js/formprocessing.js" type="text/javascript"></script>
 
@@ -252,16 +253,6 @@
         
             })
         })()
-
-        // can move to a common folder if every page uses?
-        function loginLogout() {
-            if (document.getElementById("loginLogoutButton").innerText === "Login") {
-                window.location.href = "login.html"
-            } else {
-                window.sessionStorage.removeItem("userType")
-                window.location.reload()
-            }
-        }
     </script>
 
 </body>

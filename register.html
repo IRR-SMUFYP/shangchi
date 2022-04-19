@@ -210,15 +210,6 @@
             }
         }
 
-        function checkLogin() {
-
-            if (sessionStorage.getItem("user") != null) {
-                user = JSON.parse(sessionStorage.getItem("user"))
-
-
-                document.getElementById("loginLogoutButton").innerText = "Logout"
-            }
-        }
         const form = document.getElementById("registerFormMW")
 
         function registerUser() {
@@ -323,14 +314,6 @@
             }
         }
 
-        function loginLogout() {
-            if (document.getElementById("loginLogoutButton").innerText === "Login") {
-                window.location.href = "login.html"
-            } else {
-                sessionStorage.removeItem("userType")
-                window.location.reload()
-            }
-        }
     </script>
 
 </body>
