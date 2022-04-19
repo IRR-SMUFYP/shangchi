@@ -12,8 +12,8 @@ import random
 import requests
 import json
 import config
-# from dotenv import load_dotenv
-# load_dotenv()
+from dotenv import load_dotenv
+load_dotenv()
 
 app = Flask(__name__)
 
@@ -96,8 +96,7 @@ class FormAnswers(db.Model):
     __tablename__ = 'formanswers'
 
     answerID = db.Column(db.Integer, primary_key=True, nullable=False, autoincrement=True)
-    submissionID = db.Column(db.String(30), nullable=False)
-    # , db.ForeignKey(Learner.empID)
+    submissionID = db.Column(db.String(30), nullable=False) # , db.ForeignKey(Learner.empID)
     formName = db.Column(db.String(15), nullable=False)
     fieldID = db.Column(db.Integer, nullable=False)
     answer = db.Column(db.String(50), nullable=False)
@@ -274,7 +273,6 @@ def registerDriver():
 def updateAccountInfo(username):
     user = User.query.filter_by(username=username).first()
     data = request.get_json()
-    # print(data)
     if (user is None):
         return jsonify( 
             {
@@ -477,7 +475,6 @@ def retrieveCatalog():
 def getAllCat():
     categoryList = CategoryItem.query.with_entities(
         CategoryItem.category).distinct()
-    # print(categoryList)
     if (categoryList):
         return jsonify(
             {
@@ -519,7 +516,6 @@ def getSubCat(cat):
 @app.route("/getItemNames/<cat>/<subcat>")
 def getItemNames(cat, subcat):
     itemsInCategory = CategoryItem.query.filter_by(category=cat).filter_by(subCat=subcat).all()
-    # print(itemsInCategory)
 
     if (itemsInCategory):
         return jsonify(
@@ -568,38 +564,12 @@ def getFormAnswersBySubmission(submissionID):
     
     return mappedAnswerlist
 
-# get all details of a donation/wishlist submission
-@app.route("/formanswers/<string:submissionID>")
-def getAllDetailsBySubmission(submissionID):
-    # check if submission from Donation or wishlist
-    submission = Donation.query.filter_by(donationID=submissionID).first()
-    if submission is None:
-        submission = Wishlist.query.filter_by(wishlistID=submissionID).first()
-
-    if submission is not None:
-        formAnswersList = getFormAnswersBySubmission(submissionID)
-
-        return jsonify(
-            {
-                "code": 200,
-                "data": dict(**submission.json(), **formAnswersList)
-            }
-        )
-    return jsonify(
-        {
-            "code": 404,
-            "message": "No submission was found."
-        }
-    ), 404
-
 # create new submission
 @app.route('/formanswers', methods=['POST'])
 def createSubmission():
     try:
         formData = request.form
         formDict = formData.to_dict()
-        # print(formData)
-        # print(formDict)
         
         if '' in formDict.values():
             return jsonify({
@@ -629,10 +599,6 @@ def createSubmission():
                 "message": "Please fill in missing form fields!"
             }), 400
 
-    # for answer in formDict:
-    #     print(type(answer))
-    #     print(answer + ": " +formDict[answer])
-
     # submit into donation/wishlist
     details = {"itemID": itemID, "timeSubmitted": currentDT, "itemStatus": "Available"}
     if formName == "wishlist":
@@ -661,7 +627,6 @@ def createSubmission():
                 "message": "Unable to submit donation to database.",
                 "data" : submission.json()
             }), 500
-    print(formDict)
     # submit into formAnswers
     for id in formDict:
         answer = {"submissionID": submissionID, "formName": formName, "fieldID": id, "answer": formDict[id]}
@@ -764,9 +729,6 @@ def getSpecificFormAnswers(formName, submissionID):
         elif formName == "wishlist":
             item = Wishlist.query.filter_by(wishlistID=submissionID).first()
         data.update(item.json())
-        # data.pop('itemName')
-    # data.pop('timeSubmitted')
-    # data.pop('itemID')
     if len(data) > 0:
         return jsonify( 
             {
@@ -811,9 +773,6 @@ def updateFormAnswers(formName, submissionID):
         elif formName == "wishlist":
             otherFormFields.wishlistID = data["wishlistID"]
             otherFormFields.migrantID = data["migrantID"]
-        # otherFormFields.submissionID = data["submissionID"]
-        # otherFormFields.itemName = data["itemName"]
-        # otherFormFields.itemCategory = data["itemCategory"]
         otherFormFields.itemStatus = data["itemStatus"]
         db.session.add(otherFormFields)
         db.session.commit()
@@ -856,7 +815,6 @@ def updatePhoto(submissionID):
     fileName = secure_filename(imgFile.filename.replace(" ", ""))
     # print(formDict)
     imgFile.save(os.path.join(uploads_dir, fileName))
-    # os.open(uploads_dir+secure_filename(fileName), os.O_RDWR | os.O_CREAT, 0o666)
     file = formDict['itemImg']
 
     # delete old photo file
@@ -969,33 +927,6 @@ def getDonationItem(donationID):
     ), 404
 
 # API for search function
-@app.route("/getItemsByCat/<string:cat>")
-def getItemsByCategory(cat):
-    catList = CategoryItem.query.filter_by(category=cat).all()
-    catItemList = []
-    for category in catList:
-        itemList = Donation.query.filter_by(itemID=category.itemID).all()
-        if (len(itemList)):
-            categorydict = category.json()
-            categorydict.pop("itemID")
-            catList = [dict(**item.json(),**categorydict) for item in itemList]
-            catItemList.extend(catList)
-    if len(itemList):
-        return jsonify(
-            {
-                "code": 200,
-                "data": {
-                    "itemsByCat": catItemList
-                }
-            }
-        )
-    return jsonify(
-        {
-            "code": 404,
-            "message": "There are no items listed under this category."
-        }
-    ), 404
-
 @app.route("/getItemsBySubCat/<cat>/<subcat>")
 def filterItems(cat, subcat):
     subcatList = CategoryItem.query.filter_by(category=cat).filter_by(subCat=subcat).all()
@@ -1211,8 +1142,6 @@ def getRequestByID(reqID):
                 "code": 200,
                 "columnHeaders": fieldNames,
                 "data": data
-                # "columnHeaders": NewRequest.metadata.tables["request"].columns.keys(),
-                # "data": request
             }
         )
     return jsonify(
@@ -1237,7 +1166,6 @@ def updateRequest(reqID):
         )
     else:
         requested.postalCode = data['postalCode']
-        # requested.requestQty = data['requestQty']
         requested.migrantID = data['migrantID']
         db.session.add(requested)
         db.session.commit()
@@ -1304,8 +1232,6 @@ def getAllSuccessfulMatches():
                 "code": 200,
                 "columnHeaders": columns,
                 "data": data
-                # "data": [match.json() for match in matches], 
-                # "columnHeaders": Matches.metadata.tables["matches"].columns.keys()
             }
         )
     return jsonify(
@@ -1340,8 +1266,6 @@ def getSuccessfulMatch(matchID):
                 "code": 200,
                 "columnHeaders": columns,
                 "data": data
-                # "columnHeaders": Matches.metadata.tables["matches"].columns.keys(),
-                # "data": match
             }
         )
     return jsonify(
@@ -1385,8 +1309,6 @@ def updateSuccessfulMatches(matchID):
                 "code": 200,
                 "message": "Match successfully updated.",
                 "match": match.json(),
-                # "data": data,
-                # "olddata": data
             }
         )
 
@@ -1528,7 +1450,6 @@ def matchingAlgorithm(donationID):
                 response3 = requests.get(distanceAPI)
                 # value is the distance in meters
                 if response3.status_code == 200:
-                    # print(response3.json()["rows"][0]["elements"][0]["distance"]["value"])
                     distance = response3.json()["rows"][0]["elements"][0]["distance"]["value"]
                     if distance not in mwDist.keys():
                         mwDist[distance] = [mw]
@@ -1597,11 +1518,6 @@ def matchingAlgorithm(donationID):
             donation.itemStatus = "Unavailable"
             db.session.add(donation)
             db.session.commit()
-            # print(reqID, donorID)
-            # print(match)
-            # newMatch = Matches(**match)
-            # db.session.add(newMatch)
-            # db.session.commit()
             return jsonify(
                 {
                     "code": 200,
@@ -1736,9 +1652,6 @@ def updateDeliveryRequest(matchID):
             {
                 "code": 200,
                 "message": "Match successfully updated."
-                # "match": match.json(),
-                # "data": data,
-                # "olddata": data
             }
         )
 

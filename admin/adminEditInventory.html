@@ -191,7 +191,7 @@
 
         function getDT() {
             $.ajax({
-                url: "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getFormAnswers/donation",
+                url: "http://127.0.0.1:5003/getFormAnswers/donation",
                 success: function (data) {
                     columnNames = Object.values(data.columnHeaders);
                     for (var i in columnNames) {
@@ -228,7 +228,7 @@
 
         function fillDonationDetails(val) {
             $(async () => {
-                var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getFormAnswers/donation/" + val;
+                var serviceURL = "http://127.0.0.1:5003/getFormAnswers/donation/" + val;
                 try {
                     const response =
                     await fetch(
@@ -284,7 +284,7 @@
             }
             var jsondata = JSON.stringify(data);
             $(async () => {
-                var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/updateFormAnswers/donation/" + donationID;
+                var serviceURL = "http://127.0.0.1:5003/updateFormAnswers/donation/" + donationID;
                 try {
                     const response =
                     await fetch(
@@ -325,7 +325,7 @@
             data.append(document.getElementById("itemPhoto").name, fileName);
             data.append("file", file[0]);
             $(async () => {
-                var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/updatePhoto/" + donationID;
+                var serviceURL = "http://127.0.0.1:5003/updatePhoto/" + donationID;
                 try {
                     const response =
                     await fetch(

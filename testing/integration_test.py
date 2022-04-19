@@ -148,7 +148,7 @@ class TestCategoryItem(TestApp):
 
 class TestFormAnswers(TestApp):
 
-    def test_get_all_details_by_submission(self):
+    def test_get_specific_form_answers(self):
 
         current_datetime = datetime.now()
         field1 = FormBuilder(fieldID=1, formName="donation", fieldName="First Name", fieldType="text", placeholder="Enter your first name", options=None)
@@ -164,10 +164,20 @@ class TestFormAnswers(TestApp):
         db.session.add(answer2)
         db.session.commit()
 
-        response = self.client.get("/formanswers/1")
+        self.maxDiff = None
+        response = self.client.get("/getFormAnswers/donation/1")
         self.assertEqual(response.json,
                         {
                             "code" : 200,
+                            "columnHeaders":{
+                                '1': 'First Name',
+                                '2': 'Last Name',
+                                '3': 'donorID',
+                                '4': 'donationID',
+                                '5': 'itemID',
+                                '6': 'timeSubmitted',
+                                '7': 'itemStatus'
+                            } ,
                             "data": {
                                 'First Name': 'John', 
                                 'Last Name': 'Doe', 
@@ -175,6 +185,7 @@ class TestFormAnswers(TestApp):
                                 'donorID': 91234567, 
                                 'itemID': 1, 
                                 'itemStatus': 'Available', 
+                                'submissionID': '1',
                                 'timeSubmitted': current_datetime.strftime('%a, %d %b %Y') + ' 00:00:00 GMT'}        
                         })
 
