@@ -161,7 +161,6 @@ class Faq(db.Model):
 
 
 # region USER
-# get user by username
 @app.route("/getUser/<username>")
 def getUser(username):
     user = User.query.filter_by(username=username).first()
@@ -173,7 +172,6 @@ def getUser(username):
         "data": user.json()
     })
 
-# get All Users
 @app.route("/getAllUsers")
 def getAllUsers():
     users = User.query.all()
@@ -185,7 +183,6 @@ def getAllUsers():
         "data": [user.json() for user in users]
     })
 
-# Register MW 
 @app.route("/registermw", methods=['POST'])
 def registerMW():
         formData = request.form
@@ -213,7 +210,6 @@ def registerMW():
                 }
             ), 500
 
-# Register admin account
 @app.route("/registeradmin", methods=['POST'])
 def registerAdmin():
         formData = request.form
@@ -241,7 +237,6 @@ def registerAdmin():
                 }
             ), 500
 
-# Register Driver Account
 @app.route("/registerDriver", methods=['POST'])
 def registerDriver():
         formData = request.form
@@ -270,7 +265,6 @@ def registerDriver():
             ), 500
 
 
-# edit Account in table
 @app.route("/updateUser/<username>", methods=["PUT"])
 def updateAccountInfo(username):
     user = User.query.filter_by(username=username).first()
@@ -295,7 +289,6 @@ def updateAccountInfo(username):
             }
         )
 
-# delete account by username
 @app.route("/deleteUser/<username>", methods=["DELETE"])
 def deleteUser(username):
     user = User.query.filter_by(username=username).first()
@@ -357,7 +350,6 @@ def checkLogin():
 # endregion
 
 # region FORMBUILDER
-# get all fields by form
 @app.route("/formbuilder/<string:formName>")
 def getFieldsByForm(formName):
     fieldlist = FormBuilder.query.filter_by(formName=formName).all()
@@ -377,7 +369,6 @@ def getFieldsByForm(formName):
         }
     ), 404
 
-# get specific field
 @app.route("/formbuilder/<int:fieldID>")
 def getField(fieldID):
     field = FormBuilder.query.filter_by(fieldID=fieldID).first()
@@ -395,7 +386,6 @@ def getField(fieldID):
         }
     ), 404
 
-# create new field
 @app.route('/formbuilder', methods=['POST'])
 def createField():
     data = request.get_json()
@@ -410,7 +400,6 @@ def createField():
                 "message": "Unable to commit to database."
             }), 500
 
-# edit existing field
 @app.route('/formbuilder/<int:fieldID>', methods=['POST'])
 def edit_field(fieldID):
     data = request.get_json()
@@ -430,7 +419,6 @@ def edit_field(fieldID):
                 "message": "Unable to commit to database."
             }), 500
 
-# delete existing field
 @app.route('/formbuilder/<int:fieldID>', methods=["DELETE"])
 def delete_field(fieldID):
     item = FormBuilder.query.filter_by(fieldID=fieldID).first()
@@ -472,7 +460,6 @@ def retrieveCatalog():
             }
         )
 
-# get all existing categories to be displayed in drop down fields
 @app.route("/getCat")
 def getAllCat():
     categoryList = CategoryItem.query.with_entities(
@@ -494,7 +481,6 @@ def getAllCat():
         }
     ), 404
 
-# get all existing subcategories to be displayed in drop down fields
 @app.route("/getSubCat/<cat>")
 def getSubCat(cat):
     subCats = CategoryItem.query.filter_by(category=cat)
@@ -570,7 +556,6 @@ def getFormAnswersBySubmission(submissionID):
 uuidGeneratedName = ""
 fileExtension = ""
 
-# create new submission
 @app.route('/formanswers', methods=['POST'])
 def createSubmission():
     try:
@@ -661,7 +646,6 @@ def createSubmission():
                     "message": "Form submitted successfully."
                 }), 201
 
-# get all form answers for any form
 @app.route("/getFormAnswers/<formName>")
 def getFormAnswers(formName):
     formFields = FormBuilder.query.filter_by(formName=formName)
@@ -817,7 +801,6 @@ def updateFormAnswers(formName, submissionID):
             }
         )
 
-# edit uploaded photo
 @app.route("/updatePhoto/<submissionID>", methods=['POST'])
 def updatePhoto(submissionID):
     formData = request.form
@@ -899,7 +882,6 @@ def deleteRow(formName, submissionID):
 # endregion
 
 # region DONATION
-# get all donation items
 @app.route("/donation")
 def getAllDonationItems():
     donationList = Donation.query.all()
@@ -927,7 +909,6 @@ def getAllDonationItems():
         }
     ), 404
 
-# get specified donation item
 @app.route("/donation/<string:donationID>")
 def getDonationItem(donationID):
     donationItem = Donation.query.filter_by(donationID=donationID).first()
@@ -983,7 +964,6 @@ def filterItems(cat, subcat):
 # endregion
 
 # region WISHLIST
-# get all items in wishlist
 @app.route("/wishlist")
 def getAllWishListItems():
     wishList = Wishlist.query.all()
@@ -1108,7 +1088,6 @@ def addNewRequest():
                 }
             ), 500
 
-# get all requests submitted by migrant workers
 @app.route("/getRequests")
 def getAllRequests():
     requestList = Request.query.all()
@@ -1141,7 +1120,6 @@ def getAllRequests():
         }
     ), 404
 
-# get specific request by reqID
 @app.route("/getRequests/<reqID>")
 def getRequestByID(reqID):
     request = Request.query.filter_by(reqID=reqID).first()
@@ -1174,7 +1152,6 @@ def getRequestByID(reqID):
         }
     ), 404
 
-# update request by reqID
 @app.route("/updateRequest/<reqID>", methods=["PUT"])
 def updateRequest(reqID):
     requested = Request.query.filter_by(reqID=reqID).first()
@@ -1202,7 +1179,6 @@ def updateRequest(reqID):
             }
         )
 
-# delete request by reqID
 @app.route("/deleteRequest/<reqID>", methods=["DELETE"])
 def deleteRequest(reqID):
     request = Request.query.filter_by(reqID=reqID).first()
@@ -1227,7 +1203,6 @@ def deleteRequest(reqID):
 # endregion
 
 # region MATCHES
-# get all successful matches 
 @app.route("/getSuccessfulMatches")
 def getAllSuccessfulMatches():
     matches = Matches.query.all()
@@ -1264,7 +1239,6 @@ def getAllSuccessfulMatches():
         }
     ), 404
 
-# get specific successful match 
 @app.route("/getSuccessfulMatches/<matchID>")
 def getSuccessfulMatch(matchID):
     data = {}
@@ -1298,7 +1272,6 @@ def getSuccessfulMatch(matchID):
         }
     ), 404
 
-# edit SuccessfulMatch in table
 @app.route("/updateSuccessfulMatches/<matchID>", methods=["PUT"])
 def updateSuccessfulMatches(matchID):
     match = Matches.query.filter_by(matchID=matchID).first()
@@ -1335,7 +1308,6 @@ def updateSuccessfulMatches(matchID):
             }
         )
 
-# add new match
 @app.route("/addMatch", methods=['POST'])
 def addNewMatch():
     formData = request.form
@@ -1372,7 +1344,6 @@ def addNewMatch():
             }
         ), 500
 
-# delete match by matchID
 @app.route("/deleteMatch/<matchID>", methods=["DELETE"])
 def deleteMatch(matchID):
     match = Matches.query.filter_by(matchID=matchID).first()
@@ -1585,7 +1556,6 @@ def matchingAlgorithm(donationID):
 # endregion
 
 # region DELIVERY
-# get all delivery requests matches 
 @app.route("/getDeliveryRequests")
 def getDeliveryRequests():
     deliveryRequests = Matches.query.join(Delivery, Delivery.matchID == Matches.matchID).join(
@@ -1613,7 +1583,6 @@ def getDeliveryRequests():
         }
     ), 404
 
-# get specific delivery request 
 @app.route("/getDeliveryRequests/<matchID>")
 def getDeliveryRequestsByMatchID(matchID):
     deliveryRequest = Delivery.query.filter_by(matchID=matchID).join(Matches, Delivery.matchID == Matches.matchID).join(
@@ -1638,7 +1607,6 @@ def getDeliveryRequestsByMatchID(matchID):
         }
     ), 404
 
-# get delivery locations
 def getDeliveryLocations():
     deliveryLocations = Matches.query.join(Delivery, Delivery.matchID == Matches.matchID).join(
         Request, Matches.reqID == Request.reqID).add_columns(Request.postalCode).distinct()
@@ -1649,7 +1617,6 @@ def getDeliveryLocations():
         data.append(list(deliveryLoc.values())[0])
     return data
 
-# get delivery locations in lat, lng format 
 @app.route("/getDeliveryLocationsLatLng")
 def getDeliveryLocationsLatLng():
     deliveryLocList = getDeliveryLocations()
@@ -1671,7 +1638,6 @@ def getDeliveryLocationsLatLng():
         )
 
 
-# edit deliveryRequest in table
 @app.route("/updateDeliveryRequest/<matchID>", methods=["PUT"])
 def updateDeliveryRequest(matchID):
     deliveryRequest = Delivery.query.filter_by(matchID=matchID).join(Matches, Delivery.matchID == Matches.matchID).join(
@@ -1706,7 +1672,6 @@ def updateDeliveryRequest(matchID):
             }
         )
 
-# add new delivery request
 @app.route("/addDeliveryRequest", methods=['POST'])
 def addDeliveryRequest():
     formData = request.form
@@ -1738,7 +1703,6 @@ def addDeliveryRequest():
             }
         ), 500
 
-# delete delivery request by matchID
 @app.route("/deleteDeliveryRequest/<matchID>", methods=["DELETE"])
 def deleteDeliveryRequest(matchID):
     delivery = Delivery.query.filter_by(matchID=matchID).first()
@@ -1763,7 +1727,6 @@ def deleteDeliveryRequest(matchID):
 # endregion
 
 # region FAQ
-# get all FAQs
 @app.route("/faq")
 def getAllFaq():
     faqlist = Faq.query.all()
@@ -1783,7 +1746,6 @@ def getAllFaq():
         }
     ), 404
 
-# get specific faq
 @app.route("/faq/<int:faqID>")
 def getFaq(faqID):
     faq = Faq.query.filter_by(faqID=faqID).first()
@@ -1801,7 +1763,6 @@ def getFaq(faqID):
         }
     ), 404
 
-# create new faq
 @app.route('/faq', methods=['POST'])
 def create_faq():
     data = request.get_json()
@@ -1816,7 +1777,6 @@ def create_faq():
                 "message": "Unable to commit to database."
             }), 500
 
-# edit existing faq
 @app.route('/faq/<int:faqID>', methods=['POST'])
 def edit_faq(faqID):
     data = request.get_json()
@@ -1833,7 +1793,6 @@ def edit_faq(faqID):
                 "message": "Unable to commit to database."
             }), 500
 
-# delete existing faq
 @app.route('/faq/<int:faqID>', methods=["DELETE"])
 def delete_faq(faqID):
     item = Faq.query.filter_by(faqID=faqID).first()
