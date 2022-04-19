@@ -342,7 +342,7 @@
         async function loadCarousel() {
             try {
                 let response = await fetch(
-                    "http://127.0.0.1:5003/donation")
+                    "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/donation")
                 let responseCode = await response.json()
                 if (responseCode.code == 200) {
                     return responseCode.data.items
@@ -358,7 +358,7 @@
         async function loadWishList() {
             try {
                 let response = await fetch(
-                    "http://127.0.0.1:5003/wishlist")
+                    "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/wishlist")
                 let responseCode = await response.json()
                 if (responseCode.code == 200) {
                     return responseCode.data.items
@@ -370,7 +370,7 @@
 
         // Async function for Search Dropdown (Index Page)
         async function getDropDownCat() {
-            let response = await fetch("http://127.0.0.1:5003/getCat")
+            let response = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getCat")
             let responseCode = await response.json()
 
             if (responseCode.code == 200) {
@@ -384,7 +384,7 @@
             subCatList.innerHTML = ""
             cat = cat.value
             let response = await fetch(
-                "http://127.0.0.1:5003/getSubCat/" + cat)
+                "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getSubCat/" + cat)
             let responseCode = await response.json()
 
             if (responseCode.code == 200) {
@@ -403,7 +403,7 @@
 
         async function checkRequestedItems() {
             let response = await fetch(
-                "http://127.0.0.1:5003/request/" + user.username)
+                "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/request/" + user.username)
             let data = await response.json()
             if (data.code == 200) {
                 return data.requestedItemIds
@@ -420,7 +420,7 @@
             let subCatVal = subCatList.value
 
             let response = await fetch(
-                "http://127.0.0.1:5003/getItemsBySubCat/" +
+                "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getItemsBySubCat/" +
                 catVal + "/" + subCatVal)
             let responseCode = await response.json()
 
@@ -505,7 +505,7 @@
         //     classElement = document.getElementsByClassName("donationItem");
         //     for (let i = 0; i < classElement.length; i++) {
         //         let donationID = classElement[i].getAttribute("data-tip");
-        //         let request = await fetch("http://127.0.0.1:5003/matchingAlgorithm/" + donationID);
+        //         let request = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/matchingAlgorithm/" + donationID);
         //         let response = await response.json();
 
         //         if (response.code == 200) {
@@ -514,7 +514,7 @@
         //             alert(response.message)
         //         }
         //     }
-            let request = await fetch("http://127.0.0.1:5003/matchingAlgorithm/" + donationID);
+            let request = await fetch("http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/matchingAlgorithm/" + donationID);
             let response = await request.json();
             if (response.code == 200) {
                 return response.finalMW;

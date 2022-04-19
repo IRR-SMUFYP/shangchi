@@ -18,7 +18,7 @@ load_dotenv()
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:@localhost:3306/imatch'
+app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'pool_recycle': 299}
 
@@ -1460,8 +1460,7 @@ def shortestDistance(mwPoints, needCheckDist, donationID):
             addressFieldID = FormBuilder.query.filter_by(fieldName="Postal Code").first().fieldID
             donorLoc = FormAnswers.query.filter_by(submissionID=donationID).filter_by(fieldID=addressFieldID).first().answer 
             # google maps api to calculate distance
-            # apikey = environ.get('GOOGLE_API_KEY')
-            apikey = config.api_key
+            apikey = environ.get('GOOGLE_API_KEY')
             geocodeAPI1 = "https://maps.googleapis.com/maps/api/geocode/json?address=" + donorLoc + "&components=country:SG&key=" + apikey
             response1 = requests.get(geocodeAPI1)
             if response1.status_code == 200:
