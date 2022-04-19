@@ -12,6 +12,7 @@ import random
 import requests
 import json
 import config
+import uuid
 from dotenv import load_dotenv
 load_dotenv()
 
@@ -78,7 +79,7 @@ class Donation(db.Model):
     itemStatus = db.Column(db.String(50), nullable=False)
         
     def json(self):
-        return {"donationID": self.donationID, "donorID": self.donorID, "donationID": self.donationID, "itemID": self.itemID, "timeSubmitted": self.timeSubmitted, "itemStatus": self.itemStatus}
+        return {"donorID": self.donorID, "donationID": self.donationID, "itemID": self.itemID, "timeSubmitted": self.timeSubmitted, "itemStatus": self.itemStatus}
 
 class Wishlist(db.Model):
     __tablename__ = 'wishlist'
@@ -159,6 +160,7 @@ class Faq(db.Model):
 #endregion
 
 
+# region USER
 # get user by username
 @app.route("/getUser/<username>")
 def getUser(username):
@@ -564,6 +566,10 @@ def getFormAnswersBySubmission(submissionID):
     
     return mappedAnswerlist
 
+# Global UUID Name stored for future use
+uuidGeneratedName = ""
+fileExtension = ""
+
 # create new submission
 @app.route('/formanswers', methods=['POST'])
 def createSubmission():
@@ -591,8 +597,13 @@ def createSubmission():
             file = files[fileId]
             formDict[fileId] = file.filename
             # save file
+            # fileName = secure_filename(file.filename)
+            # fileName = secure_filename(file.filename.replace(" ", ""))
             fileName = secure_filename(file.filename)
-            file.save(os.path.join(uploads_dir, fileName))
+            index = fileName.index('.')
+            fileExtension = fileName[index:]
+            uuidGeneratedName = uuid.uuid4()
+            file.save(os.path.join(uploads_dir, str(uuidGeneratedName) + str(fileExtension)))
     except Exception as e:
         print(e)
         return jsonify({
@@ -627,8 +638,12 @@ def createSubmission():
                 "message": "Unable to submit donation to database.",
                 "data" : submission.json()
             }), 500
+
+    formDict['3'] = str(uuidGeneratedName) + str(fileExtension)
+
     # submit into formAnswers
     for id in formDict:
+        print(id, formDict[id])
         answer = {"submissionID": submissionID, "formName": formName, "fieldID": id, "answer": formDict[id]}
         item = FormAnswers(**answer)
         if ( id.isdigit() ): 
@@ -812,7 +827,14 @@ def updatePhoto(submissionID):
     fieldID = formField.fieldID
     formAnswer = FormAnswers.query.filter_by(submissionID=submissionID).filter_by(fieldID=fieldID).first()
     # save file
-    fileName = secure_filename(imgFile.filename.replace(" ", ""))
+    # fileName = secure_filename(imgFile.filename.replace(" ", ""))
+
+    # Added lines to test uuid filename
+    fileName = secure_filename(file.filename)
+    index = fileName.index('.')
+    fileExtension = fileName[index:]
+    uuidGeneratedName = uuid.uuid4()
+    file.save(os.path.join(uploads_dir, str(uuidGeneratedName) + str(fileExtension)))
     # print(formDict)
     imgFile.save(os.path.join(uploads_dir, fileName))
     file = formDict['itemImg']
@@ -846,6 +868,7 @@ def deleteRow(formName, submissionID):
     if formName == "donation":
         row = Donation.query.filter_by(donationID=submissionID).first()
         oldFile = FormAnswers.query.filter_by(submissionID=submissionID).filter_by(fieldID=3).first().answer
+        print(oldFile)
     elif formName == "wishlist":
         row = Wishlist.query.filter_by(wishlistID=submissionID).first()
     formAnswers = FormAnswers.query.filter_by(submissionID=submissionID)
@@ -1371,142 +1394,170 @@ def deleteMatch(matchID):
             }
         ), 500
 
-# matching algorithm
+def getNumOfMatches(req):
+    # reqHist keys is migrantID, values is count
+    reqHist = {}
+    for r in req:
+        # count the no. of times the migrant worker gotten a match
+        migrantWorkerCount = Matches.query.filter_by(migrantID=r.migrantID).count()
+        # if migrantworker alr in the dict, count will increase by 1
+        if migrantWorkerCount in reqHist.keys():
+            reqHist[migrantWorkerCount] += [r.migrantID]
+        # create migrantID as a new key in the dict
+        else:
+            reqHist[migrantWorkerCount] = [r.migrantID]
+    # all the migrantIDs
+    allKeys = reqHist.keys()
+    # get min. (smallest) no. of match count
+    minValue = min(allKeys, default="EMPTY")
+    # get list of migrantID(s) with the least match count
+    priorityMW = reqHist[minValue]
+    print(priorityMW)
+
+    return priorityMW
+
+def selfPickUpOrDelivery(priorityMW, donationID):
+    # new dictionary to calc migrant worker points
+    mwPoints = {}
+    
+    # check whether item requires delivery
+    deliveryFieldID = FormBuilder.query.filter_by(fieldName="Delivery Method").first().fieldID
+    deliveryOption = FormAnswers.query.filter_by(submissionID=donationID).filter_by(fieldID=deliveryFieldID).first()
+    deliveryMWOption = Request.query.filter_by(postalCode="Self Pickup").filter_by()
+
+    # variable to check whether criteria 3 has to be done
+    needCheckDist = 0
+
+    # check whether donor opt for self pickup
+    if deliveryOption == "Delivery required":
+        # if delivery required, all MW start with 0 points
+        for mw in priorityMW:
+            mwPoints[mw] = 0
+        # need check Distance criteria
+        needCheckDist += 1
+    else:
+        # check whether migrant worker opt for self pickup (but donor opt for delivery/arranged by donor)
+        for mw in priorityMW:
+            deliveryMWOption = Request.query.filter_by(donationID=donationID).filter_by(migrantID=mw).first()
+            # if migrant worker is not 
+            if deliveryMWOption == "Self Pickup":
+                mwPoints[mw] = 0
+        # if donor did not choose self pick-up & no mw chose self pick-up, put all mw priority as 0
+        if len(mwPoints) == 0:
+            for mw in priorityMW:
+                deliveryMWOption = Request.query.filter_by(donationID=donationID).filter_by(migrantID=mw).first()
+                mwPoints[mw] = 0
+            # need check Distance criteria
+            needCheckDist += 1
+
+    return mwPoints, needCheckDist
+
+def shortestDistance(mwPoints, needCheckDist, donationID):
+    if needCheckDist > 0:
+        mwDist = {}
+        for mw, points in mwPoints.items():
+            mwLoc = Request.query.filter_by(donationID=donationID).filter_by(migrantID=mw).first().postalCode
+            addressFieldID = FormBuilder.query.filter_by(fieldName="Postal Code").first().fieldID
+            donorLoc = FormAnswers.query.filter_by(submissionID=donationID).filter_by(fieldID=addressFieldID).first().answer 
+            # google maps api to calculate distance
+            # apikey = environ.get('GOOGLE_API_KEY')
+            apikey = config.api_key
+            geocodeAPI1 = "https://maps.googleapis.com/maps/api/geocode/json?address=" + donorLoc + "&components=country:SG&key=" + apikey
+            response1 = requests.get(geocodeAPI1)
+            if response1.status_code == 200:
+                donorPlace_id = response1.json()["results"][0]["place_id"]
+            geocodeAPI2 = "https://maps.googleapis.com/maps/api/geocode/json?address=" + mwLoc + "&components=country:SG&key=" + apikey
+            response2 = requests.get(geocodeAPI2)
+            if response2.status_code == 200:
+                mwPlace_id = response2.json()["results"][0]["place_id"]
+            distanceAPI = "https://maps.googleapis.com/maps/api/distancematrix/json?destinations=place_id:" + donorPlace_id + "&origins=place_id:" + mwPlace_id + "&key=" + apikey
+            response3 = requests.get(distanceAPI)
+            # value is the distance in meters
+            if response3.status_code == 200:
+                # print(response3.json()["rows"][0]["elements"][0]["distance"]["value"])
+                distance = response3.json()["rows"][0]["elements"][0]["distance"]["value"]
+                if distance not in mwDist.keys():
+                    mwDist[distance] = [mw]
+                else:
+                    mwDist[distance].append(mw)
+                if distance < 3000:
+                    points += 1
+                elif 3000 <= distance < 5000:
+                    points += 2
+                elif 5000 <= distance < 7000:
+                    points += 3
+                elif 7000 <= distance < 9000:
+                    points += 4
+                else:
+                    points += 5
+        # least no. of points = shortest distance
+        shortestDist = min(list(mwDist.keys()))
+        # finding nearest migrant worker using mwDist dict
+        nearestMW = mwDist[shortestDist]
+        # mwPoints dict to minus the points they currently have
+        for n in nearestMW:
+            mwPoints[n] -= 1
+    return mwPoints
+
+def timeSinceLastMatch(mwPoints):
+    timeNow = datetime.now()
+    for mwNum, points in mwPoints.items():
+        mw = Matches.query.filter_by(migrantID=mwNum).first()
+        if mw is not None:
+            lastItemTime = mw.matchDate
+            print(lastItemTime, timeNow)
+            days = (timeNow - lastItemTime).days # convert difference into no. of days
+            print(days)
+            if 0 <= days < 14:
+                mwPoints[mwNum] += 6
+            elif 14 <= days < 28:
+                mwPoints[mwNum] += 4
+            elif 28 <= days < 42:
+                mwPoints[mwNum] += 2
+            elif 42 <= days < 56:
+                mwPoints[mwNum] += 1
+    # get min. no. of points
+    minPoints = min(list(mwPoints.values()))
+    finalMWs = []
+    # get list of migrant workers that has the min. no. of points
+    for mw, points in mwPoints.items():
+        if points == minPoints:
+            finalMWs.append(mw)
+    
+    return finalMWs
+
+# randomise function for Tied MWs
+def randomizeTieBreaker(finalMWs):
+    randomInt = random.randint(1, len(finalMWs))
+    finalMW = finalMWs[randomInt - 1]
+
+    return finalMW
+
+# matching algo
 @app.route("/matchingAlgorithm/<string:donationID>")
 def matchingAlgorithm(donationID):
     req = Request.query.filter_by(donationID=donationID)
     if req:
         # CRITERIA 1: NO. OF MATCHES
-        # reqHist keys is migrantID, values is count
-        reqHist = {}
-        for r in req:
-            # count the no. of times the migrant worker gotten a match
-            migrantWorkerCount = Matches.query.filter_by(migrantID=r.migrantID).count()
-            # if migrantworker alr in the dict, count will increase by 1
-            if migrantWorkerCount in reqHist.keys():
-                reqHist[migrantWorkerCount] += [r.migrantID]
-            # create migrantID as a new key in the dict
-            else:
-                reqHist[migrantWorkerCount] = [r.migrantID]
-        # all the migrantIDs
-        allKeys = reqHist.keys()
-        # get min. (smallest) no. of match count
-        minValue = min(allKeys, default="EMPTY")
-        # get list of migrantID(s) with the least match count
-        priorityMW = reqHist[minValue]
-        print(priorityMW)
-        # new dictionary to calc migrant worker points
-        mwPoints = {}
+        priorityMW = getNumOfMatches(req)
 
         # CRITERIA 2: WHETHER DONOR/MIGRANT WORKER CHOSE SELF PICKUP
-        # check whether item requires delivery
-        deliveryFieldID = FormBuilder.query.filter_by(fieldName="Delivery Method").first().fieldID
-        deliveryOption = FormAnswers.query.filter_by(submissionID=donationID).filter_by(fieldID=deliveryFieldID).first()
-        deliveryMWOption = Request.query.filter_by(postalCode="Self Pickup").filter_by()
+        mwPoints, needCheckDist = selfPickUpOrDelivery(priorityMW, donationID)
 
-        # variable to check whether criteria 3 has to be done
-        needCheckDist = 0
-
-        # check whether donor opt for self pickup
-        if deliveryOption == "Delivery required":
-            # if delivery required, all MW start with 0 points
-            for mw in priorityMW:
-                mwPoints[mw] = 0
-            # need check Distance criteria
-            needCheckDist += 1
-        else:
-            # check whether migrant worker opt for self pickup (but donor opt for delivery/arranged by donor)
-            for mw in priorityMW:
-                deliveryMWOption = Request.query.filter_by(donationID=donationID).filter_by(migrantID=mw).first()
-                # if migrant worker is not 
-                if deliveryMWOption == "Self Pickup":
-                    mwPoints[mw] = 0
-            # if donor did not choose self pick-up & no mw chose self pick-up, put all mw priority as 0
-            if len(mwPoints) == 0:
-                for mw in priorityMW:
-                    deliveryMWOption = Request.query.filter_by(donationID=donationID).filter_by(migrantID=mw).first()
-                    mwPoints[mw] = 0
-                # need check Distance criteria
-                needCheckDist += 1
-                
         # CRITERIA 3: FIND MIGRANT WORKER WITH THE SHORTEST DISTANCE
-        if needCheckDist > 0:
-            mwDist = {}
-            for mw, points in mwPoints.items():
-                mwLoc = Request.query.filter_by(donationID=donationID).filter_by(migrantID=mw).first().postalCode
-                addressFieldID = FormBuilder.query.filter_by(fieldName="Postal Code").first().fieldID
-                donorLoc = FormAnswers.query.filter_by(submissionID=donationID).filter_by(fieldID=addressFieldID).first().answer 
-                # google maps api to calculate distance
-                apikey = config.api_key
-                geocodeAPI1 = "https://maps.googleapis.com/maps/api/geocode/json?address=" + donorLoc + "&components=country:SG&key=" + apikey
-                response1 = requests.get(geocodeAPI1)
-                if response1.status_code == 200:
-                    donorPlace_id = response1.json()["results"][0]["place_id"]
-                geocodeAPI2 = "https://maps.googleapis.com/maps/api/geocode/json?address=" + mwLoc + "&components=country:SG&key=" + apikey
-                response2 = requests.get(geocodeAPI2)
-                if response2.status_code == 200:
-                    mwPlace_id = response2.json()["results"][0]["place_id"]
-                distanceAPI = "https://maps.googleapis.com/maps/api/distancematrix/json?destinations=place_id:" + donorPlace_id + "&origins=place_id:" + mwPlace_id + "&key=" + apikey
-                response3 = requests.get(distanceAPI)
-                # value is the distance in meters
-                if response3.status_code == 200:
-                    distance = response3.json()["rows"][0]["elements"][0]["distance"]["value"]
-                    if distance not in mwDist.keys():
-                        mwDist[distance] = [mw]
-                    else:
-                        mwDist[distance].append(mw)
-                    if distance < 3000:
-                        points += 1
-                    elif 3000 <= distance < 5000:
-                        points += 2
-                    elif 5000 <= distance < 7000:
-                        points += 3
-                    elif 7000 <= distance < 9000:
-                        points += 4
-                    else:
-                        points += 5
-            # least no. of points = shortest distance
-            shortestDist = min(list(mwDist.keys()))
-            # finding nearest migrant worker using mwDist dict
-            nearestMW = mwDist[shortestDist]
-            for n in nearestMW:
-                mwPoints[n] -= 1
-            # mwPoints dict to minus the points they currently have
-        
+        newMWPoints = shortestDistance(mwPoints, needCheckDist, donationID)
+
         # CRITERIA 4: HOW LONG SINCE THEIR LAST MATCH
-        timeNow = datetime.now()
-        for mwNum, points in mwPoints.items():
-            mw = Matches.query.filter_by(migrantID=mwNum).first()
-            if mw is not None:
-                lastItemTime = mw.matchDate
-                print(lastItemTime, timeNow)
-                days = (timeNow - lastItemTime).days # convert difference into no. of days
-                print(days)
-                if 0 <= days < 14:
-                    mwPoints[mwNum] += 6
-                elif 14 <= days < 28:
-                    mwPoints[mwNum] += 4
-                elif 28 <= days < 42:
-                    mwPoints[mwNum] += 2
-                elif 42 <= days < 56:
-                    mwPoints[mwNum] += 1
-        # get min. no. of points
-        minPoints = min(list(mwPoints.values()))
-        finalMWs = []
-        # get list of migrant workers that has the min. no. of points
-        for mw, points in mwPoints.items():
-            if points == minPoints:
-                finalMWs.append(mw)
+        finalMWs = timeSinceLastMatch(newMWPoints)
+
         # if only 1 migrant worker at the end, return this migrant worker
         if len(finalMWs) == 1:
             finalMW = finalMWs[0]
-        # else, get a random migrant worker from the list
-        else:
-            randomInt = random.randint(1, len(finalMWs))
-            finalMW = finalMWs[randomInt - 1]
+        else: 
+            finalMW = randomizeTieBreaker(finalMWs)
 
-        print(finalMW)
         # LAST STEP: add the match to the db
+        timeNow = datetime.now()
         reqID = Request.query.filter_by(donationID=donationID).filter_by(migrantID=finalMW).first().reqID
         donorID = Donation.query.filter_by(donationID=donationID).first().donorID
         match = {"reqID": reqID, "migrantID": finalMW, "donorID": donorID, "matchDate": timeNow}

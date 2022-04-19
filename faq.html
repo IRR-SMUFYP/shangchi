@@ -40,6 +40,9 @@
     <!-- Template Main CSS File -->
     <link href="assets/css/style.css" rel="stylesheet">
 
+    <!-- Custom Javascript -->
+    <script src="assets/js/login.js" type="text/javascript"></script>
+
     <!-- =======================================================
   * Template Name: Medilab - v4.7.0
   * Template URL: https://bootstrapmade.com/medilab-free-medical-bootstrap-theme/
@@ -194,26 +197,7 @@
     <!-- Template Main JS File -->
     <script src="assets/js/main.js"></script>
     <script>
-        
-        var user = "";
 
-        function checkLogin() {
-            if (sessionStorage.getItem("user") != null) {
-                user = JSON.parse(sessionStorage.getItem("user"))
-                // console.log(JSON.parse(user))
-
-                document.getElementById("loginLogoutButton").innerText = "Logout"
-            }
-        }
-
-        function loginLogout() {
-            if (document.getElementById("loginLogoutButton").innerText === "Login") {
-                window.location.href = "login.html"
-            } else {
-                sessionStorage.removeItem("user")
-                window.location.reload()
-            }
-        }
         $(async () => {
             var serviceURL = "http://127.0.0.1:5003/faq";
 

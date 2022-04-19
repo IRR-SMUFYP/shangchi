@@ -201,13 +201,8 @@ function addIcons(formName) {
 
 // POPULATING ITEM CATEGORIES, SUB-CATEGORIES AND NAMES DROPDOWN LISTS
 //#region
-function checkLogin() {
+function populateCategoryItems() {
 
-    if (sessionStorage.getItem("user") != null) {
-        user = JSON.parse(sessionStorage.getItem("user"))
-
-        document.getElementById("loginLogoutButton").innerText = "Logout"
-    }
     getDropDownCat().then(function autoPopCategories(result) {
         var catList = result
 
