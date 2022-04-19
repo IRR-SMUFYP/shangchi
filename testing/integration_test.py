@@ -21,6 +21,7 @@ class TestApp(flask_testing.TestCase):
         db.session.remove()
         db.drop_all()
 
+
 class TestRegisterAccount(TestApp):
 
     def test_register_new_migrant_worker(self):
