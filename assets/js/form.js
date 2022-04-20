@@ -82,6 +82,7 @@ async function retrieveForm(formName) {
 
             document.getElementById('contactField').innerHTML += contactField;
             document.getElementById(formName).innerHTML += itemNameField + subCatField + catField;
+            populateCategoryItems();
         }
     } catch (error) {
         // Errors when calling the service; such as network error, 
