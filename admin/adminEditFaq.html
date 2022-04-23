@@ -97,6 +97,37 @@
 
     <main id="main">
         <section></section>
+        <section style="max-width: 1000px; margin: auto;">
+            <form>
+                <div class="mb-3">
+                    <label for="section" class="form-label">Section</label>
+                    <select class="form-select" id="section" required>
+                        <option selected value="worker">Migrant Worker</option>
+                        <option value="donor">Donor</option>
+                        <option value="driver">Driver</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label for="question" class="form-label">Question</label>
+                    <input type="text" class="form-control" id="question" placeholder="Enter question here" required>
+                </div>
+
+                <div class="mb-3">
+                    <label for="answer" class="form-label">Answer</label>
+                    <textarea row="3" class="form-control" id="answer" placeholder="Enter answer here" required></textarea>
+                </div>
+
+                <div class="col-12" style='text-align: right; color: #A57F60;'>
+                    <button id="addBtn" type="button" onclick="postFaq()" class="btn btn-outline-light"
+                        style="color:white; background-color: #A57F60;">Add Question</button>
+                </div>
+
+            </form>
+        </section>
+        
+        <hr style="border:solid; " id="editForm">
+        
         <section id="services" class="services">
             <div class="container">
                 <div class="section-title">
@@ -124,36 +155,7 @@
                 </div>
             </section>
 
-            <hr style="border:solid; " id="editForm">
             <br>
-            <br>
-            <!--Editing portion starts from here-->
-            <form>
-                <div class="mb-3">
-                    <label for="section" class="form-label">Section</label>
-                    <select class="form-select" id="section" required>
-                        <option selected value="worker">Migrant Worker</option>
-                        <option value="donor">Donor</option>
-                        <option value="driver">Driver</option>
-                    </select>
-                </div>
-
-                <div class="mb-3">
-                    <label for="question" class="form-label">Question</label>
-                    <input type="text" class="form-control" id="question" placeholder="Enter question here" required>
-                </div>
-
-                <div class="mb-3">
-                    <label for="answer" class="form-label">Answer</label>
-                    <textarea row="3" class="form-control" id="answer" placeholder="Enter answer here" required></textarea>
-                </div>
-
-                <div class="col-12" style='text-align: right; color: #A57F60;'>
-                    <button id="addBtn" type="button" onclick="postFaq()" class="btn btn-outline-light"
-                        style="color:white; background-color: #A57F60;">Add Question</button>
-                </div>
-
-            </form>
 
             <div class="col-12" style='text-align: center; color: #A57F60;'>
                 <a href="adminViewRequests.html" type="button" class="btn btn-outline-light m-3"
