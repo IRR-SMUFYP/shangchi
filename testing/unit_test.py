@@ -1,5 +1,5 @@
 import unittest
-from app import User, FormBuilder, FormAnswers, CategoryItem, Donation, Wishlist, Request, Matches, Delivery, Faq
+from testingapp import User, FormBuilder, FormAnswers, CategoryItem, Donation, Wishlist, Request, Matches, Delivery, Faq
 
 class TestUser(unittest.TestCase):
 
