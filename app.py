@@ -1511,7 +1511,7 @@ def matchingAlgorithm(donationID):
     req = Request.query.filter_by(donationID=donationID).all()
     print("reqlist: ", req)
     for r in req:
-        print("r: " + r.json())
+        print(r.json())
     if req:
         # CRITERIA 1: NO. OF MATCHES
         priorityMW = getNumOfMatches(req)
