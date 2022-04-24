@@ -1509,8 +1509,8 @@ def randomizeTieBreaker(finalMWs):
 # matching algo
 @app.route("/matchingAlgorithm/<string:donationID>")
 def matchingAlgorithm(donationID):
-    req = Request.query.filter_by(donationID=donationID).all()
-    print("reqlist: ", req)
+    req = Request.query.filter_by(donationID=donationID)
+    # print("reqlist: ", req)
     print(req == True)
     if req:
         # CRITERIA 1: NO. OF MATCHES
