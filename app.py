@@ -1379,16 +1379,12 @@ def getNumOfMatches(req):
     # all the migrantIDs
     allKeys = reqHist.keys()
     # get min. (smallest) no. of match count
-    minValue = min(allKeys, default="EMPTY")
+    minValue = min(allKeys)
     # get list of migrantID(s) with the least match count
+    priorityMW = reqHist[minValue]
+    print(priorityMW)
 
-    if minValue == "EMPTY":
-        return "No requests currently"
-    else: 
-        priorityMW = reqHist[minValue]
-        print(priorityMW)
-
-        return priorityMW
+    return priorityMW
 
 def selfPickUpOrDelivery(priorityMW, donationID):
     # new dictionary to calc migrant worker points
@@ -1511,15 +1507,10 @@ def randomizeTieBreaker(finalMWs):
 @app.route("/matchingAlgorithm/<string:donationID>")
 def matchingAlgorithm(donationID):
     req = Request.query.filter_by(donationID=donationID).all()
-    print("reqlist: ", req)
-    for r in req:
-        print("r: " + r.json())
-    if req:
+    if req != []:
         # CRITERIA 1: NO. OF MATCHES
         priorityMW = getNumOfMatches(req)
         
-        if priorityMW == "EMPTY":
-            return "No requests at the moment"
         # CRITERIA 2: WHETHER DONOR/MIGRANT WORKER CHOSE SELF PICKUP
         mwPoints, needCheckDist = selfPickUpOrDelivery(priorityMW, donationID)
 
