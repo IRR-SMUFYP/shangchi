@@ -1511,7 +1511,10 @@ def randomizeTieBreaker(finalMWs):
 def matchingAlgorithm(donationID):
     req = Request.query.filter_by(donationID=donationID)
     print("reqlist: ", req.all())
-    print(req == True)
+    if req:
+        print("true")
+    else:
+        print("false")
     if req:
         # CRITERIA 1: NO. OF MATCHES
         priorityMW = getNumOfMatches(req)
