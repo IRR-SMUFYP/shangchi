@@ -3,7 +3,7 @@ import flask_testing
 import bcrypt
 import json
 from datetime import datetime
-from app import app, db, User, FormBuilder, FormAnswers, CategoryItem, Donation, Wishlist, Request, Matches, Delivery, Faq
+from testingapp import app, db, User, FormBuilder, FormAnswers, CategoryItem, Donation, Wishlist, Request, Matches, Delivery, Faq
 
 class TestApp(flask_testing.TestCase):
     
