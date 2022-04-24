@@ -9,6 +9,24 @@ function checkLogin() {
     }
 }
 
+function checkAdmin() {
+    if (sessionStorage.getItem("user") != null && ["admin","master"].includes(JSON.parse(sessionStorage.getItem("user")).userType)) {
+        user = JSON.parse(sessionStorage.getItem("user"))
+        console.log(user)
+
+        document.getElementById("loginLogoutButton").innerText = "Logout"
+    } else {
+        let confirmMsg = confirm(
+            "Only Admins who are logged in have access to this page. Please log in before accessing this page."
+            )
+        if (confirmMsg) {
+            window.location.href = "../login.html"
+        } else {
+            window.location.href = "../index.html"
+        }
+    }
+}
+
 function loginLogout() {
     if (document.getElementById("loginLogoutButton").innerText === "Login") {
         window.location.href = "login.html"
