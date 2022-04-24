@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import true
 from sqlalchemy.orm import load_only
 from flask_cors import CORS
 from datetime import datetime
@@ -1510,8 +1511,7 @@ def randomizeTieBreaker(finalMWs):
 def matchingAlgorithm(donationID):
     req = Request.query.filter_by(donationID=donationID).all()
     print("reqlist: ", req)
-    for r in req:
-        print(r.json())
+    print(req == True)
     if req:
         # CRITERIA 1: NO. OF MATCHES
         priorityMW = getNumOfMatches(req)
