@@ -1382,10 +1382,14 @@ def getNumOfMatches(req):
     # get min. (smallest) no. of match count
     minValue = min(allKeys, default="EMPTY")
     # get list of migrantID(s) with the least match count
-    priorityMW = reqHist[minValue]
-    print(priorityMW)
 
-    return priorityMW
+    if minValue == "EMPTY":
+        return "No requests currently"
+    else: 
+        priorityMW = reqHist[minValue]
+        print(priorityMW)
+
+        return priorityMW
 
 def selfPickUpOrDelivery(priorityMW, donationID):
     # new dictionary to calc migrant worker points
@@ -1511,7 +1515,9 @@ def matchingAlgorithm(donationID):
     if req:
         # CRITERIA 1: NO. OF MATCHES
         priorityMW = getNumOfMatches(req)
-
+        
+        if priorityMW == "EMPTY":
+            return "No requests at the moment"
         # CRITERIA 2: WHETHER DONOR/MIGRANT WORKER CHOSE SELF PICKUP
         mwPoints, needCheckDist = selfPickUpOrDelivery(priorityMW, donationID)
 
