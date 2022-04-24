@@ -15,7 +15,10 @@ function loginLogout() {
     } else {
         // user = ""
         sessionStorage.removeItem("user")
-
-        window.location.href = "../index.html"
+        if (window.location.href.includes("admin")) {
+            window.location.href = "../index.html"
+        } else {
+            window.location.href = "index.html"
+        }
     }
 }
