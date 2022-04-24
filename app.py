@@ -629,6 +629,7 @@ def createSubmission():
         details["donorID"] = userid
         details["donationID"] = submissionID
         submission = Donation(**details)
+        formDict['3'] = str(uuidGeneratedName) + str(fileExtension)
         try:
                 db.session.add(submission)
                 db.session.commit()
@@ -638,8 +639,6 @@ def createSubmission():
                 "message": "Unable to submit donation to database.",
                 "data" : submission.json()
             }), 500
-
-    formDict['3'] = str(uuidGeneratedName) + str(fileExtension)
 
     # submit into formAnswers
     for id in formDict:
