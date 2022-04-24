@@ -1378,16 +1378,12 @@ def getNumOfMatches(req):
     # all the migrantIDs
     allKeys = reqHist.keys()
     # get min. (smallest) no. of match count
-    minValue = min(allKeys, default="EMPTY")
+    minValue = min(allKeys)
     # get list of migrantID(s) with the least match count
+    priorityMW = reqHist[minValue]
+    print(priorityMW)
 
-    if minValue == "EMPTY":
-        return "EMPTY"
-    else: 
-        priorityMW = reqHist[minValue]
-        print(priorityMW)
-
-        return priorityMW
+    return priorityMW
 
 def selfPickUpOrDelivery(priorityMW, donationID):
     # new dictionary to calc migrant worker points
@@ -1434,7 +1430,7 @@ def shortestDistance(mwPoints, needCheckDist, donationID):
             donorLoc = FormAnswers.query.filter_by(submissionID=donationID).filter_by(fieldID=addressFieldID).first().answer 
             # google maps api to calculate distance
             # apikey = environ.get('GOOGLE_API_KEY')
-            # apikey = config.api_key
+            apikey = config.api_key
             geocodeAPI1 = "https://maps.googleapis.com/maps/api/geocode/json?address=" + donorLoc + "&components=country:SG&key=" + apikey
             response1 = requests.get(geocodeAPI1)
             if response1.status_code == 200:
@@ -1510,48 +1506,44 @@ def randomizeTieBreaker(finalMWs):
 @app.route("/matchingAlgorithm/<string:donationID>")
 def matchingAlgorithm(donationID):
     req = Request.query.filter_by(donationID=donationID).all()
-    print("reqlist: ", req)
-    for r in req:
-        print("r: " + r.json())
-    if req:
+    if req != []:
         # CRITERIA 1: NO. OF MATCHES
         priorityMW = getNumOfMatches(req)
         
-        if priorityMW != "EMPTY":
-            # CRITERIA 2: WHETHER DONOR/MIGRANT WORKER CHOSE SELF PICKUP
-            mwPoints, needCheckDist = selfPickUpOrDelivery(priorityMW, donationID)
+        # CRITERIA 2: WHETHER DONOR/MIGRANT WORKER CHOSE SELF PICKUP
+        mwPoints, needCheckDist = selfPickUpOrDelivery(priorityMW, donationID)
 
-            # CRITERIA 3: FIND MIGRANT WORKER WITH THE SHORTEST DISTANCE
-            newMWPoints = shortestDistance(mwPoints, needCheckDist, donationID)
+        # CRITERIA 3: FIND MIGRANT WORKER WITH THE SHORTEST DISTANCE
+        newMWPoints = shortestDistance(mwPoints, needCheckDist, donationID)
 
-            # CRITERIA 4: HOW LONG SINCE THEIR LAST MATCH
-            finalMWs = timeSinceLastMatch(newMWPoints)
+        # CRITERIA 4: HOW LONG SINCE THEIR LAST MATCH
+        finalMWs = timeSinceLastMatch(newMWPoints)
 
-            # if only 1 migrant worker at the end, return this migrant worker
-            if len(finalMWs) == 1:
-                finalMW = finalMWs[0]
-            else: 
-                finalMW = randomizeTieBreaker(finalMWs)
+        # if only 1 migrant worker at the end, return this migrant worker
+        if len(finalMWs) == 1:
+            finalMW = finalMWs[0]
+        else: 
+            finalMW = randomizeTieBreaker(finalMWs)
 
-            # LAST STEP: add the match to the db
-            timeNow = datetime.now()
-            reqID = Request.query.filter_by(donationID=donationID).filter_by(migrantID=finalMW).first().reqID
-            donorID = Donation.query.filter_by(donationID=donationID).first().donorID
-            match = {"reqID": reqID, "migrantID": finalMW, "donorID": donorID, "matchDate": timeNow}
-            donation = Donation.query.filter_by(donationID=donationID).first()
-            if donation.itemStatus == "Available":
-                match = Matches(**match)
-                db.session.add(match)
-                db.session.commit()
-                donation.itemStatus = "Unavailable"
-                db.session.add(donation)
-                db.session.commit()
-                return jsonify(
-                    {
-                        "code": 200,
-                        "finalMW": finalMW
-                    }
-                )
+        # LAST STEP: add the match to the db
+        timeNow = datetime.now()
+        reqID = Request.query.filter_by(donationID=donationID).filter_by(migrantID=finalMW).first().reqID
+        donorID = Donation.query.filter_by(donationID=donationID).first().donorID
+        match = {"reqID": reqID, "migrantID": finalMW, "donorID": donorID, "matchDate": timeNow}
+        donation = Donation.query.filter_by(donationID=donationID).first()
+        if donation.itemStatus == "Available":
+            match = Matches(**match)
+            db.session.add(match)
+            db.session.commit()
+            donation.itemStatus = "Unavailable"
+            db.session.add(donation)
+            db.session.commit()
+            return jsonify(
+                {
+                    "code": 200,
+                    "finalMW": finalMW
+                }
+            )
     return jsonify(
         {
             "code": 404,
