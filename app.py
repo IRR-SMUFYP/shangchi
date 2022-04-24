@@ -809,17 +809,16 @@ def updatePhoto(submissionID):
     fieldID = formField.fieldID
     formAnswer = FormAnswers.query.filter_by(submissionID=submissionID).filter_by(fieldID=fieldID).first()
     # save file
-    # fileName = secure_filename(imgFile.filename.replace(" ", ""))
 
     # Added lines to test uuid filename
-    fileName = secure_filename(file.filename)
+    fileName = secure_filename(imgFile.filename)
     index = fileName.index('.')
     fileExtension = fileName[index:]
     uuidGeneratedName = uuid.uuid4()
-    file.save(os.path.join(uploads_dir, str(uuidGeneratedName) + str(fileExtension)))
+    imgFile.save(os.path.join(uploads_dir, str(uuidGeneratedName) + str(fileExtension)))
     # print(formDict)
-    imgFile.save(os.path.join(uploads_dir, fileName))
-    file = formDict['itemImg']
+    file = str(uuidGeneratedName) + str(fileExtension)
+    print(file)
 
     # delete old photo file
     oldFile = formAnswer.answer
@@ -1509,8 +1508,10 @@ def randomizeTieBreaker(finalMWs):
 # matching algo
 @app.route("/matchingAlgorithm/<string:donationID>")
 def matchingAlgorithm(donationID):
-    req = Request.query.filter_by(donationID=donationID)
+    req = Request.query.filter_by(donationID=donationID).all()
     print("reqlist: ", req)
+    for r in req:
+        print("r: " + r.json())
     if req:
         # CRITERIA 1: NO. OF MATCHES
         priorityMW = getNumOfMatches(req)
