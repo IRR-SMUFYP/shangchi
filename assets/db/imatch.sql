@@ -109,16 +109,16 @@ CREATE TABLE IF NOT EXISTS `delivery` (
 
 -- INSERT values
 INSERT INTO user (`username`, `password`, `usertype`) VALUES 
-(12345678, 'test1', 'worker'),
-(93261073, '$2b$12$hPh2gudOwUvmBs18PBa.deDRGOLiiDXuSkCV5qkA056I/n97blTJG', 'master'),
-(12312312, 'driver1', 'driver');
+(93261073, '$2b$12$hPh2gudOwUvmBs18PBa.deDRGOLiiDXuSkCV5qkA056I/n97blTJG', 'master');
 
 
 -- for faq
-INSERT INTO faq (`question`, `answer`, `section`) VALUES ('How do I donate?', 'Just do it!', 'donor');
-INSERT INTO faq (`question`, `answer`, `section`) VALUES ('What do I donate?', 'Check out our wishlist', 'donor');
-INSERT INTO faq (`question`, `answer`, `section`) VALUES ('How do I request for an item?', 'Just do it!', 'worker');
-INSERT INTO faq (`question`, `answer`, `section`) VALUES ('How do I drive?', 'Just do it!', 'driver');
+INSERT INTO faq (`question`, `answer`, `section`) VALUES ('How do I donate?', 'First, head over to the "Donate" page on the top of the screen. Then you would have to fill in several key information into the form regarding yourself, as well as the item you are intending to donate before submitting the donation to be displayed on the front page of the web application.', 'donor');
+INSERT INTO faq (`question`, `answer`, `section`) VALUES ('What do I donate?', 'You can refer to the wishlist seen on the homepage to see what Migrant Workers are requesting for.', 'donor');
+INSERT INTO faq (`question`, `answer`, `section`) VALUES ('Who do I contact if I need help changing certain values?', 'You can contact IRR at the following email itsrainingraincoats@gmail.com, and in the subject field, let us know your phone number so we can amend the details accordingly.', 'donor');
+INSERT INTO faq (`question`, `answer`, `section`) VALUES ('How do I go about selecting items I wish to donate in the dropdown list?', 'As confusing as it may seem, we have got you covered. Head over to the item catalogue seen on the donation page and click on it. What you see there is how the categories and items are mapped. So for example, if you wish to donate a shirt, you would have to select "Clothes" (Category), "Tops" (Sub-Category) and finally "Shirt" (Item name) to indicate your interest to donate that particular item.', 'donor');
+INSERT INTO faq (`question`, `answer`, `section`) VALUES ('How do I request for an item?', 'Log in using your phone number after registering for an account. Then on the homepage, click on the item you wish to request and fill in the details accordingly. After an item has been matched to you, you will be notified by our admins at IRR.', 'worker');
+INSERT INTO faq (`question`, `answer`, `section`) VALUES ('How do I sign up as a Driver?', 'You can drop us an email at itsrainingraincoats@gmail.com and we will help you to create an account accordingly.', 'driver');
 
 
 -- for formbuilder table
