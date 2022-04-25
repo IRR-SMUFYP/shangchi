@@ -338,25 +338,25 @@ INSERT INTO `categoryitem` (`itemname`, `category`, `subcat`) VALUES
 ('Sim Card', 'Others', 'Others'),
 ('Care Pack', 'Others', 'Others');
 
--- for donation table
-INSERT INTO donation (`donorID`, `donationID`, `itemID`, `timeSubmitted`, `itemStatus`) VALUES
-(92251521, '2022-02-15 21:35:42 92251521', 152, '2022-02-24 21:35:42', 'available');
+-- -- for donation table
+-- INSERT INTO donation (`donorID`, `donationID`, `itemID`, `timeSubmitted`, `itemStatus`) VALUES
+-- (92251521, '2022-02-15 21:35:42 92251521', 152, '2022-02-24 21:35:42', 'available');
 
--- for wishlist table
-INSERT INTO wishlist (`wishlistID`, `migrantID`, `itemID`, `timeSubmitted`, `itemStatus`) VALUES 
-('test', 12345678, 1, now(), 'available');
+-- -- for wishlist table
+-- INSERT INTO wishlist (`wishlistID`, `migrantID`, `itemID`, `timeSubmitted`, `itemStatus`) VALUES 
+-- ('test', 12345678, 1, now(), 'available');
 
--- for request table
-INSERT INTO request (`reqID`, `migrantID`, `postalCode`, `donationID`, `timeSubmitted`) VALUES
-(1, 12345678, '518136', '2022-02-15 21:35:42 92251521', now());
+-- -- for request table
+-- INSERT INTO request (`reqID`, `migrantID`, `postalCode`, `donationID`, `timeSubmitted`) VALUES
+-- (1, 12345678, '518136', '2022-02-15 21:35:42 92251521', now());
 
--- for matches table
-INSERT INTO matches (`matchID`, `reqID`, `migrantID`, `donorID`, `matchDate`) VALUES
-(1, 1, 12345678, 11888811, now());
+-- -- for matches table
+-- INSERT INTO matches (`matchID`, `reqID`, `migrantID`, `donorID`, `matchDate`) VALUES
+-- (1, 1, 12345678, 11888811, now());
 
--- for delivery table
-INSERT INTO delivery (`matchID`, `status`, `driverID`) VALUES
-(1, 'available', 12312312);
+-- -- for delivery table
+-- INSERT INTO delivery (`matchID`, `status`, `driverID`) VALUES
+-- (1, 'available', 12312312);
 
 -- UPDATE user set usertype = 'master' where username = 93261073;
 -- select * from donation;
