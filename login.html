@@ -229,7 +229,7 @@
                     formData.append(loginForm[ele].name, loginForm[ele].value)
                 }
 
-                checkCred(formData, "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/login")
+                checkCred(formData, "http://127.0.0.1:5003/login")
 
 
             } else {
@@ -261,7 +261,7 @@
                 data = await response.json()
                 // alert(data.data.message)
 
-                if (data.code == 404) {
+                if (data.code == 404 || data.code == 401) {
                     alert(data.message)
                 } else {
                     var userData = data.data.userType

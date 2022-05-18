@@ -10,15 +10,13 @@ from werkzeug.utils import secure_filename
 import bcrypt
 import random
 import requests
-import json
-import config
-import uuid
 from dotenv import load_dotenv
+
 load_dotenv()
 
 app = Flask(__name__)
 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+mysqlconnector://root:@localhost:3306/imatch'
+app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('DATABASE_URL')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {'pool_recycle': 299}
 
@@ -79,7 +77,7 @@ class Donation(db.Model):
     itemStatus = db.Column(db.String(50), nullable=False)
         
     def json(self):
-        return {"donorID": self.donorID, "donationID": self.donationID, "itemID": self.itemID, "timeSubmitted": self.timeSubmitted, "itemStatus": self.itemStatus}
+        return {"donationID": self.donationID, "donorID": self.donorID, "donationID": self.donationID, "itemID": self.itemID, "timeSubmitted": self.timeSubmitted, "itemStatus": self.itemStatus}
 
 class Wishlist(db.Model):
     __tablename__ = 'wishlist'
@@ -97,7 +95,8 @@ class FormAnswers(db.Model):
     __tablename__ = 'formanswers'
 
     answerID = db.Column(db.Integer, primary_key=True, nullable=False, autoincrement=True)
-    submissionID = db.Column(db.String(30), nullable=False) # , db.ForeignKey(Learner.empID)
+    submissionID = db.Column(db.String(30), nullable=False)
+    # , db.ForeignKey(Learner.empID)
     formName = db.Column(db.String(15), nullable=False)
     fieldID = db.Column(db.Integer, nullable=False)
     answer = db.Column(db.String(50), nullable=False)
@@ -161,17 +160,6 @@ class Faq(db.Model):
 
 
 # region USER
-@app.route("/getUser/<username>")
-def getUser(username):
-    user = User.query.filter_by(username=username).first()
-    columnHeaders = User.metadata.tables["user"].columns.keys()
-    return jsonify(
-        {
-        "code": 200,
-        "columnHeaders": columnHeaders,
-        "data": user.json()
-    })
-
 @app.route("/getAllUsers")
 def getAllUsers():
     users = User.query.all()
@@ -183,6 +171,7 @@ def getAllUsers():
         "data": [user.json() for user in users]
     })
 
+# Register MW 
 @app.route("/registermw", methods=['POST'])
 def registerMW():
         formData = request.form
@@ -210,6 +199,7 @@ def registerMW():
                 }
             ), 500
 
+# Register admin account
 @app.route("/registeradmin", methods=['POST'])
 def registerAdmin():
         formData = request.form
@@ -237,6 +227,7 @@ def registerAdmin():
                 }
             ), 500
 
+# Register Driver Account
 @app.route("/registerDriver", methods=['POST'])
 def registerDriver():
         formData = request.form
@@ -264,52 +255,6 @@ def registerDriver():
                 }
             ), 500
 
-
-@app.route("/updateUser/<username>", methods=["PUT"])
-def updateAccountInfo(username):
-    user = User.query.filter_by(username=username).first()
-    data = request.get_json()
-    if (user is None):
-        return jsonify( 
-            {
-                "code": 404,
-                "message": "This username is not found in the database."
-            }
-        )
-    else:
-        user.password = bcrypt.hashpw(data['password'].encode('utf-8'), bcrypt.gensalt())
-        user.userType = data['userType']
-        db.session.add(user)
-        db.session.commit()
-        return jsonify(
-            {
-                "code": 200,
-                "message": "Account info updated successfully.",
-                "user": user.json(),
-            }
-        )
-
-@app.route("/deleteUser/<username>", methods=["DELETE"])
-def deleteUser(username):
-    user = User.query.filter_by(username=username).first()
-    try:
-        db.session.delete(user)
-        db.session.commit()
-        return jsonify (
-            {
-                "code": 200,
-                "message": "Row deleted successfully!"
-            }
-        )
-    except Exception as e:
-        print(e)
-        return jsonify(
-            {
-                "code": 500,
-                "message": "An error occurred while deleting the data, please try again later"
-            }
-        ), 500
-
 # Login function to check if user exists and if password is correct
 @app.route("/login", methods=['POST'])
 def checkLogin():
@@ -322,7 +267,7 @@ def checkLogin():
     if (user != None):
         if (bcrypt.checkpw(str(pw).encode('utf-8'), str(user.password).encode('utf-8'))):
 
-            print("Password checks out, user", user.username, "logged in at ", datetime.now())
+            print("Password checks out")
 
             return jsonify(
                 {
@@ -331,13 +276,6 @@ def checkLogin():
                         "message": "Authentication success!",
                         "userType": user.json()
                     }
-                }
-            )
-        elif (user.password != pw):
-            return jsonify(
-                {
-                    "code": 401,
-                    "message": "Password is incorrect"
                 }
             )
     else:
@@ -350,6 +288,7 @@ def checkLogin():
 # endregion
 
 # region FORMBUILDER
+# get all fields by form
 @app.route("/formbuilder/<string:formName>")
 def getFieldsByForm(formName):
     fieldlist = FormBuilder.query.filter_by(formName=formName).all()
@@ -369,6 +308,7 @@ def getFieldsByForm(formName):
         }
     ), 404
 
+# get specific field
 @app.route("/formbuilder/<int:fieldID>")
 def getField(fieldID):
     field = FormBuilder.query.filter_by(fieldID=fieldID).first()
@@ -386,6 +326,7 @@ def getField(fieldID):
         }
     ), 404
 
+# create new field
 @app.route('/formbuilder', methods=['POST'])
 def createField():
     data = request.get_json()
@@ -400,6 +341,7 @@ def createField():
                 "message": "Unable to commit to database."
             }), 500
 
+# edit existing field
 @app.route('/formbuilder/<int:fieldID>', methods=['POST'])
 def edit_field(fieldID):
     data = request.get_json()
@@ -419,6 +361,7 @@ def edit_field(fieldID):
                 "message": "Unable to commit to database."
             }), 500
 
+# delete existing field
 @app.route('/formbuilder/<int:fieldID>', methods=["DELETE"])
 def delete_field(fieldID):
     item = FormBuilder.query.filter_by(fieldID=fieldID).first()
@@ -460,10 +403,12 @@ def retrieveCatalog():
             }
         )
 
+# get all existing categories to be displayed in drop down fields
 @app.route("/getCat")
 def getAllCat():
     categoryList = CategoryItem.query.with_entities(
         CategoryItem.category).distinct()
+    # print(categoryList)
     if (categoryList):
         return jsonify(
             {
@@ -481,6 +426,7 @@ def getAllCat():
         }
     ), 404
 
+# get all existing subcategories to be displayed in drop down fields
 @app.route("/getSubCat/<cat>")
 def getSubCat(cat):
     subCats = CategoryItem.query.filter_by(category=cat)
@@ -504,6 +450,7 @@ def getSubCat(cat):
 @app.route("/getItemNames/<cat>/<subcat>")
 def getItemNames(cat, subcat):
     itemsInCategory = CategoryItem.query.filter_by(category=cat).filter_by(subCat=subcat).all()
+    # print(itemsInCategory)
 
     if (itemsInCategory):
         return jsonify(
@@ -552,10 +499,31 @@ def getFormAnswersBySubmission(submissionID):
     
     return mappedAnswerlist
 
-# Global UUID Name stored for future use
-uuidGeneratedName = ""
-fileExtension = ""
+# get all details of a donation/wishlist submission
+@app.route("/formanswers/<string:submissionID>")
+def getAllDetailsBySubmission(submissionID):
+    # check if submission from Donation or wishlist
+    submission = Donation.query.filter_by(donationID=submissionID).first()
+    if submission is None:
+        submission = Wishlist.query.filter_by(wishlistID=submissionID).first()
 
+    if submission is not None:
+        formAnswersList = getFormAnswersBySubmission(submissionID)
+
+        return jsonify(
+            {
+                "code": 200,
+                "data": dict(**submission.json(), **formAnswersList)
+            }
+        )
+    return jsonify(
+        {
+            "code": 404,
+            "message": "No submission was found."
+        }
+    ), 404
+
+# create new submission
 @app.route('/formanswers', methods=['POST'])
 def createSubmission():
     try:
@@ -573,27 +541,26 @@ def createSubmission():
         itemID = formDict['itemName']
 
         # calculate submissionID (datetime userID)
-        now = datetime.now()
-        currentDT = now.strftime("%Y-%m-%d %H:%M:%S")
-        submissionID = currentDT + " " + userid
+        currentDT = datetime.now()
+        # currentDT = now.strftime("%Y-%m-%d %H:%M:%S")
+        submissionID = currentDT.strftime("%Y-%m-%d %H:%M:%S") + " " + userid
 
         # file uploading
         for fileId in files:
             file = files[fileId]
             formDict[fileId] = file.filename
             # save file
-            # fileName = secure_filename(file.filename)
-            # fileName = secure_filename(file.filename.replace(" ", ""))
             fileName = secure_filename(file.filename)
-            index = fileName.index('.')
-            fileExtension = fileName[index:]
-            uuidGeneratedName = uuid.uuid4()
-            file.save(os.path.join(uploads_dir, str(uuidGeneratedName) + str(fileExtension)))
+            file.save(os.path.join(uploads_dir, fileName))
     except Exception as e:
         print(e)
         return jsonify({
                 "message": "Please fill in missing form fields!"
             }), 400
+
+    # for answer in formDict:
+    #     print(type(answer))
+    #     print(answer + ": " +formDict[answer])
 
     # submit into donation/wishlist
     details = {"itemID": itemID, "timeSubmitted": currentDT, "itemStatus": "Available"}
@@ -614,7 +581,6 @@ def createSubmission():
         details["donorID"] = userid
         details["donationID"] = submissionID
         submission = Donation(**details)
-        formDict['3'] = str(uuidGeneratedName) + str(fileExtension)
         try:
                 db.session.add(submission)
                 db.session.commit()
@@ -624,10 +590,9 @@ def createSubmission():
                 "message": "Unable to submit donation to database.",
                 "data" : submission.json()
             }), 500
-
+    print(formDict)
     # submit into formAnswers
     for id in formDict:
-        print(id, formDict[id])
         answer = {"submissionID": submissionID, "formName": formName, "fieldID": id, "answer": formDict[id]}
         item = FormAnswers(**answer)
         if ( id.isdigit() ): 
@@ -645,6 +610,7 @@ def createSubmission():
                     "message": "Form submitted successfully."
                 }), 201
 
+# get all form answers for any form
 @app.route("/getFormAnswers/<formName>")
 def getFormAnswers(formName):
     formFields = FormBuilder.query.filter_by(formName=formName)
@@ -727,6 +693,9 @@ def getSpecificFormAnswers(formName, submissionID):
         elif formName == "wishlist":
             item = Wishlist.query.filter_by(wishlistID=submissionID).first()
         data.update(item.json())
+        # data.pop('itemName')
+    # data.pop('timeSubmitted')
+    # data.pop('itemID')
     if len(data) > 0:
         return jsonify( 
             {
@@ -771,6 +740,9 @@ def updateFormAnswers(formName, submissionID):
         elif formName == "wishlist":
             otherFormFields.wishlistID = data["wishlistID"]
             otherFormFields.migrantID = data["migrantID"]
+        # otherFormFields.submissionID = data["submissionID"]
+        # otherFormFields.itemName = data["itemName"]
+        # otherFormFields.itemCategory = data["itemCategory"]
         otherFormFields.itemStatus = data["itemStatus"]
         db.session.add(otherFormFields)
         db.session.commit()
@@ -800,6 +772,7 @@ def updateFormAnswers(formName, submissionID):
             }
         )
 
+# edit uploaded photo
 @app.route("/updatePhoto/<submissionID>", methods=['POST'])
 def updatePhoto(submissionID):
     formData = request.form
@@ -809,16 +782,11 @@ def updatePhoto(submissionID):
     fieldID = formField.fieldID
     formAnswer = FormAnswers.query.filter_by(submissionID=submissionID).filter_by(fieldID=fieldID).first()
     # save file
-
-    # Added lines to test uuid filename
-    fileName = secure_filename(imgFile.filename)
-    index = fileName.index('.')
-    fileExtension = fileName[index:]
-    uuidGeneratedName = uuid.uuid4()
-    imgFile.save(os.path.join(uploads_dir, str(uuidGeneratedName) + str(fileExtension)))
+    fileName = secure_filename(imgFile.filename.replace(" ", ""))
     # print(formDict)
-    file = str(uuidGeneratedName) + str(fileExtension)
-    print(file)
+    imgFile.save(os.path.join(uploads_dir, fileName))
+    # os.open(uploads_dir+secure_filename(fileName), os.O_RDWR | os.O_CREAT, 0o666)
+    file = formDict['itemImg']
 
     # delete old photo file
     oldFile = formAnswer.answer
@@ -849,7 +817,6 @@ def deleteRow(formName, submissionID):
     if formName == "donation":
         row = Donation.query.filter_by(donationID=submissionID).first()
         oldFile = FormAnswers.query.filter_by(submissionID=submissionID).filter_by(fieldID=3).first().answer
-        print(oldFile)
     elif formName == "wishlist":
         row = Wishlist.query.filter_by(wishlistID=submissionID).first()
     formAnswers = FormAnswers.query.filter_by(submissionID=submissionID)
@@ -880,6 +847,7 @@ def deleteRow(formName, submissionID):
 # endregion
 
 # region DONATION
+# get all donation items
 @app.route("/donation")
 def getAllDonationItems():
     donationList = Donation.query.all()
@@ -907,6 +875,7 @@ def getAllDonationItems():
         }
     ), 404
 
+# get specified donation item
 @app.route("/donation/<string:donationID>")
 def getDonationItem(donationID):
     donationItem = Donation.query.filter_by(donationID=donationID).first()
@@ -929,6 +898,33 @@ def getDonationItem(donationID):
     ), 404
 
 # API for search function
+@app.route("/getItemsByCat/<string:cat>")
+def getItemsByCategory(cat):
+    catList = CategoryItem.query.filter_by(category=cat).all()
+    catItemList = []
+    for category in catList:
+        itemList = Donation.query.filter_by(itemID=category.itemID).all()
+        if (len(itemList)):
+            categorydict = category.json()
+            categorydict.pop("itemID")
+            catList = [dict(**item.json(),**categorydict) for item in itemList]
+            catItemList.extend(catList)
+    if len(itemList):
+        return jsonify(
+            {
+                "code": 200,
+                "data": {
+                    "itemsByCat": catItemList
+                }
+            }
+        )
+    return jsonify(
+        {
+            "code": 404,
+            "message": "There are no items listed under this category."
+        }
+    ), 404
+
 @app.route("/getItemsBySubCat/<cat>/<subcat>")
 def filterItems(cat, subcat):
     subcatList = CategoryItem.query.filter_by(category=cat).filter_by(subCat=subcat).all()
@@ -962,6 +958,7 @@ def filterItems(cat, subcat):
 # endregion
 
 # region WISHLIST
+# get all items in wishlist
 @app.route("/wishlist")
 def getAllWishListItems():
     wishList = Wishlist.query.all()
@@ -1086,6 +1083,7 @@ def addNewRequest():
                 }
             ), 500
 
+# get all requests submitted by migrant workers
 @app.route("/getRequests")
 def getAllRequests():
     requestList = Request.query.all()
@@ -1118,6 +1116,7 @@ def getAllRequests():
         }
     ), 404
 
+# get specific request by reqID
 @app.route("/getRequests/<reqID>")
 def getRequestByID(reqID):
     request = Request.query.filter_by(reqID=reqID).first()
@@ -1141,6 +1140,8 @@ def getRequestByID(reqID):
                 "code": 200,
                 "columnHeaders": fieldNames,
                 "data": data
+                # "columnHeaders": NewRequest.metadata.tables["request"].columns.keys(),
+                # "data": request
             }
         )
     return jsonify(
@@ -1150,6 +1151,7 @@ def getRequestByID(reqID):
         }
     ), 404
 
+# update request by reqID
 @app.route("/updateRequest/<reqID>", methods=["PUT"])
 def updateRequest(reqID):
     requested = Request.query.filter_by(reqID=reqID).first()
@@ -1164,6 +1166,7 @@ def updateRequest(reqID):
         )
     else:
         requested.postalCode = data['postalCode']
+        # requested.requestQty = data['requestQty']
         requested.migrantID = data['migrantID']
         db.session.add(requested)
         db.session.commit()
@@ -1177,6 +1180,7 @@ def updateRequest(reqID):
             }
         )
 
+# delete request by reqID
 @app.route("/deleteRequest/<reqID>", methods=["DELETE"])
 def deleteRequest(reqID):
     request = Request.query.filter_by(reqID=reqID).first()
@@ -1201,6 +1205,7 @@ def deleteRequest(reqID):
 # endregion
 
 # region MATCHES
+# get all successful matches 
 @app.route("/getSuccessfulMatches")
 def getAllSuccessfulMatches():
     matches = Matches.query.all()
@@ -1228,6 +1233,8 @@ def getAllSuccessfulMatches():
                 "code": 200,
                 "columnHeaders": columns,
                 "data": data
+                # "data": [match.json() for match in matches], 
+                # "columnHeaders": Matches.metadata.tables["matches"].columns.keys()
             }
         )
     return jsonify(
@@ -1237,6 +1244,7 @@ def getAllSuccessfulMatches():
         }
     ), 404
 
+# get specific successful match 
 @app.route("/getSuccessfulMatches/<matchID>")
 def getSuccessfulMatch(matchID):
     data = {}
@@ -1261,6 +1269,8 @@ def getSuccessfulMatch(matchID):
                 "code": 200,
                 "columnHeaders": columns,
                 "data": data
+                # "columnHeaders": Matches.metadata.tables["matches"].columns.keys(),
+                # "data": match
             }
         )
     return jsonify(
@@ -1270,6 +1280,7 @@ def getSuccessfulMatch(matchID):
         }
     ), 404
 
+# edit SuccessfulMatch in table
 @app.route("/updateSuccessfulMatches/<matchID>", methods=["PUT"])
 def updateSuccessfulMatches(matchID):
     match = Matches.query.filter_by(matchID=matchID).first()
@@ -1303,9 +1314,12 @@ def updateSuccessfulMatches(matchID):
                 "code": 200,
                 "message": "Match successfully updated.",
                 "match": match.json(),
+                # "data": data,
+                # "olddata": data
             }
         )
 
+# add new match
 @app.route("/addMatch", methods=['POST'])
 def addNewMatch():
     formData = request.form
@@ -1342,6 +1356,7 @@ def addNewMatch():
             }
         ), 500
 
+# delete match by matchID
 @app.route("/deleteMatch/<matchID>", methods=["DELETE"])
 def deleteMatch(matchID):
     match = Matches.query.filter_by(matchID=matchID).first()
@@ -1363,187 +1378,154 @@ def deleteMatch(matchID):
             }
         ), 500
 
-def getNumOfMatches(req):
-    # reqHist keys is migrantID, values is count
-    reqHist = {}
-    for r in req:
-        # count the no. of times the migrant worker gotten a match
-        migrantWorkerCount = Matches.query.filter_by(migrantID=r.migrantID).count()
-        # if migrantworker alr in the dict, count will increase by 1
-        if migrantWorkerCount in reqHist.keys():
-            reqHist[migrantWorkerCount] += [r.migrantID]
-        # create migrantID as a new key in the dict
-        else:
-            reqHist[migrantWorkerCount] = [r.migrantID]
-    # all the migrantIDs
-    allKeys = reqHist.keys()
-    # get min. (smallest) no. of match count
-    minValue = min(allKeys)
-    # get list of migrantID(s) with the least match count
-    priorityMW = reqHist[minValue]
-    print(priorityMW)
+# matching algorithm
+@app.route("/matchingAlgorithm/<string:donationID>")
+def matchingAlgorithm(donationID):
+    req = Request.query.filter_by(donationID=donationID)
+    if req:
+        # CRITERIA 1: NO. OF MATCHES
+        # reqHist keys is migrantID, values is count
+        reqHist = {}
+        for r in req:
+            # count the no. of times the migrant worker gotten a match
+            migrantWorkerCount = Matches.query.filter_by(migrantID=r.migrantID).count()
+            # if migrantworker alr in the dict, count will increase by 1
+            if migrantWorkerCount in reqHist.keys():
+                reqHist[migrantWorkerCount] += [r.migrantID]
+            # create migrantID as a new key in the dict
+            else:
+                reqHist[migrantWorkerCount] = [r.migrantID]
+        # all the migrantIDs
+        allKeys = reqHist.keys()
+        # get min. (smallest) no. of match count
+        minValue = min(allKeys, default="EMPTY")
+        # get list of migrantID(s) with the least match count
+        priorityMW = reqHist[minValue]
+        # new dictionary to calc migrant worker points
+        mwPoints = {}
 
-    return priorityMW
+        # CRITERIA 2: WHETHER DONOR/MIGRANT WORKER CHOSE SELF PICKUP
+        # check whether item requires delivery
+        deliveryFieldID = FormBuilder.query.filter_by(fieldName="Delivery Method").first().fieldID
+        deliveryOption = FormAnswers.query.filter_by(submissionID=donationID).filter_by(fieldID=deliveryFieldID).first()
+        deliveryMWOption = Request.query.filter_by(postalCode="Self Pickup").filter_by()
 
-def selfPickUpOrDelivery(priorityMW, donationID):
-    # new dictionary to calc migrant worker points
-    mwPoints = {}
-    
-    # check whether item requires delivery
-    deliveryFieldID = FormBuilder.query.filter_by(fieldName="Delivery Method").first().fieldID
-    deliveryOption = FormAnswers.query.filter_by(submissionID=donationID).filter_by(fieldID=deliveryFieldID).first()
-    deliveryMWOption = Request.query.filter_by(postalCode="Self Pickup").filter_by()
+        # variable to check whether criteria 3 has to be done
+        needCheckDist = 0
 
-    # variable to check whether criteria 3 has to be done
-    needCheckDist = 0
-
-    # check whether donor opt for self pickup
-    if deliveryOption == "Delivery required":
-        # if delivery required, all MW start with 0 points
-        for mw in priorityMW:
-            mwPoints[mw] = 0
-        # need check Distance criteria
-        needCheckDist += 1
-    else:
-        # check whether migrant worker opt for self pickup (but donor opt for delivery/arranged by donor)
-        for mw in priorityMW:
-            deliveryMWOption = Request.query.filter_by(donationID=donationID).filter_by(migrantID=mw).first()
-            # if migrant worker is not 
-            if deliveryMWOption == "Self Pickup":
-                mwPoints[mw] = 0
-        # if donor did not choose self pick-up & no mw chose self pick-up, put all mw priority as 0
-        if len(mwPoints) == 0:
+        # check whether donor opt for self pickup
+        if deliveryOption == "Delivery required":
+            # if delivery required, all MW start with 0 points
             for mw in priorityMW:
-                deliveryMWOption = Request.query.filter_by(donationID=donationID).filter_by(migrantID=mw).first()
                 mwPoints[mw] = 0
             # need check Distance criteria
             needCheckDist += 1
-
-    return mwPoints, needCheckDist
-
-def shortestDistance(mwPoints, needCheckDist, donationID):
-    if needCheckDist > 0:
-        mwDist = {}
-        for mw, points in mwPoints.items():
-            mwLoc = Request.query.filter_by(donationID=donationID).filter_by(migrantID=mw).first().postalCode
-            addressFieldID = FormBuilder.query.filter_by(fieldName="Postal Code").first().fieldID
-            donorLoc = FormAnswers.query.filter_by(submissionID=donationID).filter_by(fieldID=addressFieldID).first().answer 
-            # google maps api to calculate distance
-            # apikey = environ.get('GOOGLE_API_KEY')
-            apikey = config.api_key
-            geocodeAPI1 = "https://maps.googleapis.com/maps/api/geocode/json?address=" + donorLoc + "&components=country:SG&key=" + apikey
-            response1 = requests.get(geocodeAPI1)
-            if response1.status_code == 200:
-                donorPlace_id = response1.json()["results"][0]["place_id"]
-            geocodeAPI2 = "https://maps.googleapis.com/maps/api/geocode/json?address=" + mwLoc + "&components=country:SG&key=" + apikey
-            response2 = requests.get(geocodeAPI2)
-            if response2.status_code == 200:
-                mwPlace_id = response2.json()["results"][0]["place_id"]
-            distanceAPI = "https://maps.googleapis.com/maps/api/distancematrix/json?destinations=place_id:" + donorPlace_id + "&origins=place_id:" + mwPlace_id + "&key=" + apikey
-            response3 = requests.get(distanceAPI)
-            # value is the distance in meters
-            if response3.status_code == 200:
-                # print(response3.json()["rows"][0]["elements"][0]["distance"]["value"])
-                distance = response3.json()["rows"][0]["elements"][0]["distance"]["value"]
-                if distance not in mwDist.keys():
-                    mwDist[distance] = [mw]
-                else:
-                    mwDist[distance].append(mw)
-                if distance < 3000:
-                    points += 1
-                elif 3000 <= distance < 5000:
-                    points += 2
-                elif 5000 <= distance < 7000:
-                    points += 3
-                elif 7000 <= distance < 9000:
-                    points += 4
-                else:
-                    points += 5
-        # least no. of points = shortest distance
-        shortestDist = min(list(mwDist.keys()))
-        # finding nearest migrant worker using mwDist dict
-        nearestMW = mwDist[shortestDist]
-        # mwPoints dict to minus the points they currently have
-        for n in nearestMW:
-            mwPoints[n] -= 1
-    return mwPoints
-
-def timeSinceLastMatch(mwPoints):
-    timeNow = datetime.now()
-    for mwNum, points in mwPoints.items():
-        mw = Matches.query.filter_by(migrantID=mwNum).first()
-        if mw is not None:
-            lastItemTime = mw.matchDate
-            print(lastItemTime, timeNow)
-            days = (timeNow - lastItemTime).days # convert difference into no. of days
-            print(days)
-            if 0 <= days < 14:
-                mwPoints[mwNum] += 6
-            elif 14 <= days < 28:
-                mwPoints[mwNum] += 4
-            elif 28 <= days < 42:
-                mwPoints[mwNum] += 2
-            elif 42 <= days < 56:
-                mwPoints[mwNum] += 1
-    # get min. no. of points
-    minPoints = min(list(mwPoints.values()))
-    finalMWs = []
-    # get list of migrant workers that has the min. no. of points
-    for mw, points in mwPoints.items():
-        if points == minPoints:
-            finalMWs.append(mw)
-    
-    return finalMWs
-
-# randomise function for Tied MWs
-def randomizeTieBreaker(finalMWs):
-    randomInt = random.randint(1, len(finalMWs))
-    finalMW = finalMWs[randomInt - 1]
-
-    return finalMW
-
-# matching algo
-@app.route("/matchingAlgorithm/<string:donationID>")
-def matchingAlgorithm(donationID):
-    req = Request.query.filter_by(donationID=donationID).all()
-    if req != []:
-        # CRITERIA 1: NO. OF MATCHES
-        priorityMW = getNumOfMatches(req)
-        
-        # CRITERIA 2: WHETHER DONOR/MIGRANT WORKER CHOSE SELF PICKUP
-        mwPoints, needCheckDist = selfPickUpOrDelivery(priorityMW, donationID)
-
+        else:
+            # check whether migrant worker opt for self pickup (but donor opt for delivery/arranged by donor)
+            for mw in priorityMW:
+                deliveryMWOption = Request.query.filter_by(donationID=donationID).filter_by(migrantID=mw).first()
+                # if migrant worker is not 
+                if deliveryMWOption == "Self Pickup":
+                    mwPoints[mw] = 0
+            # if donor did not choose self pick-up & no mw chose self pick-up, put all mw priority as 0
+            if len(mwPoints) == 0:
+                for mw in priorityMW:
+                    deliveryMWOption = Request.query.filter_by(donationID=donationID).filter_by(migrantID=mw).first()
+                    mwPoints[mw] = 0
+                # need check Distance criteria
+                needCheckDist += 1
+                
         # CRITERIA 3: FIND MIGRANT WORKER WITH THE SHORTEST DISTANCE
-        newMWPoints = shortestDistance(mwPoints, needCheckDist, donationID)
-
+        if needCheckDist > 0:
+            mwDist = {}
+            for mw, points in mwPoints.items():
+                mwLoc = Request.query.filter_by(donationID=donationID).filter_by(migrantID=mw).first().postalCode
+                addressFieldID = FormBuilder.query.filter_by(fieldName="Address").first().fieldID
+                donorLoc = FormAnswers.query.filter_by(submissionID=donationID).filter_by(fieldID=addressFieldID).first().answer 
+                # google maps api to calculate distance
+                apikey = environ.get('GOOGLE_API_KEY')
+                geocodeAPI1 = "https://maps.googleapis.com/maps/api/geocode/json?address=" + donorLoc + "&components=country:SG&key=" + apikey
+                response1 = requests.get(geocodeAPI1)
+                if response1.status_code == 200:
+                    donorPlace_id = response1.json()["results"][0]["place_id"]
+                geocodeAPI2 = "https://maps.googleapis.com/maps/api/geocode/json?address=" + mwLoc + "&components=country:SG&key=" + apikey
+                response2 = requests.get(geocodeAPI2)
+                if response2.status_code == 200:
+                    mwPlace_id = response2.json()["results"][0]["place_id"]
+                distanceAPI = "https://maps.googleapis.com/maps/api/distancematrix/json?destinations=place_id:" + donorPlace_id + "&origins=place_id:" + mwPlace_id + "&key=" + apikey
+                response3 = requests.get(distanceAPI)
+                # value is the distance in meters
+                if response3.status_code == 200:
+                    # print(response3.json()["rows"][0]["elements"][0]["distance"]["value"])
+                    distance = response3.json()["rows"][0]["elements"][0]["distance"]["value"]
+                    if distance not in mwDist.keys():
+                        mwDist[distance] = [mw]
+                    else:
+                        mwDist[distance].append(mw)
+                    if distance < 3000:
+                        points += 1
+                    elif 3000 <= distance < 5000:
+                        points += 2
+                    elif 5000 <= distance < 7000:
+                        points += 3
+                    elif 7000 <= distance < 9000:
+                        points += 4
+                    else:
+                        points += 5
+            # least no. of points = shortest distance
+            shortestDist = min(list(mwDist.keys()))
+            # finding nearest migrant worker using mwDist dict
+            nearestMW = mwDist[shortestDist]
+            for n in nearestMW:
+                mwPoints[n] -= 1
+            # mwPoints dict to minus the points they currently have
+        
         # CRITERIA 4: HOW LONG SINCE THEIR LAST MATCH
-        finalMWs = timeSinceLastMatch(newMWPoints)
-
+        timeNow = datetime.now()
+        for mwNum, points in mwPoints.items():
+            mw = Matches.query.filter_by(migrantID=mwNum).first()
+            if mw is not None:
+                lastItemTime = mw.matchDate
+                print(lastItemTime, timeNow)
+                days = (timeNow - lastItemTime).days # convert difference into no. of days
+                print(days)
+                if 0 <= days < 14:
+                    mwPoints[mwNum] += 6
+                elif 14 <= days < 28:
+                    mwPoints[mwNum] += 4
+                elif 28 <= days < 42:
+                    mwPoints[mwNum] += 2
+                elif 42 <= days < 56:
+                    mwPoints[mwNum] += 1
+        # get min. no. of points
+        minPoints = min(list(mwPoints.values()))
+        finalMWs = []
+        # get list of migrant workers that has the min. no. of points
+        for mw, points in mwPoints.items():
+            if points == minPoints:
+                finalMWs.append(mw)
         # if only 1 migrant worker at the end, return this migrant worker
         if len(finalMWs) == 1:
             finalMW = finalMWs[0]
-        else: 
-            finalMW = randomizeTieBreaker(finalMWs)
+        # else, get a random migrant worker from the list
+        else:
+            randomInt = random.randint(1, len(finalMWs))
+            finalMW = finalMWs[randomInt - 1]
 
         # LAST STEP: add the match to the db
-        timeNow = datetime.now()
         reqID = Request.query.filter_by(donationID=donationID).filter_by(migrantID=finalMW).first().reqID
         donorID = Donation.query.filter_by(donationID=donationID).first().donorID
         match = {"reqID": reqID, "migrantID": finalMW, "donorID": donorID, "matchDate": timeNow}
-        donation = Donation.query.filter_by(donationID=donationID).first()
-        if donation.itemStatus == "Available":
-            match = Matches(**match)
-            db.session.add(match)
-            db.session.commit()
-            donation.itemStatus = "Unavailable"
-            db.session.add(donation)
-            db.session.commit()
-            return jsonify(
-                {
-                    "code": 200,
-                    "finalMW": finalMW
-                }
-            )
+        newMatch = Matches(**match)
+        db.session.add(newMatch)
+        db.session.commit()
+        
+        return jsonify(
+            {
+                "code": 200,
+                "finalMW": finalMW
+            }
+        )
     return jsonify(
         {
             "code": 404,
@@ -1554,12 +1536,13 @@ def matchingAlgorithm(donationID):
 # endregion
 
 # region DELIVERY
+# get all delivery requests matches 
 @app.route("/getDeliveryRequests")
 def getDeliveryRequests():
     deliveryRequests = Matches.query.join(Delivery, Delivery.matchID == Matches.matchID).join(
         Request, Matches.reqID == Request.reqID).add_columns(
         Delivery.matchID, Delivery.driverID, Matches.migrantID, 
-        Request.postalCode, Delivery.status).distinct()
+        Request.deliveryLocation, Delivery.status).distinct()
     data = []
     for delivery in deliveryRequests:
         deliveryRow = delivery._asdict()
@@ -1581,11 +1564,12 @@ def getDeliveryRequests():
         }
     ), 404
 
+# get specific delivery request 
 @app.route("/getDeliveryRequests/<matchID>")
 def getDeliveryRequestsByMatchID(matchID):
     deliveryRequest = Delivery.query.filter_by(matchID=matchID).join(Matches, Delivery.matchID == Matches.matchID).join(
         Request, Matches.reqID == Request.reqID).add_columns(Delivery.matchID, Delivery.driverID, Matches.migrantID, 
-        Request.postalCode, Delivery.status).first()
+        Request.deliveryLocation, Delivery.status).first()
     columns = list(deliveryRequest.keys())
     columns.pop(0)
     if deliveryRequest:
@@ -1605,9 +1589,10 @@ def getDeliveryRequestsByMatchID(matchID):
         }
     ), 404
 
+# get delivery locations
 def getDeliveryLocations():
     deliveryLocations = Matches.query.join(Delivery, Delivery.matchID == Matches.matchID).join(
-        Request, Matches.reqID == Request.reqID).add_columns(Request.postalCode).distinct()
+        Request, Matches.reqID == Request.reqID).add_columns(Request.deliveryLocation).distinct()
     data = []
     for location in deliveryLocations:
         deliveryLoc = location._asdict()
@@ -1615,6 +1600,7 @@ def getDeliveryLocations():
         data.append(list(deliveryLoc.values())[0])
     return data
 
+# get delivery locations in lat, lng format 
 @app.route("/getDeliveryLocationsLatLng")
 def getDeliveryLocationsLatLng():
     deliveryLocList = getDeliveryLocations()
@@ -1636,11 +1622,12 @@ def getDeliveryLocationsLatLng():
         )
 
 
+# edit deliveryRequest in table
 @app.route("/updateDeliveryRequest/<matchID>", methods=["PUT"])
 def updateDeliveryRequest(matchID):
     deliveryRequest = Delivery.query.filter_by(matchID=matchID).join(Matches, Delivery.matchID == Matches.matchID).join(
         Request, Matches.reqID == Request.reqID).add_columns(Delivery.matchID, Delivery.driverID, Matches.migrantID, 
-        Request.postalCode, Delivery.status).first()
+        Request.deliveryLocation, Delivery.status).first()
     data = request.get_json()
     print(data)
     columns = list(deliveryRequest.keys())
@@ -1657,7 +1644,7 @@ def updateDeliveryRequest(matchID):
         match = Matches.query.filter_by(matchID=matchID).first()
         req = Request.query.filter_by(reqID=match.reqID).first()
         migrantWorker = User.query.filter_by(username=match.migrantID).first()
-        req.postalCode = data['postalCode']
+        req.deliveryLocation = data['deliveryLocation']
         db.session.add(req)
         db.session.commit()
         deliveryReq.status = data['status']
@@ -1667,9 +1654,13 @@ def updateDeliveryRequest(matchID):
             {
                 "code": 200,
                 "message": "Match successfully updated."
+                # "match": match.json(),
+                # "data": data,
+                # "olddata": data
             }
         )
 
+# add new delivery request
 @app.route("/addDeliveryRequest", methods=['POST'])
 def addDeliveryRequest():
     formData = request.form
@@ -1701,6 +1692,7 @@ def addDeliveryRequest():
             }
         ), 500
 
+# delete delivery request by matchID
 @app.route("/deleteDeliveryRequest/<matchID>", methods=["DELETE"])
 def deleteDeliveryRequest(matchID):
     delivery = Delivery.query.filter_by(matchID=matchID).first()
@@ -1725,6 +1717,7 @@ def deleteDeliveryRequest(matchID):
 # endregion
 
 # region FAQ
+# get all FAQs
 @app.route("/faq")
 def getAllFaq():
     faqlist = Faq.query.all()
@@ -1744,6 +1737,7 @@ def getAllFaq():
         }
     ), 404
 
+# get specific faq
 @app.route("/faq/<int:faqID>")
 def getFaq(faqID):
     faq = Faq.query.filter_by(faqID=faqID).first()
@@ -1761,6 +1755,7 @@ def getFaq(faqID):
         }
     ), 404
 
+# create new faq
 @app.route('/faq', methods=['POST'])
 def create_faq():
     data = request.get_json()
@@ -1775,6 +1770,7 @@ def create_faq():
                 "message": "Unable to commit to database."
             }), 500
 
+# edit existing faq
 @app.route('/faq/<int:faqID>', methods=['POST'])
 def edit_faq(faqID):
     data = request.get_json()
@@ -1791,6 +1787,7 @@ def edit_faq(faqID):
                 "message": "Unable to commit to database."
             }), 500
 
+# delete existing faq
 @app.route('/faq/<int:faqID>', methods=["DELETE"])
 def delete_faq(faqID):
     item = Faq.query.filter_by(faqID=faqID).first()

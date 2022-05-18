@@ -45,7 +45,7 @@
         ======================================================== -->
     </head>
 
-<body onload="checkLogin()">
+<body onload="checkAdmin()">
 
     <!-- ======= Top Bar ======= -->
     <div id="topbar" class="d-flex align-items-center fixed-top">
@@ -105,6 +105,10 @@
             <br><br>
             <hr>
             <br>
+            <div id="errorDiv" class="alert alert-warning d-none" role="alert">
+                <ul id="errorList"></ul>
+                <p class="text-center">Please ensure the above errors are resolved before submitting again.</p>
+            </div>
             <div id="edit-section" style="display: none"></div>
             <form id="account" class="row g-3" enctype="multipart/form-data">
                 <div class="col-md-6">
@@ -131,9 +135,8 @@
                         <option value="driver">Driver</option>
                     </select>
                 </div>
-                <div class="col-12" style='text-align: center; color: #E3A587;'>
-                    <button type="button" onclick="registerUser()" class="btn btn-outline-light"
-                        style="color:white; background-color: #E3A587;">Submit</button>
+                <div class="col-12" style="text-align: center;">
+                    <button type="button" onclick="registerUser()" class="btn btn-outline-secondary">Submit</button>
                 </div>
             </form>
         </div>
@@ -148,7 +151,7 @@
         var columns = [];
         function getDT() {
             $.ajax({
-                url: "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getAllUsers",
+                url: "http://127.0.0.1:5003/getAllUsers",
                 success: function (data) {
                     columnNames = Object.values(data.columnHeaders);
                     // items = data.data.items;
@@ -176,7 +179,7 @@
                     $("#edit-btn3").hide();
                     $("#edit-btn4").hide();
                     $("#account").hide();
-                    document.getElementById("edit-section").innerHTML = "There are currently no successful matches to be found."
+                    document.getElementById("edit-section").innerHTML = "There are currently no users to be found."
                     $("#edit-section").show();
                 }
 
@@ -188,9 +191,8 @@
         } );
 
         function fillUserDetails(val) {
-            console.log(val);
             $(async () => {
-                var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getRequests/" + val;
+                var serviceURL = "http://127.0.0.1:5003/getUser/" + val;
                 try {
                     const response =
                     await fetch(
@@ -201,19 +203,19 @@
                     const result = await response.json();
                     if (response.status == 200) {
                         // success case
+                        console.log(result.data);
                         for (var i in result.data) {
-                            if (["deliveryLocation", "donorID", "itemStatus", "requestQty", "migrantID"].includes(i)) {
-                                for (id in result.columnHeaders) {
-                                    if (result.columnHeaders[id] == i) {
-                                        document.querySelector('[placeholder="' + i + '"]').value = result.data[i];
-                                    }
-                                }
+                            // field = result.data[i];
+                            // console.log(result)
+                            if (i != "username") {
+                                // console.log(result.columnHeaders)
+                                document.querySelector('[placeholder="' + i + '"]').value = result.data[i]
                             }
                         }
 
                     }
                     if (response.status == 404) {
-                        alert('There is no such request ID in the database, please enter a valid ID.')
+                        alert('There is no such username in the database, please enter a valid username.')
                     }
                 }
                 catch (error) {
@@ -224,10 +226,10 @@
             });
         }
 
-        function editUser() {
+        function editAccounts() {
             var data = {};
             var inputFields = document.getElementById("edit-section").children;
-            var reqID = document.querySelector('[placeholder="reqID"]').value;
+            var username = document.querySelector('[placeholder="username"]').value;
             for (var i in inputFields) {
                 input = inputFields[i];
                 inputChildrenCount = input.childElementCount;
@@ -247,7 +249,7 @@
             }
             var jsondata = JSON.stringify(data);
             $(async () => {
-                var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/updateUser/" + reqID;
+                var serviceURL = "http://127.0.0.1:5003/updateUser/" + username;
                 try {
                     const response =
                     await fetch(
@@ -269,6 +271,125 @@
                     alert('There is a problem updating the data, please try again later.');
                 } // error
             });
+        }
+
+        function registerUser() {
+            errorArr = []
+
+            var registerFormElements = document.forms[0].elements
+
+            let userName = ""
+            let pw1 = ""
+            let pw2 = ""
+            let userType = ""
+            for (ele in registerFormElements) {
+                if (registerFormElements[ele].name == "pw") {
+                    pw1 = registerFormElements[ele].value
+                } else if (registerFormElements[ele].name == "confirmPw") {
+                    pw2 = registerFormElements[ele].value
+                } else if (registerFormElements[ele].name == "userName") {
+                    userName = registerFormElements[ele].value
+                } else if (registerFormElements[ele].name == "userType") {
+                    userType = registerFormElements[ele].value
+                }
+            }
+            
+            // Validate passwords
+            if (pw1.length != pw2.length) {
+                errorArr.push("Length of your password and your confirmation password are not the same")
+            } else if (pw1.length < 6 || pw2.length > 20) {
+                errorArr.push("Length of your password must be within 6 to 20 characters")
+            } else if (pw1 !== pw2) {
+                errorArr.push("The two passwords that you have entered do not match")
+            }
+
+            // Validate Username/Contact
+            if (userName.length > 8 || userName.length < 8) {
+                errorArr.push("The contact number you have entered has more or less than 8 digits")
+            } else if (parseInt(userName) == NaN) {
+                errorArr.push("Please make sure your contact number has no spaces, and only consist of numbers")
+            }
+
+            // Retrieve errorDiv to add/remove alert class
+            var errorDiv = document.getElementById('errorDiv')
+            var errorList = document.getElementById('errorList')
+
+            errorList.innerHTML = ""
+
+            if (errorArr.length > 0) {
+
+                errorDiv.classList.remove("d-none")
+                errorDiv.classList.add("d-block")
+
+                for (err of errorArr) {
+                    errorList.innerHTML += `
+                    <li>${err}</li>
+                    `
+                }
+
+            } else {
+                errorDiv.classList.remove("d-block")
+                errorDiv.classList.add("d-none")
+
+
+                var formData = new FormData();
+
+                for (ele in registerFormElements) {
+                    if (registerFormElements[ele].name == "userType") {
+                        continue
+                    }
+                    else {
+                        formData.append(registerFormElements[ele].name, registerFormElements[ele].value)
+                    }
+                }
+                if (userType == "migrantWorker") {
+                    let res = registerNewAcc(formData, 'http://127.0.0.1:5003/registermw')
+                }
+                else if (userType == "admin") {
+                    let res = registerNewAcc(formData, 'http://127.0.0.1:5003/registeradmin')
+                }
+                else if (userType == "driver") {
+                    let res = registerNewAcc(formData, 'http://127.0.0.1:5003/registerDriver')
+                }
+                
+            }
+
+        }
+
+        async function registerNewAcc(data, url) {
+
+            const response = await fetch(url, {
+                method: 'POST', // *GET, POST, PUT, DELETE, etc.
+                mode: 'cors', // no-cors, *cors, same-origin
+                cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+                credentials: 'same-origin', // include, *same-origin, omit
+                redirect: 'follow', // manual, *follow, error
+                referrerPolicy: 'no-referrer', // no-referrer, *no-referrer-when-downgrade, origin, origin-when-cross-origin, same-origin, strict-origin, strict-origin-when-cross-origin, unsafe-url
+                body: data // body data type must match "Content-Type" header
+            });
+
+            // console.log(response.status)
+
+            if (response.status >= 200 && response.status < 300) {
+                data = await response.json()
+                if (data.code == "200") {
+                    alert(data.message)
+                    window.location.reload()
+                } else {
+                    alert(data.message)
+                }
+            } else {
+                errorArr.push("The contact number you have entered has already been registered")
+                errorDiv.classList.remove("d-none")
+                errorDiv.classList.add("d-block")
+
+                for (err of errorArr) {
+                    errorList.innerHTML += `
+                    <li>${err}</li>
+                    `
+                }
+
+            }
         }
 
 

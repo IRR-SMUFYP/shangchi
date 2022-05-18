@@ -49,6 +49,7 @@
     <!-- Custom Javascript -->
     <script src="assets/js/form.js" type="text/javascript"></script>
     <script src="assets/js/formprocessing.js" type="text/javascript"></script>
+    <script src="admin/login.js" type="text/javascript"></script>
     <!-- =======================================================
   * Template Name: Medilab - v4.7.0
   * Template URL: https://bootstrapmade.com/medilab-free-medical-bootstrap-theme/
@@ -251,8 +252,6 @@
         
             })
         })()
-        
-        checkLogin();
 
         var user = ""
 
@@ -270,15 +269,6 @@
                 } else {
                     window.location.href = "index.html"
                 }
-            }
-        }
-
-        function loginLogout() {
-            if (document.getElementById("loginLogoutButton").innerText === "Login") {
-                window.location.href = "login.html"
-            } else {
-                sessionStorage.removeItem("user")
-                window.location.reload()
             }
         }
 

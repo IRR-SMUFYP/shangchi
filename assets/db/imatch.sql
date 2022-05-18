@@ -109,16 +109,16 @@ CREATE TABLE IF NOT EXISTS `delivery` (
 
 -- INSERT values
 INSERT INTO user (`username`, `password`, `usertype`) VALUES 
-(12345678, 'test1', 'worker'),
-(93261073, '$2b$12$hPh2gudOwUvmBs18PBa.deDRGOLiiDXuSkCV5qkA056I/n97blTJG', 'master'),
-(12312312, 'driver1', 'driver');
+(93261073, '$2b$12$hPh2gudOwUvmBs18PBa.deDRGOLiiDXuSkCV5qkA056I/n97blTJG', 'master');
 
 
 -- for faq
-INSERT INTO faq (`question`, `answer`, `section`) VALUES ('How do I donate?', 'Just do it!', 'donor');
-INSERT INTO faq (`question`, `answer`, `section`) VALUES ('What do I donate?', 'Check out our wishlist', 'donor');
-INSERT INTO faq (`question`, `answer`, `section`) VALUES ('How do I request for an item?', 'Just do it!', 'worker');
-INSERT INTO faq (`question`, `answer`, `section`) VALUES ('How do I drive?', 'Just do it!', 'driver');
+INSERT INTO faq (`question`, `answer`, `section`) VALUES ('How do I donate?', 'First, head over to the "Donate" page on the top of the screen. Then you would have to fill in several key information into the form regarding yourself, as well as the item you are intending to donate before submitting the donation to be displayed on the front page of the web application.', 'donor');
+INSERT INTO faq (`question`, `answer`, `section`) VALUES ('What do I donate?', 'You can refer to the wishlist seen on the homepage to see what Migrant Workers are requesting for.', 'donor');
+INSERT INTO faq (`question`, `answer`, `section`) VALUES ('Who do I contact if I need help changing certain values?', 'You can contact IRR at the following email itsrainingraincoats@gmail.com, and in the subject field, let us know your phone number so we can amend the details accordingly.', 'donor');
+INSERT INTO faq (`question`, `answer`, `section`) VALUES ('How do I go about selecting items I wish to donate in the dropdown list?', 'As confusing as it may seem, we have got you covered. Head over to the item catalogue seen on the donation page and click on it. What you see there is how the categories and items are mapped. So for example, if you wish to donate a shirt, you would have to select "Clothes" (Category), "Tops" (Sub-Category) and finally "Shirt" (Item name) to indicate your interest to donate that particular item.', 'donor');
+INSERT INTO faq (`question`, `answer`, `section`) VALUES ('How do I request for an item?', 'Log in using your phone number after registering for an account. Then on the homepage, click on the item you wish to request and fill in the details accordingly. After an item has been matched to you, you will be notified by our admins at IRR.', 'worker');
+INSERT INTO faq (`question`, `answer`, `section`) VALUES ('How do I sign up as a Driver?', 'You can drop us an email at itsrainingraincoats@gmail.com and we will help you to create an account accordingly.', 'driver');
 
 
 -- for formbuilder table
@@ -338,25 +338,25 @@ INSERT INTO `categoryitem` (`itemname`, `category`, `subcat`) VALUES
 ('Sim Card', 'Others', 'Others'),
 ('Care Pack', 'Others', 'Others');
 
--- for donation table
-INSERT INTO donation (`donorID`, `donationID`, `itemID`, `timeSubmitted`, `itemStatus`) VALUES
-(92251521, '2022-02-15 21:35:42 92251521', 152, '2022-02-24 21:35:42', 'available');
+-- -- for donation table
+-- INSERT INTO donation (`donorID`, `donationID`, `itemID`, `timeSubmitted`, `itemStatus`) VALUES
+-- (92251521, '2022-02-15 21:35:42 92251521', 152, '2022-02-24 21:35:42', 'available');
 
--- for wishlist table
-INSERT INTO wishlist (`wishlistID`, `migrantID`, `itemID`, `timeSubmitted`, `itemStatus`) VALUES 
-('test', 12345678, 1, now(), 'available');
+-- -- for wishlist table
+-- INSERT INTO wishlist (`wishlistID`, `migrantID`, `itemID`, `timeSubmitted`, `itemStatus`) VALUES 
+-- ('test', 12345678, 1, now(), 'available');
 
--- for request table
-INSERT INTO request (`reqID`, `migrantID`, `postalCode`, `donationID`, `timeSubmitted`) VALUES
-(1, 12345678, '518136', '2022-02-15 21:35:42 92251521', now());
+-- -- for request table
+-- INSERT INTO request (`reqID`, `migrantID`, `postalCode`, `donationID`, `timeSubmitted`) VALUES
+-- (1, 12345678, '518136', '2022-02-15 21:35:42 92251521', now());
 
--- for matches table
-INSERT INTO matches (`matchID`, `reqID`, `migrantID`, `donorID`, `matchDate`) VALUES
-(1, 1, 12345678, 11888811, now());
+-- -- for matches table
+-- INSERT INTO matches (`matchID`, `reqID`, `migrantID`, `donorID`, `matchDate`) VALUES
+-- (1, 1, 12345678, 11888811, now());
 
--- for delivery table
-INSERT INTO delivery (`matchID`, `status`, `driverID`) VALUES
-(1, 'available', 12312312);
+-- -- for delivery table
+-- INSERT INTO delivery (`matchID`, `status`, `driverID`) VALUES
+-- (1, 'available', 12312312);
 
 -- UPDATE user set usertype = 'master' where username = 93261073;
 -- select * from donation;

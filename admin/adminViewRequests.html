@@ -50,7 +50,7 @@
         ======================================================== -->
 </head>
 
-<body onload="checkLogin()">
+<body onload="checkAdmin()">
 
     <!-- ======= Top Bar ======= -->
     <div id="topbar" class="d-flex align-items-center fixed-top">
@@ -126,8 +126,8 @@
                         <input required type="text" class="form-control" id="migrantID" name="contact" placeholder="migrantID">
                     </div>
                     <div class="col-md-6">
-                        <label for="deliveryLocation" class="form-label">deliveryLocation</label>
-                        <input required type="text" class="form-control" id="deliveryLocation" name="destination" placeholder="deliveryLocation">
+                        <label for="postalCode" class="form-label">postalCode</label>
+                        <input required type="text" class="form-control" id="postalCode" name="destination" placeholder="postalCode">
                     </div>
                     <button type="button" id="add-row" href="#" class="mt-2 btn btn-outline-secondary" onclick="addRow('request')">Add New Row</button>
                 </form>
@@ -144,7 +144,7 @@
 
             function getDT() {
                 $.ajax({
-                    url: "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getRequests",
+                    url: "http://127.0.0.1:5003/getRequests",
                     success: function (data) {
                         columnNames = Object.values(data.columnHeaders);
                         // items = data.data.items;
@@ -188,7 +188,7 @@
             function fillRequestDetails(val) {
                 console.log(val);
                 $(async () => {
-                    var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getRequests/" + val;
+                    var serviceURL = "http://127.0.0.1:5003/getRequests/" + val;
                     try {
                         const response =
                             await fetch(
@@ -202,7 +202,7 @@
                         if (response.status == 200) {
                             // success case
                             for (var i in result.data) {
-                                if (["deliveryLocation", "donorID", "itemStatus", "requestQty", "migrantID", "donationID"]
+                                if (["postalCode", "donorID", "itemStatus", "requestQty", "migrantID", "donationID"]
                                     .includes(i)) {
                                     for (id in result.columnHeaders) {
                                         if (result.columnHeaders[id] == i) {
@@ -247,7 +247,7 @@
                 }
                 var jsondata = JSON.stringify(data);
                 $(async () => {
-                    var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/updateRequest/" + reqID;
+                    var serviceURL = "http://127.0.0.1:5003/updateRequest/" + reqID;
                     try {
                         const response =
                             await fetch(

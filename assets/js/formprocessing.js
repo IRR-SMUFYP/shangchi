@@ -10,7 +10,7 @@ function submitForm(formName, form) {
         console.log(pair[0]+ ', ' + pair[1]); 
     }
 
-    addDonation(formData, 'http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/formanswers')
+    addDonation(formData, 'http://127.0.0.1:5003/formanswers')
 }
 
 // POST request:
@@ -27,7 +27,12 @@ async function addDonation(formdata, url) {
         .then(data => {
             console.log(data);
             alert(data.message)
-            window.location.href = 'index.html'
+            if (!window.location.href.includes("admin")){
+                window.location.href = 'index.html';
+            }
+            else {
+                window.location.reload();
+            }
         })
         .catch(error => {console.log(error);alert(error);})
     
