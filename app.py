@@ -11,10 +11,10 @@ import bcrypt
 import random
 import requests
 import json
-import config
+# import config
 import uuid
-from dotenv import load_dotenv
-load_dotenv()
+# from dotenv import load_dotenv
+# load_dotenv()
 
 app = Flask(__name__)
 
