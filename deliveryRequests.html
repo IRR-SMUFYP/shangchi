@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-    <title>IMatch - Delivery Requests</title>
+    <title>iMatch - Delivery Requests</title>
     <meta content="" name="description">
     <meta content="" name="keywords">
 
@@ -37,6 +37,14 @@
     <!-- Template Main CSS File -->
     <link href="assets/css/style.css" rel="stylesheet">
 
+    <!-- datatables.net -->
+    <link href="https://cdn.datatables.net/1.11.3/css/dataTables.bootstrap5.min.css" rel="stylesheet">
+
+    <!-- jQuery & Popper.js -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.6/umd/popper.min.js" integrity="sha384-wHAiFfRlMFy6i5SRaxvfOCifBUQy1xHdJ/yoi7FRNXMRBu5WHdZYu1hA6ZOblgut" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.min.js" integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous"></script>
+
     <!-- =======================================================
     * Template Name: Medilab - v4.7.0
     * Template URL: https://bootstrapmade.com/medilab-free-medical-bootstrap-theme/
@@ -46,7 +54,7 @@
     
     <!-- Maps script -->
     <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
-    
+
     <!-- Map Styling -->
     <style>
         /* Set the size of the div element that contains the map */
@@ -122,78 +130,63 @@
             </div>
         </section>
 
+        <section class="pt-0">
+            <div class="container">
+                <table id="delivery" class="table table-striped table-hover" style="width: 100%"></table>
+                <div id="edit-section" style="display: none"></div>
+                <button type="button" id="edit-btn" href="#" class="mt-2 btn btn-outline-secondary" onclick="" style="display: none">Accept Delivery</button>
+                <button type="button" id="edit-btn2" href="#" class="mt-2 btn btn-outline-secondary" onclick="" style="display: none">Update Delivery Status</button>
+                <br><br>
+                <hr>    
+            </div>
+        </section>
+
     </main><!-- End #main -->
 
     <!-- ======= Footer ======= -->
     <footer id="footer">
-
         <div class="footer-top">
             <div class="container">
                 <div class="row">
-
                     <div class="col-lg-3 col-md-6 footer-contact">
-                        <h3>ItsRainingRaincoats</h3>
-                        <p>
-                            For general enquiries <br>
-                            feel free to contact us at<br>
-                            <strong>Email:</strong> itsrainingraincoats@gmail.com<br>
+                        <!-- <h3>ItsRainingRaincoats</h3> -->
+                        <img src="assets\img\logo\cropped-ItsRainingRaincoats-Logo-A-e1615185723991.png"
+                            style="max-width: 200px; max-height: 50px;">
+                        <p style="padding-top: 20px;">
+                            ItsRainingRaincoats (IRR) is a welfare organisation that aims to improve the lives of
+                            migrant workers in Singapore
                         </p>
                     </div>
-
+                    <div class="col-lg-2 col-md-6"></div>
+                    <div class="col-lg-2 col-md-6"></div>
                     <div class="col-lg-2 col-md-6 footer-links">
-                        <h4>Our Services</h4>
+                        <h4>Quick Links</h4>
+                        <hr>
                         <ul>
-                            <li><i class="bx bx-chevron-right"></i> <a href="index.html">Home</a></li>
-                            <li><i class="bx bx-chevron-right"></i> <a href="donateGeneral.html">Donate to us</a></li>
-                            <li><i class="bx bx-chevron-right"></i> <a href="login.html">Login</a></li>
-                            <li><i class="bx bx-chevron-right"></i> <a href="register.html">Register</a></li>
+                            <li><a href="index.html">Home</a></li>
+                            <li><a href="donateGeneral.html">Donate to us</a></li>
+                            <li><a href="login.html">Login</a></li>
+                            <li><a href="register.html">Register</a></li>
                         </ul>
                     </div>
-
                     <div class="col-lg-3 col-md-6 footer-links">
-                        <h4>Useful Links</h4>
-                        <ul>
-                            <li><i class="bx bx-chevron-right"></i> <a
-                                    href="https://www.itsrainingraincoats.com/">Homesite</a></li>
-                        </ul>
+                        <h4>Follow Us</h4>
+                        <hr>
+                        <div class="social-links pt-3">
+                            <a href="#" class="twitter"><i class="bx bxl-twitter"></i></a>
+                            <a href="https://www.facebook.com/itsrainingraincoats/" class="facebook"><i
+                                    class="bx bxl-facebook"></i></a>
+                            <a href="https://www.instagram.com/itsrainingraincoats/?hl=en" class="instagram"><i
+                                    class="bx bxl-instagram"></i></a>
+                            <a href="https://www.linkedin.com/company/itsrainingraincoats/?originalSubdomain=sg"
+                                class="linkedin"><i class="bx bxl-linkedin"></i></a>
+                        </div>
                     </div>
-
-                    <!-- <div class="col-lg-4 col-md-6 footer-newsletter">
-                        <h4>Join Our Newsletter</h4>
-                        <p>Tamen quem nulla quae legam multos aute sint culpa legam noster magna</p>
-                        <form action="" method="post">
-                            <input type="email" name="email"><input type="submit" value="Subscribe">
-                        </form>
-                    </div> -->
-
                 </div>
             </div>
         </div>
-
-        <div class="container d-md-flex py-4">
-
-            <div class="me-md-auto text-center text-md-start">
-                <div class="copyright">
-                    &copy; Copyright <strong><span>IRR</span></strong>. All Rights Reserved
-                </div>
-                <div class="credits">
-                    <!-- All the links in the footer should remain intact. -->
-                    <!-- You can delete the links only if you purchased the pro version. -->
-                    <!-- Licensing information: https://bootstrapmade.com/license/ -->
-                    <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/medilab-free-medical-bootstrap-theme/ -->
-                </div>
-            </div>
-            <div class="social-links text-center text-md-right pt-3 pt-md-0">
-                <a href="#" class="twitter"><i class="bx bxl-twitter"></i></a>
-                <a href="https://www.facebook.com/itsrainingraincoats/" class="facebook"><i
-                        class="bx bxl-facebook"></i></a>
-                <a href="https://www.instagram.com/itsrainingraincoats/?hl=en" class="instagram"><i
-                        class="bx bxl-instagram"></i></a>
-                <a href="https://www.linkedin.com/company/itsrainingraincoats/?originalSubdomain=sg" class="linkedin"><i
-                        class="bx bxl-linkedin"></i></a>
-            </div>
-        </div>
-    </footer><!-- End Footer -->
+    </footer>
+    <!-- End Footer -->
 
     <div id="preloader"></div>
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
@@ -206,137 +199,100 @@
     <script src="assets/vendor/swiper/swiper-bundle.min.js"></script>
     <script src="assets/vendor/php-email-form/validate.js"></script>
 
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap5.min.js"></script>
+    <script src="assets/js/form.js"></script>
+    <script src="assets/js/table.js"></script>
+
     <!-- Template Main JS File -->
     <script src="assets/js/main.js"></script>
 
     <!-- Google Maps API -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDVeyfqXbHHtj2BLTu18XEo-MYoq5q4R5c&callback=initMap&v=weekly" async></script>
-    <script src="assets/js/googlemaps.js"></script>
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA9mydsAErbl6NbLQsfJ6pjQDtU85bZtb8&callback=initMap" async></script>    
+
 
     <script>
-        // Initialize and add the map
-        // var locations = [
-        //     ['Bondi Beach', -33.890542, 151.274856, 4],
-        //     ['Coogee Beach', -33.923036, 151.259052, 5],
-        //     ['Cronulla Beach', -34.028249, 151.157507, 3],
-        //     ['Manly Beach', -33.80010128657071, 151.28747820854187, 2],
-        //     ['Maroubra Beach', -33.950198, 151.259302, 1]
-        // ];
 
+        const locations = [
+            {coords: { lat: 1.3669, lng: 103.9544 }}, // 510121
+            {coords: { lat: 1.2966, lng: 103.7764 }, content: '<h5>NUS</h5>'}, // nus
+            {coords: { lat: 1.3483, lng: 103.6831 }}, // ntu
+            {coords: { lat: 1.3414, lng: 103.9633 }}, // sutd
+            {coords: { lat: 1.2963, lng: 103.8502 }} // smu
+        ];
 
-        // var markers = [];
-        // function initMap(lat, long) {
-        //     var location= new google.maps.LatLng(lat, long);
-        //     var mapEl= document.getElementById('map');
-        //     var mapOpt= {
-        //         center: location,
-        //         zoom: 15,
-        //         panControl: false,
-        //         mapTypeId: google.maps.MapTypeId.ROADMAP
-        //     }
-        //     var map = new google.maps.Map(mapEl, mapOpt);
+        function initMap() {
+            // map settings
+            const map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 11,
+                center: { lat: 1.3521, lng: 103.8198 },
+            });
 
-        //     var marker = new google.maps.Marker({
-        //         position: new google.maps.LatLng(lat, long),
-        //         map: map,
-        //     });
-        // }
-        // var url = "http://127.0.0.1:5003/getDeliveryLocationsLatLng"
-        // fetch(url, {
-        //     method: 'GET'
-        // }).then(response => response.json()).then(jsonData => {
-        //     console.log(jsonData.data);
-        //     for (var i = 0; i < jsonData.data.length; i++) {
-        //         console.log(jsonData.data[i])
-        //         data = jsonData.data
-        //         var initLat = data[0].lat
-        //         var initLon = data[0].lng
-        //         var map = new google.maps.Map(document.getElementById('map'), {
-        //             zoom: 10,
-        //             center: new google.maps.LatLng(initLat, initLon),
-        //             mapTypeId: google.maps.MapTypeId.ROADMAP
-        //         });
+            // add marker function
+            function addMarker(props) {
+                var marker = new google.maps.Marker({
+                    position: props.coords,
+                    map: map,
+                });
 
-        //         var infowindow = new google.maps.InfoWindow();
+                if (props.content) {
+                    var infoWindow = new google.maps.InfoWindow({
+                        content: props.content
+                    });
+                    marker.addListener("click", function () {
+                        infoWindow.open(map, marker);
+                    });
+                }
+            }
 
-        //         var marker, i;
+            for (i = 0; i < locations.length; i++) {
+                addMarker(locations[i]);
+            }
 
-        //         for (i = 0; i < data.length; i++) {  
-        //             marker = new google.maps.Marker({
-        //                 position: new google.maps.LatLng(data[i].lat, data[i].lon),
-        //                 map: map
-        //             });
+        }
 
-        //             google.maps.event.addListener(marker, 'click', (function(marker, i) {
-        //                     return function() {
-        //                         infowindow.setContent(locations[i][0]);
-        //                         infowindow.open(map, marker);
-        //                     }
-        //                 })(marker, i));
-        //             // initMap(data[i].lat, data[i].lng);
-        //         }
+        var columns = [];
+        function getDT() {
+            $.ajax({
+                url: "http://127.0.0.1:5003/getDeliveryRequests",
+                success: function (data) {
+                    columnNames = Object.keys(data.data[0]);
+                    // items = data.data.items;
+                    // console.log(data.data.items)
+                    // editFields = "";
+                    for (var i in columnNames) {
+                        columns.push({data: columnNames[i], 
+                                    title: columnNames[i]});
+                    }
+                    var table = $('#delivery').DataTable( {
+                        data: data.data,
+                        columns: columns,
+                        fixedHeader: true,
+                    } );
+                    fields = data.data[0];
+                    fields["columnDetails"] = data.columnHeaders;
+                    getEditDetails(fields);
+                    $("#edit-btn").show();
+                    $("#edit-btn2").show();
+                    $("#deliveryRequest").hide();
+                },
+                error: function () {
+                    $("#edit-btn").hide();
+                    $("#edit-btn3").show();
+                    $("#edit-btn4").hide();
+                    $("#deliveryRequest").hide();
+                    document.getElementById("edit-section").innerHTML = "There are currently no delivery requests to be found."
+                    $("#edit-section").show();
+                }
 
-        //         // initMap(jsonData.data[i].lat, jsonData.data[i].lng);
-        //     }
-        // });
-        // function initMap() {
-        //     $.ajax({
-        //         url: 'http://127.0.0.1:5003/getDeliveryLocationsLatLng',
-        //         type: 'GET',
-        //         success: function (response) {
-        //             var data = JSON.parse(response);
-        //             console.log(data);
-        //             for (var i = 0; i < data.length; i++) {
-        //                 var marker = new google.maps.Marker({
-        //                     position: {lat: data[i].lat, lng: data[i].lng},
-        //                     map: map,
-        //                     // title: data[i].name
-        //                 });
-        //                 markers.push(marker);
-        //             }
-        //             for (i = 0; i < markers.length; i++) {
-        //                 var map = new google.maps.Map(document.getElementById('map'), {
-        //                     zoom: 4,
-        //                     center: {lat: markers[i].lat, lng: markers[i].lng}
-        //                 });
-        //             }
-        //         }
-        //     });
-            // var map = new google.maps.Map(document.getElementById('map'), mapOptions);
-            // var marker = new google.maps.Marker({
-            //     position: myCoords,
-            //     map: map,
-            // });
-            // // The location of Uluru
-            // const uluru = { lat: -25.344, lng: 131.036 };
-            // // The map, centered at Uluru
-            // const map = new google.maps.Map(document.getElementById("map"), {
-            //     zoom: 4,
-            //     center: uluru,
-            // });
-            // // The marker, positioned at Uluru
-            // const marker = new google.maps.Marker({
-            //     position: uluru,
-            //     map: map,
-            // });
-        // }
+            })
+        }
 
-        // function initMap(locationArr) {
-        //     for (var i = 0; i < locationArr.length; i++) {
-        //         var myCoords = new google.maps.LatLng(locationArr[i][0], locationArr[i][1]);
-        //         var mapOptions = {
-        //         center: myCoords,
-        //         zoom: 14
-        //         };
-        //         var map = new google.maps.Map(document.getElementById('map'), mapOptions);
+        $(document).ready(function() {
+            getDT();
+        } );
 
-        //         var marker = new google.maps.Marker({
-        //         position: myCoords,
-        //         map: map
-        //         });
-        //     }
-        // }
-        
         function login() {
             let errorArr = []
 
