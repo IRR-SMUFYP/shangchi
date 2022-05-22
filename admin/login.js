@@ -53,6 +53,9 @@ function loginLogout() {
         sessionStorage.removeItem("user")
         if (window.location.href.includes("admin")) {
             window.location.href = "../index.html"
+        } 
+        else if (window.location.href.includes("driver")) {
+            window.location.href = "../index.html"
         } else {
             window.location.href = "index.html"
         }
