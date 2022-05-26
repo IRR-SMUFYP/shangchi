@@ -173,7 +173,7 @@ body {
   # Header
   --------------------------------------------------------------*/
   #header {
-    background: #A57F60;
+    background: #022ca1b4;
     transition: all 0.5s;
     z-index: 997;
     padding: 15px 0;
@@ -208,7 +208,7 @@ body {
   */
   .appointment-btn {
     margin-left: 25px;
-    background: #E3A587;
+    background: hsl(50, 87%, 57%);
     color: #fff;
     border-radius: 50px;
     padding: 8px 25px;
@@ -219,7 +219,7 @@ body {
   }
   
   .appointment-btn:hover {
-    background: #ec9062;
+    background: hsl(50, 87%, 57%);
     color: #fff;
   }
   
