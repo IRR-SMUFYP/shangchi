@@ -135,10 +135,15 @@ class Delivery(db.Model):
 
     matchID = db.Column(db.Integer, primary_key=True, nullable=False)
     status = db.Column(db.String(50), nullable=False)
-    driverID = db.Column(db.Integer, nullable=False)
+    driverID = db.Column(db.Integer)
+    dLat = db.Column(db.String(50), nullable=False)
+    dLon = db.Column(db.String(50), nullable=False)
+    mwLat = db.Column(db.String(50), nullable=False)
+    mwLon = db.Column(db.String(50), nullable=False)
 
     def json(self):
-        return { "matchID": self.matchID, "status": self.status, "driverID": self.driverID }
+        return { "matchID": self.matchID, "status": self.status, "driverID": self.driverID, "dLat": self.dLat,
+                 "dLon": self.dLon, "mwLat": self.mwLat, "mwLon": self.mwLon }
 
 class Faq(db.Model):
     __tablename__ = 'faq'
@@ -1435,10 +1440,14 @@ def shortestDistance(mwPoints, needCheckDist, donationID):
             response1 = requests.get(geocodeAPI1)
             if response1.status_code == 200:
                 donorPlace_id = response1.json()["results"][0]["place_id"]
+                dLat = response1.json()["results"][0]["geometry"]["location"]["lat"]
+                dLon = response1.json()["results"][0]["geometry"]["location"]["lng"]
             geocodeAPI2 = "https://maps.googleapis.com/maps/api/geocode/json?address=" + mwLoc + "&components=country:SG&key=" + apikey
             response2 = requests.get(geocodeAPI2)
             if response2.status_code == 200:
                 mwPlace_id = response2.json()["results"][0]["place_id"]
+                mwLat = response2.json()["results"][0]["geometry"]["location"]["lat"]
+                mwLon = response2.json()["results"][0]["geometry"]["location"]["lng"]
             distanceAPI = "https://maps.googleapis.com/maps/api/distancematrix/json?destinations=place_id:" + donorPlace_id + "&origins=place_id:" + mwPlace_id + "&key=" + apikey
             response3 = requests.get(distanceAPI)
             # value is the distance in meters
@@ -1466,7 +1475,7 @@ def shortestDistance(mwPoints, needCheckDist, donationID):
         # mwPoints dict to minus the points they currently have
         for n in nearestMW:
             mwPoints[n] -= 1
-    return mwPoints
+    return {"mwPoints": mwPoints, "dLat": dLat, "dLon": dLon, "mwLat": mwLat, "mwLon": mwLon}
 
 def timeSinceLastMatch(mwPoints):
     timeNow = datetime.now()
@@ -1514,7 +1523,12 @@ def matchingAlgorithm(donationID):
         mwPoints, needCheckDist = selfPickUpOrDelivery(priorityMW, donationID)
 
         # CRITERIA 3: FIND MIGRANT WORKER WITH THE SHORTEST DISTANCE
-        newMWPoints = shortestDistance(mwPoints, needCheckDist, donationID)
+        shortestDistanceResult = shortestDistance(mwPoints, needCheckDist, donationID)
+        newMWPoints = shortestDistanceResult["mwPoints"]
+        dLat = shortestDistanceResult["dLat"]
+        dLon = shortestDistanceResult["dLon"]
+        mwLat = shortestDistanceResult["mwLat"]
+        mwLon = shortestDistanceResult["mwLon"]
 
         # CRITERIA 4: HOW LONG SINCE THEIR LAST MATCH
         finalMWs = timeSinceLastMatch(newMWPoints)
@@ -1531,6 +1545,7 @@ def matchingAlgorithm(donationID):
         donorID = Donation.query.filter_by(donationID=donationID).first().donorID
         match = {"reqID": reqID, "migrantID": finalMW, "donorID": donorID, "matchDate": timeNow}
         donation = Donation.query.filter_by(donationID=donationID).first()
+
         if donation.itemStatus == "Available":
             match = Matches(**match)
             db.session.add(match)
@@ -1538,6 +1553,15 @@ def matchingAlgorithm(donationID):
             donation.itemStatus = "Unavailable"
             db.session.add(donation)
             db.session.commit()
+
+            # add delivery request if necessary
+            deliveryRequired = FormAnswers.query.filter_by(submissionID=donationID).filter_by(fieldID=6).first().answer
+            if deliveryRequired == "Delivery required":
+                matchID = Matches.query.filter_by(reqID=reqID).first().matchID
+                delivery = {"matchID": matchID, "status": "available", "dLat": dLat, "dLon": dLon, "mwLat": mwLat, "mwLon": mwLon}
+                db.session.add(Delivery(**delivery))
+                db.session.commit()
+
             return jsonify(
                 {
                     "code": 200,
@@ -1556,15 +1580,16 @@ def matchingAlgorithm(donationID):
 # region DELIVERY
 @app.route("/getDeliveryRequests")
 def getDeliveryRequests():
-    deliveryRequests = Matches.query.join(Delivery, Delivery.matchID == Matches.matchID).join(
-        Request, Matches.reqID == Request.reqID).add_columns(
-        Delivery.matchID, Delivery.driverID, Matches.migrantID, 
-        Request.postalCode, Delivery.status).distinct()
-    data = []
-    for delivery in deliveryRequests:
-        deliveryRow = delivery._asdict()
-        deliveryRow.pop("Matches")
-        data.append(deliveryRow)
+    deliveryRequests = Delivery.query.all()
+    # deliveryRequests = Matches.query.join(Delivery, Delivery.matchID == Matches.matchID).join(
+    #     Request, Matches.reqID == Request.reqID).add_columns(
+    #     Delivery.matchID, Delivery.driverID, Matches.migrantID, 
+    #     Request.postalCode, Delivery.status).distinct()
+    data = [delivery.json() for delivery in deliveryRequests]
+    # for delivery in deliveryRequests:
+        # deliveryRow = delivery._asdict()
+        # deliveryRow.pop("Matches")
+        # data.append(deliveryRow)
     columns = list(data[0].keys())
     if deliveryRequests:
         return jsonify(
@@ -1583,9 +1608,9 @@ def getDeliveryRequests():
 
 @app.route("/getDeliveryRequests/<matchID>")
 def getDeliveryRequestsByMatchID(matchID):
-    deliveryRequest = Delivery.query.filter_by(matchID=matchID).join(Matches, Delivery.matchID == Matches.matchID).join(
-        Request, Matches.reqID == Request.reqID).add_columns(Delivery.matchID, Delivery.driverID, Matches.migrantID, 
-        Request.postalCode, Delivery.status).first()
+    deliveryRequest = Delivery.query.filter_by(matchID=matchID).first()
+    # deliveryRequest = Delivery.query.filter_by(matchID=matchID).join(Matches, Delivery.matchID == Matches.matchID).join(
+    #     Request, Matches.reqID == Request.reqID).add_columns(Delivery.matchID, Delivery.driverID, Matches.migrantID, Delivery.status).first()
     columns = list(deliveryRequest.keys())
     columns.pop(0)
     if deliveryRequest:
@@ -1605,35 +1630,37 @@ def getDeliveryRequestsByMatchID(matchID):
         }
     ), 404
 
-def getDeliveryLocations():
-    deliveryLocations = Matches.query.join(Delivery, Delivery.matchID == Matches.matchID).join(
-        Request, Matches.reqID == Request.reqID).add_columns(Request.postalCode).distinct()
-    data = []
-    for location in deliveryLocations:
-        deliveryLoc = location._asdict()
-        deliveryLoc.pop("Matches")
-        data.append(list(deliveryLoc.values())[0])
-    return data
+# def getDeliveryLocations():
+#     deliveryLocations = Matches.query.join(Delivery, Delivery.matchID == Matches.matchID).join(
+#         Request, Matches.reqID == Request.reqID).add_columns(Request.postalCode).distinct()
+#     data = []
+#     for location in deliveryLocations:
+#         deliveryLoc = location._asdict()
+#         deliveryLoc.pop("Matches")
+#         data.append(list(deliveryLoc.values())[0])
+#     return data
 
 @app.route("/getDeliveryLocationsLatLng")
 def getDeliveryLocationsLatLng():
-    deliveryLocList = getDeliveryLocations()
-    if len(deliveryLocList) > 0:
-        deliveryLocationsLatLng = []
-        apikey = ""
-        for loc in deliveryLocList:
-            geocodeAPI = "https://maps.googleapis.com/maps/api/geocode/json?address=" + loc + "&components=country:SG&key=" + apikey
-            response = requests.get(geocodeAPI)
-            lat = response.json()["results"][0]["geometry"]["location"]["lat"]
-            lon = response.json()["results"][0]["geometry"]["location"]["lng"]
-            deliveryLocationsLatLng.append({"lat": lat, "lng": lon})
-        deliveryLocationsLatLng = [{"lat": 1.368042, "lng": 103.9563529}, {"lat": 1.366873, "lng": 103.954398}]
-        return jsonify(
-            {
-                "code": 200,
-                "data": deliveryLocationsLatLng
-            }
-        )
+    deliveryRequests = Delivery.query.all()
+    donorLocs = []
+    mwLocs = []
+    for delivery in deliveryRequests:
+        dLat = delivery.dLat
+        dLon = delivery.dLon
+        donorLoc = {"lat": dLat, "lng": dLon}
+        donorLocs.append({"coords": donorLoc})
+        mwLat = delivery.mwLat
+        mwLon = delivery.mwLon
+        mwLoc = {"lat": mwLat, "lng": mwLon}
+        mwLocs.append({"coords": mwLoc})
+    return jsonify(
+        {
+            "code": 200,
+            "donorLocs": donorLocs,
+            "mwLocs": mwLocs
+        }
+    )
 
 
 @app.route("/updateDeliveryRequest/<matchID>", methods=["PUT"])

@@ -100,7 +100,11 @@ DROP TABLE IF EXISTS `delivery`;
 CREATE TABLE IF NOT EXISTS `delivery` (
   `matchID` int NOT NULL,
   `status` varchar(50) NOT NULL,
-  `driverID` int NOT NULL,
+  `driverID` int,
+  `dLat` varchar(50) NOT NULL,
+  `dLon` varchar(50) NOT NULL,
+  `mwLat` varchar(50) NOT NULL,
+  `mwLon` varchar(50) NOT NULL,
   PRIMARY KEY (`matchID`),
   FOREIGN KEY (`matchID`) references matches (`matchID`),
   FOREIGN KEY (`driverID`) references user (`username`)

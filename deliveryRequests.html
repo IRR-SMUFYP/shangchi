@@ -127,6 +127,8 @@
         <section class="pt-0">
             <div class="container">
                 <div id="map"></div>
+                <input hidden id="donorLocs" type="text">
+                <input id="mwLocs" type="hidden" value="">
             </div>
         </section>
 
@@ -209,7 +211,7 @@
     <script src="assets/js/main.js"></script>
 
     <!-- Google Maps API -->
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyA9mydsAErbl6NbLQsfJ6pjQDtU85bZtb8&callback=initMap" async></script>    
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAQylV8VWBb_33Y5AioCCiu3r9t1vnRJ8k&callback=initMap" async></script>    
 
 
     <script>
@@ -221,36 +223,6 @@
             {coords: { lat: 1.3414, lng: 103.9633 }}, // sutd
             {coords: { lat: 1.2963, lng: 103.8502 }} // smu
         ];
-
-        function initMap() {
-            // map settings
-            const map = new google.maps.Map(document.getElementById("map"), {
-                zoom: 11,
-                center: { lat: 1.3521, lng: 103.8198 },
-            });
-
-            // add marker function
-            function addMarker(props) {
-                var marker = new google.maps.Marker({
-                    position: props.coords,
-                    map: map,
-                });
-
-                if (props.content) {
-                    var infoWindow = new google.maps.InfoWindow({
-                        content: props.content
-                    });
-                    marker.addListener("click", function () {
-                        infoWindow.open(map, marker);
-                    });
-                }
-            }
-
-            for (i = 0; i < locations.length; i++) {
-                addMarker(locations[i]);
-            }
-
-        }
 
         var columns = [];
         function getDT() {
@@ -289,9 +261,73 @@
             })
         }
 
+        function getLatLng() {
+            $.ajax({
+                url: "http://127.0.0.1:5003/getDeliveryLocationsLatLng",
+                success: function (data) {
+                    donorLocsElemVal = document.getElementById("donorLocs").value;
+                    donorLocsElemVal = JSON.stringify(data.donorLocs).replace("[", "").replace("]", "");
+                    mwLocsElemVal = document.getElementById("mwLocs").value;
+                    mwLocsElemVal = JSON.stringify(data.mwLocs).replace("[", "").replace("]", "");
+                    
+                },
+                error: function () {
+                    console.log("error");
+                }
+            })
+
+        }
+
         $(document).ready(function() {
             getDT();
+            getLatLng();
         } );
+
+        function initMap() {
+            // map settings
+            const map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 11,
+                center: { lat: 1.3521, lng: 103.8198 },
+            });
+
+            // add marker function
+            function addMarker(props, type) {
+                var marker = new google.maps.Marker({
+                    position: props.coords,
+                    map: map,
+                });
+
+                if (type == "mw") {
+                    var marker = new google.maps.Marker({
+                        position: props.coords,
+                        map: map,
+                        icon: "https://www.google.com/url?sa=i&url=https%3A%2F%2Fhellogoldcoast.com.au%2Fgold-coast-with-toddlers%2Flocation-icon-2%2F&psig=AOvVaw3aFTWRdtUxTiUxHI44ttxd&ust=1653578888479000&source=images&cd=vfe&ved=0CAwQjRxqFwoTCMiaocj7-vcCFQAAAAAdAAAAABAD"
+                    });
+                }
+
+                if (props.content) {
+                    var infoWindow = new google.maps.InfoWindow({
+                        content: props.content
+                    });
+                    marker.addListener("click", function () {
+                        infoWindow.open(map, marker);
+                    });
+                }
+            }
+
+            console.log(document.getElementById("donorLocs").value);
+
+            donorLocs = [document.getElementById("donorLocs").value];
+            console.log(donorLocs);
+            mwLocs = [document.getElementById("mwLocs").value];
+            console.log(mwLocs);
+            for (i = 0; i < donorLocs.length; i++) {
+                addMarker(donorLocs[i]);
+                addMarker(mwLocs[i], "mw");
+            }
+
+
+        }
 
         function login() {
             let errorArr = []
