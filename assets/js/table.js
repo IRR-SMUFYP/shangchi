@@ -19,27 +19,35 @@ $(document).ready(function() {
 } );    
 
 function editSpecificRow(form) {
-    document.getElementById("edit-section").innerHTML += "<br>" + 
+    if (document.getElementById("save-btn") == null) {
+        document.getElementById("edit-section").innerHTML += "<br>" + 
                                                             "<button type='button' id='save-btn' class='btn btn-outline-secondary' onclick='edit" + form + "()'>Save Changes</button>" 
+    }
     $("#edit-section").show();
-    $("#donation").hide();
+    $("#del-section").hide();
     if (form == "Inventory") {
         document.querySelector('[placeholder="donationID"]').setAttribute("onchange", "fillDonationDetails(this.value)");
         document.getElementById("edit-photo").style.display = "none";
+        $("#donation").hide();
     }
     else if (form == "Wishlist") {
         document.querySelector('[placeholder="wishlistID"]').setAttribute("onchange", "fillWishlistDetails(this.value)");
+        $("#wishlist").hide();
     }
     else if (form == "Request") {
         document.querySelector('[placeholder="reqID"]').setAttribute("onchange", "fillRequestDetails(this.value)");
+        $("#request").hide();
     }
     else if (form == "SuccessfulMatches") {
         document.querySelector('[placeholder="matchID"]').setAttribute("onchange", "fillSuccessfulMatchesDetails(this.value)");
+        $("#successfulMatch").hide();
     }
     else if (form == "Accounts") {
         document.querySelector('[placeholder="username"]').setAttribute("onchange", "fillUserDetails(this.value)");
+        $("#account").hide();
     }
     else if (form == "DeliveryRequest") {
+        $("#deliveryRequest").hide();
         document.querySelector('[placeholder="matchID"]').setAttribute("onchange", "fillDeliveryRequestDetails(this.value)");
     }
 }
@@ -94,6 +102,7 @@ async function getDropDownCat() {
 
 async function retrieveFormAdmin(formName) {
     document.getElementById("edit-section").style.display = "none";
+    document.getElementById("del-section").style.display = "none";
     if (formName == "request") {
         $("#request").show();
     }
@@ -116,101 +125,97 @@ async function retrieveFormAdmin(formName) {
             document.getElementById("wishlist").style.display = "block";
         }
     
-        try {
-            // Retrieve list of all fields
-            const response =
-                await fetch(
-                    serviceURL, {
-                        method: 'GET'
+        if (document.getElementById(formName).innerHTML == "") {
+            try {
+                // Retrieve list of all fields
+                const response =
+                    await fetch(
+                        serviceURL, {
+                            method: 'GET'
+                        }
+                    );
+                const result = await response.json();
+                if (response.ok) {
+                    // success case
+                    var allFields = result.data.items;
+                    for (field of allFields) {
+                        if (field.fieldType == "radio") {
+                            buildRadio(field);
+                        }
+                        if (field.fieldType == "text") {
+                            buildText(field);
+                        }
+                        if (field.fieldType == "checkbox") {
+                            buildCheckbox(field);
+                        }
+                        if (field.fieldType == "file") {
+                            buildFile(field);
+                        }
+                        if (field.fieldType == "dropdown") {
+                            buildDropdown(field);
+                        }
+                        if (field.fieldType == "number") {
+                            buildNumber(field);
+                        }
                     }
-                );
-            const result = await response.json();
-            if (response.ok) {
-                // success case
-                var allFields = result.data.items;
-                for (field of allFields) {
-                    if (field.fieldType == "radio") {
-                        buildRadio(field);
-                    }
-                    if (field.fieldType == "text") {
-                        buildText(field);
-                    }
-                    if (field.fieldType == "checkbox") {
-                        buildCheckbox(field);
-                    }
-                    if (field.fieldType == "file") {
-                        buildFile(field);
-                    }
-                    if (field.fieldType == "dropdown") {
-                        buildDropdown(field);
-                    }
-                    if (field.fieldType == "number") {
-                        buildNumber(field);
-                    }
+        
+                    var contactField = `<div id="contactField" class="col-md-6">
+                                            <label for="contactNo" class="form-label">Contact Number</label>
+                                            <input required type="number" class="form-control" id="contactNo" value="undefined" name="contactNo">
+                                        </div>`
+                    var itemNameField = `<!--On change of this dropdown, auto get item names listed under this category-->
+                                        <div class="col-6">
+                                            <label for="itemCategoryOptions" class="form-label">Item Category</label>
+                                            <select onchange="populateSubCat(this)" class="form-select" id="itemCategoryOptions" name="category"
+                                                required>
+                                                <!--Dynamically dropdown categories listed in existing db-->
+                                            </select>
+                                        </div>`
+                    var subCatField = `<div class="col-6">
+                                            <label for="subCatOptions" class="form-label">Sub-Category</label>
+                                            <select onchange="populateItemNames(this)" class="form-select" id="subCatOptions" name="subcat"
+                                                required>
+                                                <!--Dynamically dropdown subcats listed in existing db-->
+                                            </select>
+                                        </div>`
+                    var catField = `<!--Option value for item name needs to be dynamic, based on category-->
+                                        <div class="col-6">
+                                            <label for="itemNameOptions" class="form-label">Item Name</label>
+                                            <select class="form-select" id="itemNameOptions" name="itemName" required>
+                                                <!--Dynamically update item names-->
+                                            </select>
+                                        </div>`;
+                    var addButton = `<br><button id="submitBtn" type="button" onclick="submitForm('${formName}', form)" class="btn btn-outline-secondary col-2">Submit</button>`
+                    
+                    document.getElementById(formName).innerHTML += contactField + itemNameField + subCatField + catField + addButton;
+        
+                    getDropDownCat().then(function autoPopCategories(result) {
+                        var catList = result
+                
+                        // reset dropdown fields
+                        $('#itemCategoryOptions').html("")
+                        $('#itemNameOptions').html("")
+                        $('#subCatOptions').html("")
+                
+                        // Start off with an empty selected option for category
+                        $('#itemCategoryOptions').append(`<option disabled selected> </option>`)
+                        $('#subCatOptions').append("<option disabled selected> Please select a category first </option>")
+                        $('#itemNameOptions').append("<option disabled selected> Please select a sub-category first </option>")
+                
+                        for (cat of catList) {
+                            $('#itemCategoryOptions').append(`
+                                <option value="${cat}">${cat}</option>
+                            `)
+                        }
+                    })     
                 }
-    
-                // if edit page --> change as needed
-                // if ($('body').is('.editForm')) {
-                //     addIcons(formName);
-                // }
-    
-                var contactField = `<div id="contactField" class="col-md-6">
-                                        <label for="contactNo" class="form-label">Contact Number</label>
-                                        <input required type="number" class="form-control" id="contactNo" value="undefined" name="contactNo">
-                                    </div>`
-                var itemNameField = `<!--On change of this dropdown, auto get item names listed under this category-->
-                                    <div class="col-6">
-                                        <label for="itemCategoryOptions" class="form-label">Item Category</label>
-                                        <select onchange="populateSubCat(this)" class="form-select" id="itemCategoryOptions" name="category"
-                                            required>
-                                            <!--Dynamically dropdown categories listed in existing db-->
-                                        </select>
-                                    </div>`
-                var subCatField = `<div class="col-6">
-                                        <label for="subCatOptions" class="form-label">Sub-Category</label>
-                                        <select onchange="populateItemNames(this)" class="form-select" id="subCatOptions" name="subcat"
-                                            required>
-                                            <!--Dynamically dropdown subcats listed in existing db-->
-                                        </select>
-                                    </div>`
-                var catField = `<!--Option value for item name needs to be dynamic, based on category-->
-                                    <div class="col-6">
-                                        <label for="itemNameOptions" class="form-label">Item Name</label>
-                                        <select class="form-select" id="itemNameOptions" name="itemName" required>
-                                            <!--Dynamically update item names-->
-                                        </select>
-                                    </div>`;
-                var addButton = `<br><button type="button" onclick="submitForm('${formName}', form)" class="btn btn-outline-secondary col-2">Submit</button>`
-    
-                // document.getElementById('contactField').innerHTML += contactField;
-                document.getElementById(formName).innerHTML += contactField + itemNameField + subCatField + catField + addButton;
-    
-                getDropDownCat().then(function autoPopCategories(result) {
-                    var catList = result
-            
-                    // reset dropdown fields
-                    $('#itemCategoryOptions').html("")
-                    $('#itemNameOptions').html("")
-                    $('#subCatOptions').html("")
-            
-                    // Start off with an empty selected option for category
-                    $('#itemCategoryOptions').append(`<option disabled selected> </option>`)
-                    $('#subCatOptions').append("<option disabled selected> Please select a category first </option>")
-                    $('#itemNameOptions').append("<option disabled selected> Please select a sub-category first </option>")
-            
-                    for (cat of catList) {
-                        $('#itemCategoryOptions').append(`
-                            <option value="${cat}">${cat}</option>
-                        `)
-                    }
-                })     
-            }
-        } catch (error) {
-            // Errors when calling the service; such as network error, 
-            // service offline, etc
-            console.log(error)
-            alert('There is a problem retrieving data, please refresh the page or try again later.');
-        } // error
+            } catch (error) {
+                // Errors when calling the service; such as network error, 
+                // service offline, etc
+                console.log(error)
+                alert('There is a problem retrieving data, please refresh the page or try again later.');
+            } // error
+        }
     }
 }
 
@@ -272,6 +277,7 @@ function addRow(formName) {
 
 function deleteRow(formName) {
     document.getElementById(formName).style.display = "none";
+    document.getElementById("del-section").style.display = "block";
     if (formName == "donation") {
         id = "donationID"
     }
@@ -290,13 +296,14 @@ function deleteRow(formName) {
     else if (formName == "deliveryRequest") {
         id = "matchID (delivery)"
     }
-    document.getElementById("edit-section").innerHTML = `<div class='col-md-6'>
+    document.getElementById("del-section").innerHTML = `<div class='col-md-6'>
                                                             <label for="${id}" class="form-label">${id}</label>
                                                             <input required type="text" class="form-control" id="${id}" placeholder="${id}"> 
                                                             <br>
-                                                            <button type='button' id='save-btn' class='btn btn-outline-secondary' onclick='confirmDeleteRow("${id}")'>Delete Row</button>
+                                                            <button type='button' id='del-btn' class='btn btn-outline-secondary' onclick='confirmDeleteRow("${id}")'>Delete Row</button>
                                                         </div>`;
-    document.getElementById("edit-section").style.display = "block";
+    document.getElementById("edit-section").style.display = "none";
+    document.getElementById("edit-photo").style.display = "none";
 }
 
 function confirmDeleteRow(id) {
