@@ -114,6 +114,8 @@ CREATE TABLE IF NOT EXISTS `delivery` (
 -- INSERT values
 INSERT INTO user (`username`, `password`, `usertype`) VALUES 
 (93261073, '$2b$12$hPh2gudOwUvmBs18PBa.deDRGOLiiDXuSkCV5qkA056I/n97blTJG', 'master');
+INSERT INTO user (`username`, `password`, `usertype`) VALUES 
+(92227111, '$2b$12$AaqhM8IWhj5fLJU5rnE.3OAo.XGEg0hvtdMXFR9H82OcYfuKq7Wte', 'driver');
 
 
 -- for faq
