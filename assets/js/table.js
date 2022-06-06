@@ -363,3 +363,125 @@ function confirmDeleteRow(id) {
 
 }
 
+function deliveryButtons(action, id) {
+    document.getElementById(id).innerHTML = "";
+    document.getElementById(id).style.display = "none";
+    if (action == "accept") {
+        document.getElementById(id).innerHTML = '<div class="row">' + 
+                                                    '<div class="col-6">' + 
+                                                        '<label for="matchID">matchID</label>' +
+                                                        '<input class="form-control mb-2" type="text" placeholder="matchID" id="donationID">' + 
+                                                    '</div>' +
+                                                '</div>' +
+                                                '<div class="row">' +
+                                                    '<div class="col-6">' +
+                                                        '<button type="button" id="acceptDelivery" class="btn btn-outline-secondary col-3" onclick="acceptDelivery()">Accept</button>' +
+                                                    '</div>' +
+                                                '</div>';
+        document.getElementById(id).style.display = "";
+    }
+    else if (action == "update") {
+        document.getElementById(id).innerHTML = '<div class="row">' + 
+                                                    '<div class="col-6">' + 
+                                                        '<label for="matchID">matchID</label>' +
+                                                        '<input class="form-control mb-2" type="text" placeholder="matchID" id="matchID">' + 
+                                                    '</div>' +
+                                                    '<div class="col-6">' + 
+                                                        '<label for="status">status</label>' +
+                                                        '<input class="form-control mb-2" type="text" placeholder="matchID" id="status">' + 
+                                                    '</div>' +
+                                                '</div>' +
+                                                '<div class="row">' +
+                                                    '<div class="col-6">' +
+                                                        '<button type="button" id="updateDelivery" class="btn btn-outline-secondary col-3" onclick="updateDelivery()">Update</button>' +
+                                                    '</div>' +
+                                                '</div>';    
+        document.getElementById(id).style.display = "";
+    }
+}
+
+function acceptDelivery() {
+    $(async () => {
+        matchID = document.getElementById("matchID").value
+        serviceURL = "http://127.0.0.1:5003/acceptDelivery/" + matchID;
+        if (matchID == "") {
+            alert("Please enter a valid input.");
+            return "blank ID";
+        }
+        else {
+            driverID = ""
+            data = {"driverID": driverID}
+            try {
+                const response =
+                await fetch(
+                    serviceURL, { 
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                if (response.status == 200) {
+                    // success case
+                    alert("The delivery has been accepted successfully.")
+                    window.location.reload();
+                }
+                else if (response.status == 404) {
+                    alert("There is no such row in the database, please enter a valid ID.")
+                }
+                else {
+                    alert("There is a problem accepting the delivery. Please try again later.");
+                }
+            }
+            catch (error) {
+                // Errors when calling the service; such as network error, 
+                // service offline, etc
+                alert('There is a problem deleting the data, please try again later.');
+            } // error    
+    
+        }
+    });
+    
+}
+
+function updateDelivery() {
+    $(async () => {
+        matchID = document.getElementById("matchID").value;
+        serviceURL = "http://127.0.0.1:5003/updateDelivery/" + matchID;
+        if (matchID == "") {
+            alert("Please enter a valid input.");
+            return "blank ID";
+        }
+        else {
+            deliveryStatus = document.getElementById("status").value;
+            data = {"status": deliveryStatus};
+            try {
+                const response =
+                await fetch(
+                    serviceURL, { 
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json'},
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                if (response.status == 200) {
+                    // success case
+                    alert("The data has been updated successfully.")
+                    window.location.reload();
+                }
+                else if (response.status == 404) {
+                    alert('There is no such row in the database, please enter a valid ID.')
+                }
+                else {
+                    alert(`There is a problem updating the data. Please ensure that the item you are deleting is not tagged to any requests, matches and delivery data. If it is, please delete those data in the respective tables first.`);
+                }
+            }
+            catch (error) {
+                // Errors when calling the service; such as network error, 
+                // service offline, etc
+                alert('There is a problem updating the data, please try again later.');
+            } // error    
+    
+        }
+    });
+    
+}

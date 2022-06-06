@@ -1630,16 +1630,6 @@ def getDeliveryRequestsByMatchID(matchID):
         }
     ), 404
 
-# def getDeliveryLocations():
-#     deliveryLocations = Matches.query.join(Delivery, Delivery.matchID == Matches.matchID).join(
-#         Request, Matches.reqID == Request.reqID).add_columns(Request.postalCode).distinct()
-#     data = []
-#     for location in deliveryLocations:
-#         deliveryLoc = location._asdict()
-#         deliveryLoc.pop("Matches")
-#         data.append(list(deliveryLoc.values())[0])
-#     return data
-
 @app.route("/getDeliveryLocationsLatLng")
 def getDeliveryLocationsLatLng():
     deliveryRequests = Delivery.query.all()
@@ -1661,41 +1651,6 @@ def getDeliveryLocationsLatLng():
             "mwLocs": mwLocs
         }
     )
-
-
-@app.route("/updateDeliveryRequest/<matchID>", methods=["PUT"])
-def updateDeliveryRequest(matchID):
-    deliveryRequest = Delivery.query.filter_by(matchID=matchID).join(Matches, Delivery.matchID == Matches.matchID).join(
-        Request, Matches.reqID == Request.reqID).add_columns(Delivery.matchID, Delivery.driverID, Matches.migrantID, 
-        Request.postalCode, Delivery.status).first()
-    data = request.get_json()
-    print(data)
-    columns = list(deliveryRequest.keys())
-    columns.pop(0)
-    if (deliveryRequest is None):
-        return jsonify( 
-            {
-                "code": 404,
-                "message": "This matchID is not found in the database."
-            }
-        )
-    else:
-        deliveryReq = Delivery.query.filter_by(matchID=matchID).first()
-        match = Matches.query.filter_by(matchID=matchID).first()
-        req = Request.query.filter_by(reqID=match.reqID).first()
-        migrantWorker = User.query.filter_by(username=match.migrantID).first()
-        req.postalCode = data['postalCode']
-        db.session.add(req)
-        db.session.commit()
-        deliveryReq.status = data['status']
-        db.session.add(deliveryReq)
-        db.session.commit()
-        return jsonify(
-            {
-                "code": 200,
-                "message": "Match successfully updated."
-            }
-        )
 
 @app.route("/addDeliveryRequest", methods=['POST'])
 def addDeliveryRequest():
@@ -1746,6 +1701,52 @@ def deleteDeliveryRequest(matchID):
             {
                 "code": 500,
                 "message": "An error occurred while deleting the data, please try again later"
+            }
+        ), 500
+
+@app.route("/acceptDelivery/<matchID>", methods=["PUT"])
+def acceptDeliveryRequest(matchID):
+    delivery = Delivery.query.filter_by(matchID=matchID).first()
+    data = request.get_json()
+    delivery.driverID = data['driverID']
+    try:
+        db.session.add(delivery)
+        db.session.commit()
+        return jsonify (
+            {
+                "code": 200,
+                "message": "Driver accepted delivery successfully!"
+            }
+        )
+    except Exception as e:
+        print(e)
+        return jsonify(
+            {
+                "code": 500,
+                "message": "An error occurred while accepting the delivery, please try again later"
+            }
+        ), 500
+
+@app.route("/updateDelivery/<matchID>", methods=["PUT"])
+def updateDeliveryRequest(matchID):
+    delivery = Delivery.query.filter_by(matchID=matchID).first()
+    data = request.get_json()
+    delivery.status = data['status']
+    try:
+        db.session.add(delivery)
+        db.session.commit()
+        return jsonify (
+            {
+                "code": 200,
+                "message": "Driver updated delivery status successfully!"
+            }
+        )
+    except Exception as e:
+        print(e)
+        return jsonify(
+            {
+                "code": 500,
+                "message": "An error occurred while updating the delivery status, please try again later"
             }
         ), 500
 
