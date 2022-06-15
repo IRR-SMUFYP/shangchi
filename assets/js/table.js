@@ -370,7 +370,7 @@ function deliveryButtons(action, id) {
         document.getElementById(id).innerHTML = '<div class="row">' + 
                                                     '<div class="col-6">' + 
                                                         '<label for="matchID">matchID</label>' +
-                                                        '<input class="form-control mb-2" type="text" placeholder="matchID" id="donationID">' + 
+                                                        '<input class="form-control mb-2" type="text" placeholder="matchID" id="matchID">' + 
                                                     '</div>' +
                                                 '</div>' +
                                                 '<div class="row">' +
@@ -388,7 +388,11 @@ function deliveryButtons(action, id) {
                                                     '</div>' +
                                                     '<div class="col-6">' + 
                                                         '<label for="status">status</label>' +
-                                                        '<input class="form-control mb-2" type="text" placeholder="matchID" id="status">' + 
+                                                        '<select required class="form-select" id="status" name="status">' + 
+                                                            '<option value="Assigned">Assigned</option>' +
+                                                            '<option value="Out for Delivery">Out for Delivery</option>' +
+                                                            '<option value="Delivered">Delivered</option>' +
+                                                        '</select>' +
                                                     '</div>' +
                                                 '</div>' +
                                                 '<div class="row">' +
@@ -402,15 +406,18 @@ function deliveryButtons(action, id) {
 
 function acceptDelivery() {
     $(async () => {
+        var driver = JSON.parse(sessionStorage.getItem("user"))
+        var driverNo = driver.username;
         matchID = document.getElementById("matchID").value
+        console.log(matchID);
         serviceURL = "http://127.0.0.1:5003/acceptDelivery/" + matchID;
         if (matchID == "") {
             alert("Please enter a valid input.");
             return "blank ID";
         }
         else {
-            driverID = ""
-            data = {"driverID": driverID}
+            console.log(driverNo);
+            data = {"driverID": driverNo}
             try {
                 const response =
                 await fetch(
@@ -435,7 +442,7 @@ function acceptDelivery() {
             catch (error) {
                 // Errors when calling the service; such as network error, 
                 // service offline, etc
-                alert('There is a problem deleting the data, please try again later.');
+                alert('There is a problem accepting the delivery, please try again later.');
             } // error    
     
         }

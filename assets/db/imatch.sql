@@ -103,8 +103,10 @@ CREATE TABLE IF NOT EXISTS `delivery` (
   `driverID` int,
   `dLat` varchar(50) NOT NULL,
   `dLon` varchar(50) NOT NULL,
+  `dPostal` varchar(50) NOT NULL,
   `mwLat` varchar(50) NOT NULL,
   `mwLon` varchar(50) NOT NULL,
+  `mwPostal` varchar(50) NOT NULL,
   PRIMARY KEY (`matchID`),
   FOREIGN KEY (`matchID`) references matches (`matchID`),
   FOREIGN KEY (`driverID`) references user (`username`)
