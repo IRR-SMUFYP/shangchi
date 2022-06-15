@@ -11,7 +11,7 @@ import bcrypt
 import random
 import requests
 import json
-# import config
+import config
 import uuid
 # from dotenv import load_dotenv
 # load_dotenv()
@@ -138,12 +138,15 @@ class Delivery(db.Model):
     driverID = db.Column(db.Integer)
     dLat = db.Column(db.String(50), nullable=False)
     dLon = db.Column(db.String(50), nullable=False)
+    dPostal = db.Column(db.String(50), nullable=False)
     mwLat = db.Column(db.String(50), nullable=False)
     mwLon = db.Column(db.String(50), nullable=False)
+    mwPostal = db.Column(db.String(50), nullable=False)
 
     def json(self):
         return { "matchID": self.matchID, "status": self.status, "driverID": self.driverID, "dLat": self.dLat,
-                 "dLon": self.dLon, "mwLat": self.mwLat, "mwLon": self.mwLon }
+                 "dLon": self.dLon, "dPostal": self.dPostal, "mwLat": self.mwLat, "mwLon": self.mwLon, 
+                 "mwPostal": self.mwPostal }
 
 class Faq(db.Model):
     __tablename__ = 'faq'
@@ -1442,17 +1445,19 @@ def shortestDistance(mwPoints, needCheckDist, donationID):
                 donorPlace_id = response1.json()["results"][0]["place_id"]
                 dLat = response1.json()["results"][0]["geometry"]["location"]["lat"]
                 dLon = response1.json()["results"][0]["geometry"]["location"]["lng"]
+                dPostal = response1.json()["results"][0]["address_components"][0]["long_name"]
             geocodeAPI2 = "https://maps.googleapis.com/maps/api/geocode/json?address=" + mwLoc + "&components=country:SG&key=" + apikey
             response2 = requests.get(geocodeAPI2)
             if response2.status_code == 200:
                 mwPlace_id = response2.json()["results"][0]["place_id"]
                 mwLat = response2.json()["results"][0]["geometry"]["location"]["lat"]
                 mwLon = response2.json()["results"][0]["geometry"]["location"]["lng"]
+                mwPostal = response2.json()["results"][0]["address_components"][0]["long_name"]
             distanceAPI = "https://maps.googleapis.com/maps/api/distancematrix/json?destinations=place_id:" + donorPlace_id + "&origins=place_id:" + mwPlace_id + "&key=" + apikey
             response3 = requests.get(distanceAPI)
             # value is the distance in meters
             if response3.status_code == 200:
-                # print(response3.json()["rows"][0]["elements"][0]["distance"]["value"])
+                print(response3.json()["rows"][0]["elements"][0]["distance"]["value"])
                 distance = response3.json()["rows"][0]["elements"][0]["distance"]["value"]
                 if distance not in mwDist.keys():
                     mwDist[distance] = [mw]
@@ -1475,7 +1480,8 @@ def shortestDistance(mwPoints, needCheckDist, donationID):
         # mwPoints dict to minus the points they currently have
         for n in nearestMW:
             mwPoints[n] -= 1
-    return {"mwPoints": mwPoints, "dLat": dLat, "dLon": dLon, "mwLat": mwLat, "mwLon": mwLon}
+    return {"mwPoints": mwPoints, "dLat": dLat, "dLon": dLon, "dPostal": dPostal,
+            "mwLat": mwLat, "mwLon": mwLon, "mwPostal": mwPostal}
 
 def timeSinceLastMatch(mwPoints):
     timeNow = datetime.now()
@@ -1527,8 +1533,10 @@ def matchingAlgorithm(donationID):
         newMWPoints = shortestDistanceResult["mwPoints"]
         dLat = shortestDistanceResult["dLat"]
         dLon = shortestDistanceResult["dLon"]
+        dPostal = shortestDistanceResult["dPostal"]
         mwLat = shortestDistanceResult["mwLat"]
         mwLon = shortestDistanceResult["mwLon"]
+        mwPostal = shortestDistanceResult["mwPostal"]
 
         # CRITERIA 4: HOW LONG SINCE THEIR LAST MATCH
         finalMWs = timeSinceLastMatch(newMWPoints)
@@ -1558,7 +1566,8 @@ def matchingAlgorithm(donationID):
             deliveryRequired = FormAnswers.query.filter_by(submissionID=donationID).filter_by(fieldID=6).first().answer
             if deliveryRequired == "Delivery required":
                 matchID = Matches.query.filter_by(reqID=reqID).first().matchID
-                delivery = {"matchID": matchID, "status": "available", "dLat": dLat, "dLon": dLon, "mwLat": mwLat, "mwLon": mwLon}
+                delivery = {"matchID": matchID, "status": "Available", "dLat": dLat, "dLon": dLon, "dPostal": dPostal,
+                            "mwLat": mwLat, "mwLon": mwLon, "mwPostal": mwPostal}
                 db.session.add(Delivery(**delivery))
                 db.session.commit()
 
@@ -1581,21 +1590,41 @@ def matchingAlgorithm(donationID):
 @app.route("/getDeliveryRequests")
 def getDeliveryRequests():
     deliveryRequests = Delivery.query.all()
-    # deliveryRequests = Matches.query.join(Delivery, Delivery.matchID == Matches.matchID).join(
-    #     Request, Matches.reqID == Request.reqID).add_columns(
-    #     Delivery.matchID, Delivery.driverID, Matches.migrantID, 
-    #     Request.postalCode, Delivery.status).distinct()
-    data = [delivery.json() for delivery in deliveryRequests]
-    # for delivery in deliveryRequests:
-        # deliveryRow = delivery._asdict()
-        # deliveryRow.pop("Matches")
-        # data.append(deliveryRow)
     columns = list(data[0].keys())
     if deliveryRequests:
         return jsonify(
             {
                 "code": 200,
                 "columnHeaders": columns,
+                "data": [delivery.json() for delivery in deliveryRequests]
+            }
+        )
+    return jsonify(
+        {
+            "code": 404,
+            "message": "There are no delivery requests at the moment."
+        }
+    ), 404
+
+@app.route("/getDeliveryRequests/<status>")
+def getDeliveryRequestsByDeliveryStatus(status):
+    deliveryRequests = Delivery.query.filter_by(status=status).with_entities(Delivery.matchID, Delivery.status,
+                        Delivery.driverID, Delivery.dPostal, Delivery.mwPostal).all()
+    data = []
+    for delivery in deliveryRequests:
+        row = {}
+        row["matchID"] = delivery.matchID
+        row["status"] = delivery.status
+        row["driverID"] = delivery.driverID
+        row["donor postal"] = delivery.dPostal
+        row["migrant worker postal"] = delivery.mwPostal
+        data.append(row)
+    columnHeaders = list(data[0].keys())
+    if deliveryRequests:
+        return jsonify(
+            {
+                "code": 200,
+                "columnHeaders": columnHeaders,
                 "data": data
             }
         )
@@ -1609,8 +1638,6 @@ def getDeliveryRequests():
 @app.route("/getDeliveryRequests/<matchID>")
 def getDeliveryRequestsByMatchID(matchID):
     deliveryRequest = Delivery.query.filter_by(matchID=matchID).first()
-    # deliveryRequest = Delivery.query.filter_by(matchID=matchID).join(Matches, Delivery.matchID == Matches.matchID).join(
-    #     Request, Matches.reqID == Request.reqID).add_columns(Delivery.matchID, Delivery.driverID, Matches.migrantID, Delivery.status).first()
     columns = list(deliveryRequest.keys())
     columns.pop(0)
     if deliveryRequest:
@@ -1709,6 +1736,7 @@ def acceptDeliveryRequest(matchID):
     delivery = Delivery.query.filter_by(matchID=matchID).first()
     data = request.get_json()
     delivery.driverID = data['driverID']
+    delivery.status = "Assigned"
     try:
         db.session.add(delivery)
         db.session.commit()
