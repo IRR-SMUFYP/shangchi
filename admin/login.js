@@ -12,7 +12,7 @@ function checkLogin() {
 function checkAdmin() {
     if (sessionStorage.getItem("user") != null && ["admin","master"].includes(JSON.parse(sessionStorage.getItem("user")).userType)) {
         user = JSON.parse(sessionStorage.getItem("user"))
-        console.log(user)
+        // console.log(user)
 
         document.getElementById("loginLogoutButton").innerText = "Logout"
     } else {
@@ -30,7 +30,7 @@ function checkAdmin() {
 function checkDriver() {
     if (sessionStorage.getItem("user") != null && ["driver"].includes(JSON.parse(sessionStorage.getItem("user")).userType)) {
         user = JSON.parse(sessionStorage.getItem("user"))
-        console.log(user)
+        // console.log(user)
 
         document.getElementById("loginLogoutButton").innerText = "Logout"
     } else {
