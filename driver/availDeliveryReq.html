@@ -260,6 +260,12 @@
                     var donorLocs = data.donorLocs;
                     var mwLocs = data.mwLocs;
 
+                    const image = {
+                        url: "../assets/img/map-marker.png",
+                        // This marker is 20 pixels wide by 32 pixels high.
+                        scaledSize: new google.maps.Size(38, 38)
+                    };
+
                     for (var loc of donorLocs) {
                         var marker = new google.maps.Marker({
                             position: { lat: parseFloat(loc.coords.lat), lng: parseFloat(loc.coords.lng) },
@@ -271,7 +277,7 @@
                         var marker = new google.maps.Marker({
                             position: { lat: parseFloat(loc.coords.lat), lng: parseFloat(loc.coords.lng) },
                             map: map,
-                            // icon: "https://hellogoldcoast.com.au/wp-content/uploads/Location-Icon-1.png"
+                            icon: image
                         });
                     }
                 },
