@@ -1590,7 +1590,7 @@ def matchingAlgorithm(donationID):
 @app.route("/getDeliveryRequests")
 def getDeliveryRequests():
     deliveryRequests = Delivery.query.all()
-    columns = list(data[0].keys())
+    columns = Delivery.metadata.tables["delivery"].columns.keys()
     if deliveryRequests:
         return jsonify(
             {
