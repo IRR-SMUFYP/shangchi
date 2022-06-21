@@ -190,6 +190,35 @@ def getAllUsers():
         "columnHeaders": columnHeaders,
         "data": [user.json() for user in users]
     })
+    
+@app.route("/getAllDeliveriesReqs")
+def getAllDReqs():
+    dReqs = Delivery.query.all()
+    columnHeaders = Delivery.metadata.tables["delivery"].columns.keys()
+    return jsonify(
+        {
+        "code": 200,
+        "columnHeaders": columnHeaders,
+        "data": [d.json() for d in dReqs]
+    })
+    
+@app.route("/getDeliveriesByDriverId/<driverID>")
+def getDelReqById(driverID):
+    deliveries = Delivery.query.filter_by(driverID=driverID).first()
+    columnHeaders = Delivery.metadata.tables["delivery"].columns.keys()
+    if (deliveries is None):
+        return jsonify(
+        {
+        "code": 500,
+        "res": "Your delivery request history is empty.",
+    })
+    else:
+        return jsonify(
+            {
+            "code": 200,
+            "columnHeaders": columnHeaders,
+            "data": [d.json() for d in deliveries]
+        })
 
 @app.route("/registermw", methods=['POST'])
 def registerMW():
