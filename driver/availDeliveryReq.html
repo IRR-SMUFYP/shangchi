@@ -93,8 +93,8 @@
 
             <nav id="navbar" class="navbar order-last order-lg-0">
                 <ul>
-                    <li><a class="nav-link" href="../driver/availDeliveryReq.html">Home</a></li>
-                    <li><a class="nav-link" href="../driver/driverViewReq.html">My Delivery Requests</a></li>
+                    <li><a class="nav-link" href="../driver/driverViewReq.html">Home</a></li>
+                    <li><a class="nav-link" href="../driver/availDeliveryReq.html">My Delivery Requests</a></li>
                 </ul>
                 <i class="bi bi-list mobile-nav-toggle"></i>
             </nav><!-- .navbar -->
@@ -117,14 +117,12 @@
             </div>
         </section>
 
-
         <section class="pt-0">
             <div class="container">
                 <div class="table-responsive">
                     <table id="delivery" class="table table-striped table-hover" style="width: 100%"></table>
                 </div>
                 <button type="button" id="edit-btn" href="#" class="mt-2 btn btn-outline-secondary" onclick="deliveryButtons('accept', 'edit-section')" style="display: none">Accept Delivery</button>
-                <button type="button" id="edit-btn2" href="#" class="mt-2 btn btn-outline-secondary" onclick="deliveryButtons('update', 'edit-section')" style="display: none">Update Delivery Status</button>
                 <br><br>
                 <hr>
                 <div id="edit-section" style="display: none"></div>
@@ -201,14 +199,6 @@
 
     <script>
 
-        const locations = [
-            {coords: { lat: 1.3669, lng: 103.9544 }}, // 510121
-            {coords: { lat: 1.2966, lng: 103.7764 }, content: '<h5>NUS</h5>'}, // nus
-            {coords: { lat: 1.3483, lng: 103.6831 }}, // ntu
-            {coords: { lat: 1.3414, lng: 103.9633 }}, // sutd
-            {coords: { lat: 1.2963, lng: 103.8502 }} // smu
-        ];
-
         var columns = [];
         function getDT() {
             $.ajax({
@@ -228,13 +218,10 @@
                     fields["columnDetails"] = data.columnHeaders;
                     getEditDetails(fields);
                     $("#edit-btn").show();
-                    $("#edit-btn2").show();
                     $("#deliveryRequest").hide();
                 },
                 error: function () {
                     $("#edit-btn").hide();
-                    $("#edit-btn3").show();
-                    $("#edit-btn4").hide();
                     $("#deliveryRequest").hide();
                     document.getElementById("edit-section").innerHTML = "There are currently no delivery requests to be found."
                     $("#edit-section").show();
@@ -255,7 +242,7 @@
             });
 
             $.ajax({
-                url: "http://127.0.0.1:5003/getDeliveryLocationsLatLng",
+                url: "http://127.0.0.1:5003/getDeliveryLocationsLatLng/Available",
                 success: function (data) {
                     var donorLocs = data.donorLocs;
                     var mwLocs = data.mwLocs;
