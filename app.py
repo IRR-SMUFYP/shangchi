@@ -191,35 +191,6 @@ def getAllUsers():
         "data": [user.json() for user in users]
     })
     
-@app.route("/getAllDeliveriesReqs")
-def getAllDReqs():
-    dReqs = Delivery.query.all()
-    columnHeaders = Delivery.metadata.tables["delivery"].columns.keys()
-    return jsonify(
-        {
-        "code": 200,
-        "columnHeaders": columnHeaders,
-        "data": [d.json() for d in dReqs]
-    })
-    
-@app.route("/getDeliveriesByDriverId/<driverID>")
-def getDelReqById(driverID):
-    deliveries = Delivery.query.filter_by(driverID=driverID).first()
-    columnHeaders = Delivery.metadata.tables["delivery"].columns.keys()
-    if (deliveries is None):
-        return jsonify(
-        {
-        "code": 500,
-        "res": "Your delivery request history is empty.",
-    })
-    else:
-        return jsonify(
-            {
-            "code": 200,
-            "columnHeaders": columnHeaders,
-            "data": [d.json() for d in deliveries]
-        })
-
 @app.route("/registermw", methods=['POST'])
 def registerMW():
         formData = request.form
@@ -1616,6 +1587,45 @@ def matchingAlgorithm(donationID):
 # endregion
 
 # region DELIVERY
+@app.route("/getAllDeliveriesReqs")
+def getAllDReqs():
+    dReqs = Delivery.query.all()
+    columnHeaders = Delivery.metadata.tables["delivery"].columns.keys()
+    return jsonify(
+        {
+        "code": 200,
+        "columnHeaders": columnHeaders,
+        "data": [d.json() for d in dReqs]
+    })
+    
+@app.route("/getDeliveriesByDriverId/<driverID>")
+def getDelReqById(driverID):
+    deliveries = Delivery.query.filter_by(driverID=driverID)
+    columnHeaders = Delivery.metadata.tables["delivery"].columns.keys()
+    if (deliveries is None):
+        return jsonify(
+        {
+        "code": 500,
+        "res": "Your delivery request history is empty.",
+    })
+    else:
+        data = []
+        for delivery in deliveries:
+            row = {}
+            row["matchID"] = delivery.matchID
+            row["status"] = delivery.status
+            row["driverID"] = delivery.driverID
+            row["donor postal"] = delivery.dPostal
+            row["migrant worker postal"] = delivery.mwPostal
+            data.append(row)
+        columnHeaders = list(data[0].keys())
+        return jsonify(
+            {
+            "code": 200,
+            "columnHeaders": columnHeaders,
+            "data": data
+        })
+
 @app.route("/getDeliveryRequests")
 def getDeliveryRequests():
     deliveryRequests = Delivery.query.all()
@@ -1686,9 +1696,12 @@ def getDeliveryRequestsByMatchID(matchID):
         }
     ), 404
 
-@app.route("/getDeliveryLocationsLatLng")
-def getDeliveryLocationsLatLng():
-    deliveryRequests = Delivery.query.all()
+@app.route("/getDeliveryLocationsLatLng/<status>")
+def getDeliveryLocationsLatLng(status):
+    if status == "Available":
+        deliveryRequests = Delivery.query.filter_by(status=status)
+    else:
+        deliveryRequests = Delivery.query.filter(status!="Available")
     donorLocs = []
     mwLocs = []
     for delivery in deliveryRequests:

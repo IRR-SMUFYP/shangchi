@@ -47,6 +47,20 @@
         integrity="sha384-B0UglyR+jN6CkvvICOB2joaf5I4l3gm9GU6Hc1og6Ls7i6U/mkkaduKaBhlAXv9k" crossorigin="anonymous">
     </script>
 
+    <!-- Maps script -->
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
+
+    <!-- Map Styling -->
+    <style>
+        /* Set the size of the div element that contains the map */
+        #map {
+            height: 400px;
+            /* The height is 400 pixels */
+            width: 100%;
+            /* The width is the width of the web page */
+        }
+    </style>    
+
 </head>
 
 <body onload="checkDriver()">
@@ -79,8 +93,9 @@
 
             <nav id="navbar" class="navbar order-last order-lg-0">
                 <ul>
-                    <li><a class="nav-link" href="adminHomepage.html">Home</a></li>
-                    <li><a class="nav-link" href="adminViewRequests.html">Delivery Requests</a></li>
+                    <li><a class="nav-link" href="../driver/driverViewReq.html">Home</a></li>
+                    <li><a class="nav-link" href="../driver/driverViewReq.html">My Delivery Requests</a></li>
+                    <li><a class="nav-link" href="../driver/availDeliveryReq.html">Available Delivery Requests</a></li>
                 </ul>
                 <i class="bi bi-list mobile-nav-toggle"></i>
             </nav><!-- .navbar -->
@@ -95,92 +110,75 @@
             <div class="section-title">
                 <h2>My Delivery Requests</h2>
             </div>
-
         </section>
-        <section class="inner-page">
+
+        <section class="pt-0">
             <div class="container">
-                <iframe class="mx-auto" width="100%" height="100%" style="border:0" loading="lazy" allowfullscreen
-                    referrerpolicy="no-referrer-when-downgrade"
-                    src="https://www.google.com/maps/embed/v1/place?key=AIzaSyA9mydsAErbl6NbLQsfJ6pjQDtU85bZtb8&q=Space+Needle,Seattle+WA">
-                </iframe>
+                <div id="map"></div>
             </div>
         </section>
 
-        <section id="deliveryBody">
+        <section class="pt-0" id="deliveryBody">
             <div class="container" id="reqTable">
                 <div class="table-responsive">
                     <table id="deliverReq" class="table table-striped table-hover" style="width: 100%"></table>
                 </div>
-                <button type="button" id="update-btn" href="#" class="mt-2 btn btn-outline-secondary"
-                    onclick="editSpecificRow('deliverReq')" style="display: none">Update Delivery Status</button>
-            </div>
-
-            <br><br>
-            <hr>
-            <br>
-            <div id="edit-section" style="display: none">
+                <button type="button" id="edit-btn2" href="#" class="mt-2 btn btn-outline-secondary" onclick="deliveryButtons('update', 'edit-section')" style="display: none">Update Delivery Status</button>
+                <br><br>
+                <hr>
+                <div id="edit-section" style="display: none"></div>
             </div>
         </section>
 
-        <!-- Tableau JS -->
-        <script>
-            var driver = JSON.parse(sessionStorage.getItem("user"))
-            var driverNo = driver.username;
-            // console.log(driverNo);
-
-            var reqTable = document.getElementById('reqTable');
-            
-            var columns = [];
-
-            function getDT() {
-                $.ajax({
-                    url: "http://127.0.0.1:5003/getDeliveriesByDriverId/" + driverNo,
-                    success: function (data) {
-                        if (data.code == 500) {
-                            reqTable.innerHTML = "<h2>" + data.res + "</h2>";
-                        } else {
-                            columnNames = Object.values(data.columnHeaders);
-                            // items = data.data.items;
-                            // console.log(data.data.items)
-                            // editFields = "";
-                            for (var i in columnNames) {
-                                columns.push({
-                                    data: columnNames[i],
-                                    title: columnNames[i]
-                                });
-                            }
-                            var table = $('#deliverReq').DataTable({
-                                data: data.data,
-                                columns: columns,
-                                fixedHeader: true,
-                            });
-                            fields = data.data[0];
-                            fields["columnDetails"] = data.columnHeaders;
-                            getEditDetails(fields);
-                            $("#edit-btn").show();
-                            $("#edit-btn3").show();
-                            $("#edit-btn4").show();
-                            $("#account").hide();
-                        }
-
-                    },
-
-                })
-            }
-
-            $(document).ready(function () {
-                getDT();
-            });
-        </script>
-
-        <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
-        <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
-        <script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap5.min.js"></script>
     </main><!-- End #main -->
+
+    <!-- ======= Footer ======= -->
+    <footer id="footer">
+        <div class="footer-top">
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-3 col-md-6 footer-contact">
+                        <!-- <h3>ItsRainingRaincoats</h3> -->
+                        <img src="../assets/img/logo/cropped-ItsRainingRaincoats-Logo-A-e1615185723991.png"
+                            style="max-width: 200px; max-height: 50px;">
+                        <p style="padding-top: 20px;">
+                            ItsRainingRaincoats (IRR) is a welfare organisation that aims to improve the lives of
+                            migrant workers in Singapore
+                        </p>
+                    </div>
+                    <div class="col-lg-2 col-md-6"></div>
+                    <div class="col-lg-2 col-md-6"></div>
+                    <div class="col-lg-2 col-md-6 footer-links">
+                        <h4>Quick Links</h4>
+                        <hr>
+                        <ul>
+                            <li><a href="/index.html">Home</a></li>
+                            <li><a href="/login.html">Login</a></li>
+                        </ul>
+                    </div>
+                    <div class="col-lg-3 col-md-6 footer-links">
+                        <h4>Follow Us</h4>
+                        <hr>
+                        <div class="social-links pt-3">
+                            <a href="#" class="twitter"><i class="bx bxl-twitter"></i></a>
+                            <a href="https://www.facebook.com/itsrainingraincoats/" class="facebook"><i
+                                    class="bx bxl-facebook"></i></a>
+                            <a href="https://www.instagram.com/itsrainingraincoats/?hl=en" class="instagram"><i
+                                    class="bx bxl-instagram"></i></a>
+                            <a href="https://www.linkedin.com/company/itsrainingraincoats/?originalSubdomain=sg"
+                                class="linkedin"><i class="bx bxl-linkedin"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- End Footer -->    
 
     <div id="preloader"></div>
     <a href="#" class="back-to-top d-flex align-items-center justify-content-center"><i
             class="bi bi-arrow-up-short"></i></a>
+
 
     <!-- Vendor JS Files -->
     <script src="../assets/vendor/purecounter/purecounter.js"></script>
@@ -189,10 +187,138 @@
     <script src="../assets/vendor/swiper/swiper-bundle.min.js"></script>
     <script src="../assets/vendor/php-email-form/validate.js"></script>
 
-    <!-- Template Main JS File -->
-    <script src="../assets/js/main.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.js"></script>
+    <script src="https://cdn.datatables.net/1.11.3/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.11.3/js/dataTables.bootstrap5.min.js"></script>
+    <script src="../assets/js/form.js"></script>
     <script src="../assets/js/table.js"></script>
 
+    <!-- Template Main JS File -->
+    <script src="../assets/js/main.js"></script>
+
+    <!-- Google Maps API -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDEn3pB7voZ79faH93nQSQXdOm1k5xD5DI&callback=initMap" async></script>    
+
+    <script>
+        var driver = JSON.parse(sessionStorage.getItem("user"))
+        var driverNo = driver.username;
+        // console.log(driverNo);
+
+        var reqTable = document.getElementById('reqTable');
+        
+        var columns = [];
+
+        function getDT() {
+            $.ajax({
+                url: "http://127.0.0.1:5003/getDeliveriesByDriverId/" + driverNo,
+                success: function (data) {
+                    if (data.code == 500) {
+                        reqTable.innerHTML = "<h2>" + data.res + "</h2>";
+                    } else {
+                        columnNames = Object.values(data.columnHeaders);
+                        // items = data.data.items;
+                        // console.log(data.data.items)
+                        // editFields = "";
+                        for (var i in columnNames) {
+                            columns.push({
+                                data: columnNames[i],
+                                title: columnNames[i]
+                            });
+                        }
+                        var table = $('#deliverReq').DataTable({
+                            data: data.data,
+                            columns: columns,
+                            fixedHeader: true,
+                        });
+                        fields = data.data[0];
+                        fields["columnDetails"] = data.columnHeaders;
+                        getEditDetails(fields);
+                        $("#edit-btn").show();
+                        $("#edit-btn2").show();
+                        $("#account").hide();
+                    }
+
+                },
+                error: function () {
+                    $("#edit-btn").hide();
+                    document.getElementById("edit-section").innerHTML = "There are currently no delivery requests to be found."
+                    $("#edit-section").show();
+                }
+
+            })
+        }
+
+        $(document).ready(function () {
+            getDT();
+        });
+
+        function initMap() {
+            // map settings
+            const map = new google.maps.Map(document.getElementById("map"), {
+                zoom: 11,
+                center: { lat: 1.3521, lng: 103.8198 },
+            });
+
+            $.ajax({
+                url: "http://127.0.0.1:5003/getDeliveryLocationsLatLng/Others",
+                success: function (data) {
+                    var donorLocs = data.donorLocs;
+                    var mwLocs = data.mwLocs;
+
+                    const image = {
+                        url: "../assets/img/map-marker.png",
+                        // This marker is 20 pixels wide by 32 pixels high.
+                        scaledSize: new google.maps.Size(38, 38)
+                    };
+
+                    for (var loc of donorLocs) {
+                        var marker = new google.maps.Marker({
+                            position: { lat: parseFloat(loc.coords.lat), lng: parseFloat(loc.coords.lng) },
+                            map: map
+                        });
+                    }
+
+                    for (var loc of mwLocs) {
+                        var marker = new google.maps.Marker({
+                            position: { lat: parseFloat(loc.coords.lat), lng: parseFloat(loc.coords.lng) },
+                            map: map,
+                            icon: image
+                        });
+                    }
+                },
+                error: function () {
+                    console.log("error");
+                }
+            })
+
+            // add marker function
+            function addMarker(props, type) {
+                var marker = new google.maps.Marker({
+                    position: props.coords,
+                    map: map,
+                });
+
+                if (type == "mw") {
+                    var marker = new google.maps.Marker({
+                        position: props.coords,
+                        map: map,
+                        icon: "https://www.google.com/url?sa=i&url=https%3A%2F%2Fhellogoldcoast.com.au%2Fgold-coast-with-toddlers%2Flocation-icon-2%2F&psig=AOvVaw3aFTWRdtUxTiUxHI44ttxd&ust=1653578888479000&source=images&cd=vfe&ved=0CAwQjRxqFwoTCMiaocj7-vcCFQAAAAAdAAAAABAD"
+                    });
+                }
+
+                if (props.content) {
+                    var infoWindow = new google.maps.InfoWindow({
+                        content: props.content
+                    });
+                    marker.addListener("click", function () {
+                        infoWindow.open(map, marker);
+                    });
+                }
+            }
+
+        }
+        
+    </script>
 
 </body>
 
