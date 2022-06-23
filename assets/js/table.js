@@ -375,7 +375,7 @@ function deliveryButtons(action, id) {
                                                 '</div>' +
                                                 '<div class="row">' +
                                                     '<div class="col-6">' +
-                                                        '<button type="button" id="acceptDelivery" class="btn btn-outline-secondary col-3" onclick="acceptDelivery()">Accept</button>' +
+                                                        '<button type="button" id="acceptDelivery" class="btn btn-outline-secondary col-md-3" onclick="acceptDelivery()">Accept</button>' +
                                                     '</div>' +
                                                 '</div>';
         document.getElementById(id).style.display = "";
@@ -397,7 +397,7 @@ function deliveryButtons(action, id) {
                                                 '</div>' +
                                                 '<div class="row">' +
                                                     '<div class="col-6">' +
-                                                        '<button type="button" id="updateDelivery" class="btn btn-outline-secondary col-3" onclick="updateDelivery()">Update</button>' +
+                                                        '<button type="button" id="updateDelivery" class="btn btn-outline-secondary col-md-3" onclick="updateDelivery()">Update</button>' +
                                                     '</div>' +
                                                 '</div>';    
         document.getElementById(id).style.display = "";
