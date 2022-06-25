@@ -1635,7 +1635,7 @@ def getDeliveryRequests():
         row = {}
         print(delivery.driverID)
         if delivery.driverID is None:
-            row["driverID"] = "driverID"
+            row["driverID"] = ""
         else:
             row["driverID"] = delivery.driverID
         row["matchID"] = delivery.matchID
@@ -1648,7 +1648,6 @@ def getDeliveryRequests():
         row["migrant worker longitude"] = delivery.mwLon
         row["migrant worker postal"] = delivery.mwPostal
         data.append(row)
-        print(row)
     columnHeaders = list(data[0].keys())
     if deliveryRequests:
         return jsonify(
@@ -1828,11 +1827,41 @@ def acceptDeliveryRequest(matchID):
             }
         ), 500
 
-@app.route("/updateDelivery/<matchID>", methods=["PUT"])
-def updateDeliveryRequest(matchID):
+@app.route("/updateDeliveryStatus/<matchID>", methods=["PUT"])
+def updateDeliveryStatus(matchID):
     delivery = Delivery.query.filter_by(matchID=matchID).first()
     data = request.get_json()
     delivery.status = data['status']
+    try:
+        db.session.add(delivery)
+        db.session.commit()
+        return jsonify (
+            {
+                "code": 200,
+                "message": "Driver updated delivery status successfully!"
+            }
+        )
+    except Exception as e:
+        print(e)
+        return jsonify(
+            {
+                "code": 500,
+                "message": "An error occurred while updating the delivery status, please try again later"
+            }
+        ), 500
+
+@app.route("/updateDeliveryAdmin/<matchID>", methods=["PUT"])
+def updateDeliveryAdmin(matchID):
+    delivery = Delivery.query.filter_by(matchID=matchID).first()
+    data = request.get_json()
+    delivery.status = data["status"]
+    delivery.driverID = data["driverID"]
+    delivery.dLat = data["donor latitude"]
+    delivery.dLon = data["donor longitude"]
+    delivery.dPostal = data["donor postal"]
+    delivery.mwLat = data["migrant worker latitude"]
+    delivery.mwLon = data["migrant worker longitude"]
+    delivery.mwPostal = data["migrant worker postal"]
     try:
         db.session.add(delivery)
         db.session.commit()
