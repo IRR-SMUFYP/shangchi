@@ -176,7 +176,7 @@
 
         function fillDeliveryRequestDetails(val) {
             $(async () => {
-                var serviceURL = "http://127.0.0.1:5003/getDeliveryRequests/" + val;
+                var serviceURL = "http://127.0.0.1:5003/getDeliveryRequestsByMatchID/" + val;
                 try {
                     const response =
                     await fetch(
@@ -192,7 +192,7 @@
                             if (i != "timeSubmitted" && i != "Item Photo" && i != "itemID") {
                                 for (id in result.columnHeaders) {
                                     if (result.columnHeaders[id] == i) {
-                                        document.getElementById(id).value = result.data[i];
+                                        document.querySelector('[placeholder="' + i + '"]').value = result.data[i];
                                     }
                                 }
                             }
