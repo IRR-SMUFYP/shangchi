@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy import null
 from sqlalchemy.orm import load_only
 from flask_cors import CORS
 from datetime import datetime
@@ -1629,13 +1630,31 @@ def getDelReqById(driverID):
 @app.route("/getDeliveryRequests")
 def getDeliveryRequests():
     deliveryRequests = Delivery.query.all()
-    columns = Delivery.metadata.tables["delivery"].columns.keys()
+    data = []
+    for delivery in deliveryRequests:
+        row = {}
+        print(delivery.driverID)
+        if delivery.driverID is None:
+            row["driverID"] = ""
+        else:
+            row["driverID"] = delivery.driverID
+        row["matchID"] = delivery.matchID
+        row["matchID"] = delivery.matchID
+        row["status"] = delivery.status
+        row["donor latitude"] = delivery.dLat
+        row["donor longitude"] = delivery.dLon
+        row["donor postal"] = delivery.dPostal
+        row["migrant worker latitude"] = delivery.mwLat
+        row["migrant worker longitude"] = delivery.mwLon
+        row["migrant worker postal"] = delivery.mwPostal
+        data.append(row)
+    columnHeaders = list(data[0].keys())
     if deliveryRequests:
         return jsonify(
             {
                 "code": 200,
-                "columnHeaders": columns,
-                "data": [delivery.json() for delivery in deliveryRequests]
+                "columnHeaders": columnHeaders,
+                "data": data
             }
         )
     return jsonify(
@@ -1674,18 +1693,29 @@ def getDeliveryRequestsByDeliveryStatus(status):
         }
     ), 404
 
-@app.route("/getDeliveryRequests/<matchID>")
+@app.route("/getDeliveryRequestsByMatchID/<matchID>")
 def getDeliveryRequestsByMatchID(matchID):
     deliveryRequest = Delivery.query.filter_by(matchID=matchID).first()
-    columns = list(deliveryRequest.keys())
+    columns = Delivery.metadata.tables["delivery"].columns.keys()
     columns.pop(0)
+    data = {}
+    data["status"] = deliveryRequest.status
+    if deliveryRequest.driverID is None:
+        data["driverID"] = ""
+    else:
+        data["driverID"] = deliveryRequest.driverID
+    data["donor latitude"] = deliveryRequest.dLat
+    data["donor longitude"] = deliveryRequest.dLon
+    data["donor postal"] = deliveryRequest.dPostal
+    data["migrant worker latitude"] = deliveryRequest.mwLat
+    data["migrant worker longitude"] = deliveryRequest.mwLon
+    data["migrant worker postal"] = deliveryRequest.mwPostal
+    columnHeaders = list(data.keys())
     if deliveryRequest:
-        data = deliveryRequest._asdict()
-        data.pop("Delivery")
         return jsonify(
             {
                 "code": 200,
-                "columnHeaders": columns,
+                "columnHeaders": columnHeaders,
                 "data": data
             }
         )
@@ -1797,11 +1827,41 @@ def acceptDeliveryRequest(matchID):
             }
         ), 500
 
-@app.route("/updateDelivery/<matchID>", methods=["PUT"])
-def updateDeliveryRequest(matchID):
+@app.route("/updateDeliveryStatus/<matchID>", methods=["PUT"])
+def updateDeliveryStatus(matchID):
     delivery = Delivery.query.filter_by(matchID=matchID).first()
     data = request.get_json()
     delivery.status = data['status']
+    try:
+        db.session.add(delivery)
+        db.session.commit()
+        return jsonify (
+            {
+                "code": 200,
+                "message": "Driver updated delivery status successfully!"
+            }
+        )
+    except Exception as e:
+        print(e)
+        return jsonify(
+            {
+                "code": 500,
+                "message": "An error occurred while updating the delivery status, please try again later"
+            }
+        ), 500
+
+@app.route("/updateDeliveryAdmin/<matchID>", methods=["PUT"])
+def updateDeliveryAdmin(matchID):
+    delivery = Delivery.query.filter_by(matchID=matchID).first()
+    data = request.get_json()
+    delivery.status = data["status"]
+    delivery.driverID = data["driverID"]
+    delivery.dLat = data["donor latitude"]
+    delivery.dLon = data["donor longitude"]
+    delivery.dPostal = data["donor postal"]
+    delivery.mwLat = data["migrant worker latitude"]
+    delivery.mwLon = data["migrant worker longitude"]
+    delivery.mwPostal = data["migrant worker postal"]
     try:
         db.session.add(delivery)
         db.session.commit()
