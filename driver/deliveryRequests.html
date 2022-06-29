@@ -223,7 +223,7 @@
         var columns = [];
         function getDT() {
             $.ajax({
-                url: "http://127.0.0.1:5003/getDeliveryRequests",
+                url: "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getDeliveryRequests",
                 success: function (data) {
                     columnNames = Object.keys(data.data[0]);
                     // items = data.data.items;
@@ -269,7 +269,7 @@
             });
 
             $.ajax({
-                url: "http://127.0.0.1:5003/getDeliveryLocationsLatLng",
+                url: "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getDeliveryLocationsLatLng",
                 success: function (data) {
                     var donorLocs = data.donorLocs;
                     var mwLocs = data.mwLocs;
@@ -351,7 +351,7 @@
                     formData.append(loginForm[ele].name, loginForm[ele].value)
                 }
 
-                checkCred(formData, "http://127.0.0.1:5003/login")
+                checkCred(formData, "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/login")
 
 
             } else {
