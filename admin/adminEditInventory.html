@@ -122,8 +122,8 @@
             <br><br>
             <hr>
             <br>
-            <div id="edit-section" style="display: none">
-            </div>
+            <div id="edit-section" style="display: none"></div>
+            <div id="del-section" style="display: none"></div>
             <div style="display: none" id="edit-photo">
                 <div class="row">
                     <div class="col-6">
@@ -136,7 +136,7 @@
                     </div>
                 </div>
                 <br>
-                <button type='button' id='save-btn' class='btn btn-outline-secondary col-3' onclick='editPhotoFile()'>Save Changes</button>
+                <button type='button' id='photo-btn' class='btn btn-outline-secondary col-3' onclick='editPhotoFile()'>Save Changes</button>
             </div>
             <div id="catalogModal">
                 <div class="col-12">
@@ -311,6 +311,7 @@
 
         function editPhoto() {
             document.getElementById("edit-section").style.display = "none";
+            document.getElementById("del-section").style.display = "none";
             document.getElementById("donation").style.display = "none";
             document.getElementById("edit-photo").style.display = "block";
         }

@@ -100,7 +100,13 @@ DROP TABLE IF EXISTS `delivery`;
 CREATE TABLE IF NOT EXISTS `delivery` (
   `matchID` int NOT NULL,
   `status` varchar(50) NOT NULL,
-  `driverID` int NOT NULL,
+  `driverID` int,
+  `dLat` varchar(50) NOT NULL,
+  `dLon` varchar(50) NOT NULL,
+  `dPostal` varchar(50) NOT NULL,
+  `mwLat` varchar(50) NOT NULL,
+  `mwLon` varchar(50) NOT NULL,
+  `mwPostal` varchar(50) NOT NULL,
   PRIMARY KEY (`matchID`),
   FOREIGN KEY (`matchID`) references matches (`matchID`),
   FOREIGN KEY (`driverID`) references user (`username`)
@@ -110,6 +116,8 @@ CREATE TABLE IF NOT EXISTS `delivery` (
 -- INSERT values
 INSERT INTO user (`username`, `password`, `usertype`) VALUES 
 (93261073, '$2b$12$hPh2gudOwUvmBs18PBa.deDRGOLiiDXuSkCV5qkA056I/n97blTJG', 'master');
+INSERT INTO user (`username`, `password`, `usertype`) VALUES 
+(92227111, '$2b$12$AaqhM8IWhj5fLJU5rnE.3OAo.XGEg0hvtdMXFR9H82OcYfuKq7Wte', 'driver');
 
 
 -- for faq
