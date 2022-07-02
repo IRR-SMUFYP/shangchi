@@ -1442,6 +1442,7 @@ def shortestDistance(mwPoints, needCheckDist, donationID):
             geocodeAPI1 = "https://maps.googleapis.com/maps/api/geocode/json?address=" + donorLoc + "&components=country:SG&key=" + apikey
             response1 = requests.get(geocodeAPI1)
             if response1.status_code == 200:
+                print(response1.json())
                 donorPlace_id = response1.json()["results"][0]["place_id"]
                 dLat = response1.json()["results"][0]["geometry"]["location"]["lat"]
                 dLon = response1.json()["results"][0]["geometry"]["location"]["lng"]
