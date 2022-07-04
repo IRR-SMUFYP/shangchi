@@ -453,7 +453,7 @@ function acceptDelivery() {
 function updateDelivery() {
     $(async () => {
         matchID = document.getElementById("matchID").value;
-        serviceURL = "http://127.0.0.1:5003/updateDeliveryStatus/" + matchID;
+        serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/updateDeliveryStatus/" + matchID;
         if (matchID == "") {
             alert("Please enter a valid input.");
             return "blank ID";
