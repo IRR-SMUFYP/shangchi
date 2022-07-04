@@ -184,7 +184,7 @@
             var ans = $('#answer').val();
             var section = $('#section').val();
 
-            var serviceURL = "http://127.0.0.1:5003/faq" + faqID;
+            var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/faq" + faqID;
 
             return fetch(serviceURL,
                 {
@@ -202,7 +202,7 @@
         };
 
         async function editFaq(faqID) {
-            var serviceURL = "http://127.0.0.1:5003/faq/" + faqID;
+            var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/faq/" + faqID;
 
             try {
                 // Retrieve list of all FAQ
@@ -230,7 +230,7 @@
 
         async function deleteFaq(faqID) {
             if (confirm("Are you sure you want to delete the question?")) {
-                var serviceURL = "http://127.0.0.1:5003/faq/" + faqID;
+                var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/faq/" + faqID;
 
                 try {
                     // Retrieve list of all FAQ
@@ -257,7 +257,7 @@
 
         // retrieve FAQ questions
         $(async () => {
-            var serviceURL = "http://127.0.0.1:5003/faq";
+            var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/faq";
 
             try {
                 // Retrieve list of all FAQ

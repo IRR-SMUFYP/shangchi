@@ -152,7 +152,7 @@
         var columns = [];
         function getDT() {
             $.ajax({
-                url: "http://127.0.0.1:5003/getAllUsers",
+                url: "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getAllUsers",
                 success: function (data) {
                     columnNames = Object.values(data.columnHeaders);
                     // items = data.data.items;
@@ -193,7 +193,7 @@
 
         function fillUserDetails(val) {
             $(async () => {
-                var serviceURL = "http://127.0.0.1:5003/getUser/" + val;
+                var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/getUser/" + val;
                 try {
                     const response =
                     await fetch(
@@ -250,7 +250,7 @@
             }
             var jsondata = JSON.stringify(data);
             $(async () => {
-                var serviceURL = "http://127.0.0.1:5003/updateUser/" + username;
+                var serviceURL = "http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/updateUser/" + username;
                 try {
                     const response =
                     await fetch(
@@ -344,13 +344,13 @@
                     }
                 }
                 if (userType == "migrantWorker") {
-                    let res = registerNewAcc(formData, 'http://127.0.0.1:5003/registermw')
+                    let res = registerNewAcc(formData, 'http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/registermw')
                 }
                 else if (userType == "admin") {
-                    let res = registerNewAcc(formData, 'http://127.0.0.1:5003/registeradmin')
+                    let res = registerNewAcc(formData, 'http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/registeradmin')
                 }
                 else if (userType == "driver") {
-                    let res = registerNewAcc(formData, 'http://127.0.0.1:5003/registerDriver')
+                    let res = registerNewAcc(formData, 'http://ec2-13-250-122-219.ap-southeast-1.compute.amazonaws.com:5003/registerDriver')
                 }
                 
             }
